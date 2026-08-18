@@ -40,7 +40,6 @@ export function RealLeafletMap({ activeDayId }: RealLeafletMapProps) {
         zoom: 7,
         scrollWheelZoom: false,
         zoomControl: true,
-        tap: true,
       });
 
       const initialTile = L.tileLayer(tileUrls.voyager, {
