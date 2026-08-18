@@ -89,7 +89,7 @@ export const teamMembers: TeamMember[] = [
     badge: "⭐ PROFESYONEL BEKÂR ⭐",
     role: "Sözde Mühendis · Yürüyen EDC Eczanesi & Bit Pazarı Kaşifi",
     title: "Alçakgönüllü Makara Sorumlusu & Kutu Oyunu Bakanı",
-    quote: "“Şimdi size çok mantıklı bir şey söyleyeceğim ama lütfen gülmeyin...”",
+    quote: "“Çok kritik değil moruk...”",
     photo: assets.mert,
     summary: "Çantasından her türlü ilaç ve EDC aleti çıkan, bit pazarlarının tozunu yutan kutu oyunu koleksiyoneri.",
     detail:
