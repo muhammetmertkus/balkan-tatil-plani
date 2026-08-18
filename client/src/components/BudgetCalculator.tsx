@@ -102,7 +102,7 @@ export function BudgetCalculator() {
         </div>
 
         {/* Input Controls */}
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <div>
             <label className="block font-mono text-xs font-semibold text-[#29312e]">Harcama Tutarı</label>
             <input
@@ -110,7 +110,7 @@ export function BudgetCalculator() {
               min="1"
               value={calcAmount}
               onChange={(e) => setCalcAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-              className="mt-1 w-full border border-[#cac1ae] bg-white p-2.5 font-mono text-lg font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
+              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2.5 font-mono text-base sm:text-lg font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
             />
           </div>
 
@@ -119,12 +119,12 @@ export function BudgetCalculator() {
             <select
               value={calcCurrency}
               onChange={(e) => setCalcCurrency(e.target.value as any)}
-              className="mt-1 w-full border border-[#cac1ae] bg-white p-2.5 font-mono text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
+              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2.5 font-mono text-xs sm:text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
             >
               <option value="EUR">Euro (€) — Ortak Bütçe</option>
-              <option value="MKD">Makedon Dinarı (MKD) — Üsküp/Ohri</option>
-              <option value="ALL">Arnavutluk Leki (ALL) — Riviera/Köy</option>
-              <option value="TRY">Türk Lirası (₺) — Kart Ekstresi</option>
+              <option value="MKD">Makedon Dinarı (MKD)</option>
+              <option value="ALL">Arnavutluk Leki (ALL)</option>
+              <option value="TRY">Türk Lirası (₺)</option>
             </select>
           </div>
 
@@ -135,13 +135,13 @@ export function BudgetCalculator() {
                 <button
                   key={num}
                   onClick={() => setSplitCount(num)}
-                  className={`flex-1 cursor-pointer py-2 font-mono text-sm font-bold transition-all ${
+                  className={`flex-1 cursor-pointer rounded py-2 font-mono text-xs sm:text-sm font-bold transition-all ${
                     splitCount === num
                       ? "bg-[#145c64] text-white shadow-[2px_2px_0_#b54b38]"
-                      : "border border-[#cac1ae] bg-[#f5f0e5] text-[#29312e] hover:bg-[#e9e2d1]"
+                      : "border border-[#cac1ae] bg-[#f5f0e5] text-[#29312e] hover:bg-[#ded5c2]"
                   }`}
                 >
-                  {num} Kişi {num === 4 ? "(Tüm Ekip)" : ""}
+                  {num} Kişi
                 </button>
               ))}
             </div>
@@ -149,51 +149,112 @@ export function BudgetCalculator() {
         </div>
 
         {/* Real-time Calculation Result Cards */}
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-3 text-center">
-            <span className="font-mono text-[10px] text-[#68716c]">EURO (€)</span>
-            <div className="font-display text-xl text-[#145c64]">{converted.EUR} €</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-xs font-bold text-[#b54b38]">
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 sm:p-3 text-center">
+            <span className="font-mono text-[9px] sm:text-[10px] text-[#68716c]">EURO (€)</span>
+            <div className="font-display text-lg sm:text-xl text-[#145c64]">{converted.EUR} €</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] sm:text-xs font-bold text-[#b54b38]">
               Kişi: {perPerson.EUR} €
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-3 text-center">
-            <span className="font-mono text-[10px] text-[#68716c]">MAKEDON DİNARI (MKD)</span>
-            <div className="font-display text-xl text-[#1d211c]">{converted.MKD.toLocaleString()} MKD</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-xs font-bold text-[#145c64]">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 sm:p-3 text-center">
+            <span className="font-mono text-[9px] sm:text-[10px] text-[#68716c]">MAKEDON DİNARI (MKD)</span>
+            <div className="font-display text-lg sm:text-xl text-[#1d211c]">{converted.MKD.toLocaleString()} MKD</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] sm:text-xs font-bold text-[#145c64]">
               Kişi: {perPerson.MKD.toLocaleString()} MKD
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-3 text-center">
-            <span className="font-mono text-[10px] text-[#68716c]">ARNAVUTLUK LEKİ (ALL)</span>
-            <div className="font-display text-xl text-[#1d211c]">{converted.ALL.toLocaleString()} ALL</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-xs font-bold text-[#145c64]">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 sm:p-3 text-center">
+            <span className="font-mono text-[9px] sm:text-[10px] text-[#68716c]">ARNAVUTLUK LEKİ (ALL)</span>
+            <div className="font-display text-lg sm:text-xl text-[#1d211c]">{converted.ALL.toLocaleString()} ALL</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] sm:text-xs font-bold text-[#145c64]">
               Kişi: {perPerson.ALL.toLocaleString()} ALL
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-3 text-center">
-            <span className="font-mono text-[10px] text-[#68716c]">TÜRK LİRASI (TRY)</span>
-            <div className="font-display text-xl text-[#1d211c]">{converted.TRY} ₺</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-xs font-bold text-[#145c64]">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 sm:p-3 text-center">
+            <span className="font-mono text-[9px] sm:text-[10px] text-[#68716c]">TÜRK LİRASI (TRY)</span>
+            <div className="font-display text-lg sm:text-xl text-[#1d211c]">{converted.TRY} ₺</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] sm:text-xs font-bold text-[#145c64]">
               Kişi: {perPerson.TRY} ₺
             </div>
           </div>
         </div>
       </div>
 
-      {/* Detailed Expense Breakdown Table */}
-      <div className="overflow-hidden border border-[#29312e]/20 bg-[#fffcf3]">
-        <div className="border-b border-[#29312e]/15 bg-[#f5f0e5] px-6 py-4">
-          <h4 className="font-display text-xl text-[#1d211c]">Kalem Kalem 8 Günlük Harcama Matrisi</h4>
-          <p className="font-mono text-xs text-[#68716c]">
+      {/* Detailed Expense Breakdown Table / Responsive Cards on Mobile */}
+      <div className="overflow-hidden rounded border border-[#29312e]/20 bg-[#fffcf3] shadow-[4px_6px_0_rgba(29,33,28,0.1)]">
+        <div className="border-b border-[#29312e]/15 bg-[#f5f0e5] p-4 sm:px-6 sm:py-4">
+          <h4 className="font-display text-lg sm:text-xl text-[#1d211c]">Kalem Kalem 8 Günlük Harcama Matrisi</h4>
+          <p className="font-mono text-[11px] sm:text-xs text-[#68716c]">
             4 yetişkin, 1.180 km toplam sürüş ve 7 gece konaklama baz alınarak hazırlanmıştır.
           </p>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile View: Clean Stacked Cards */}
+        <div className="block sm:hidden divide-y divide-[#cac1ae]/40 p-3 space-y-3">
+          {[
+            {
+              item: "🏠 Konaklama (7 Gece)",
+              sc1: "170 € / 680 €",
+              sc2: "245 € / 980 €",
+              desc: "Üsküp (2), Ohri (1), Sarandë (2), Himarë (1), Berat (1). Otopark garantili apart ve oteller.",
+            },
+            {
+              item: "🚗 Kiralık Araç & Sınır & Yakıt",
+              sc1: "135 € / 540 €",
+              sc2: "185 € / 740 €",
+              desc: "Kompakt/SUV araç kira bedeli + Arnavutluk sınır geçiş izni + Green Card + ~85 L benzin + gişe/otoparklar.",
+            },
+            {
+              item: "🍽️ Yeme - İçme (8 Gün)",
+              sc1: "185 € / 740 €",
+              sc2: "260 € / 1.040 €",
+              desc: "Günde 1 ekonomik öğün + akşam yerel sofra + Sarandë/Himarë'de taze balık ve ızgara ahtapot gecesi.",
+            },
+            {
+              item: "🏛️ Müze, Butrint & Plaj Giriş",
+              sc1: "25 € / 100 €",
+              sc2: "45 € / 180 €",
+              desc: "Butrint Antik Kenti (1.000 ALL), Blue Eye (50 ALL), Kaleler (Berat/Gjirokastër) + şezlong/şemsiye payı.",
+            },
+            {
+              item: "📶 eSIM / Acil Durum / Nakit Payı",
+              sc1: "30 € / 120 €",
+              sc2: "55 € / 220 €",
+              desc: "Yerel internet eSIM (Airalo/Balkan pass), banka komisyonları ve ortak acil durum amortismanı.",
+            },
+          ].map((row, idx) => (
+            <div key={idx} className="pt-3 first:pt-0">
+              <div className="font-serif font-bold text-sm text-[#1d211c]">{row.item}</div>
+              <div className="mt-1.5 flex items-center justify-between text-xs font-mono">
+                <span className="text-[#145c64] bg-[#f0f6f4] px-2 py-0.5 rounded">
+                  Ölçülü: <b>{row.sc1}</b>
+                </span>
+                <span className="text-[#b54b38] bg-[#fff5f2] px-2 py-0.5 rounded">
+                  Rahat Kıyı: <b>{row.sc2}</b>
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-[#556059] font-serif">{row.desc}</p>
+            </div>
+          ))}
+
+          <div className="pt-3 border-t-2 border-[#145c64] bg-[#f5f0e5] p-3 rounded">
+            <div className="font-mono text-xs font-bold text-[#145c64] uppercase">TOPLAM YERİNDE BÜTÇE</div>
+            <div className="mt-1 flex items-center justify-between font-mono text-xs">
+              <span className="text-[#145c64] font-bold">545 € / 2.180 €</span>
+              <span className="text-[#b54b38] font-bold">790 € / 3.160 €</span>
+            </div>
+            <p className="mt-1 font-serif text-[10px] text-[#29312e]">
+              + %12 kişisel beklenmeyen payı (~65–95 €) cebinizde kalmalıdır.
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop View: Classic Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left font-serif text-sm">
             <thead className="border-b border-[#cac1ae] bg-[#ebe4d4] font-mono text-xs uppercase text-[#29312e]">
               <tr>

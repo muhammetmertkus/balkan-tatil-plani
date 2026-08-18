@@ -81,9 +81,28 @@
 .hero-copy { position: relative; z-index: 3; max-width: 660px; animation: paper-reveal .8s cubic-bezier(.23,1,.32,1) both; }
 .eyebrow, .mono-label { display: flex; align-items: center; gap: .5rem; font: 500 .66rem/1.5 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: #3e4c48; }
 .eyebrow span { display: inline-block; width: 28px; height: 1px; background: #b54b38; }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+#root, main {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 400; }
-h1 { max-width: 700px; margin-top: 1.15rem; font-size: clamp(4rem, 8.4vw, 8.4rem); line-height: .82; letter-spacing: -.06em; color: #1d211c; }
+h1 { max-width: 700px; margin-top: 1.15rem; font-size: clamp(3rem, 8.4vw, 8.4rem); line-height: .88; letter-spacing: -.06em; color: #1d211c; }
 h1 em, h2 em { color: #145c64; font-style: italic; }
 .hero-intro { max-width: 415px; margin-top: 1.65rem; font-size: 1.16rem; line-height: 1.48; color: #38413c; }
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.35rem; margin-top: 2.2rem; }
