@@ -86,7 +86,7 @@ export const teamMembers: TeamMember[] = [
     id: "mert",
     name: "Mert",
     code: "BYE-001 / BEKAR",
-    badge: "🏆 CATAN AVRUPA ŞAMPİYONU",
+    badge: "🏆 CATAN ŞAMPİYONU & PROFESYONEL BEKÂR ⭐",
     role: "Catan Avrupa Şampiyonu · Yürüyen EDC Eczanesi & Kutu Oyunu Prosu",
     title: "Kutu Oyunları Büyükelçisi & Alçakgönüllü Makara CEO",
     quote: "“Çok kritik değil moruk...”",
