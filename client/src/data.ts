@@ -192,7 +192,7 @@ export const teamMembers: TeamMember[] = [
     photo: assets.enis,
     summary: "Mangalda tek çöp kaldırmayıp montuyla oturup sadece makara yapan, parasızlıktan motorunu satan çiçeği burnunda damat.",
     detail:
-      "Dünyanın en masum ve temiz kalpli insanı; ekip Balkanlar'dayken İstanbul'un asayişini ve piyasalarını tek başına bekler. Tam bir mangal sevdalısıdır fakat mangal yakılırken tek bir çöp bile taşımaz; ateşi ve eti başkasına kitleyip kendisi montuna sarılarak sandalyeye kurulur ve sadece makara yapar. Kronik olarak sürekli üşür; Ağustos sıcağında bile üzerinde mont veya mevsimlik ceketle gezmesiyle meşhurdur. Eskiden rüzgar gibi estiği bir motoru vardı fakat nakit darlığından istemeye istemeye sattı. Şimdilerde ise evlilik arifesinde olduğu için Nişantaşı butiklerinde gelinlik bakmaktan ve masraf yapmaktan Harem Altın'daki grafiklere içi yana yana bakar. Direksiyon hakimiyeti efsanedir, arabasına toz kondurmaz. Ortamda yabancı bir kız görünce hafiften çekinmesi, evde Recep İvedik açıp rahatına bakması ve saf esnaf samimiyetiyle ekibin gözbebeğidir.",
+      "Dünyanın en masum ve temiz kalpli insanı; ekip Balkanlar'dayken İstanbul'un asayişini ve piyasalarını tek başına bekler. Tam bir mangal sevdalısıdır fakat mangal yakılırken tek bir çöp bile taşımaz; ateşi ve eti başkasına kitleyip kendisi montuna sarılarak sandalyeye kurulur ve sadece makara yapar. Kronik olarak sürekli üşür; Ağustos sıcağında bile üzerinde mont veya mevsimlik ceketle gezmesiyle meşhurdur. Eskiden rüzgar gibi estiği bir motoru vardı fakat nakit darlığından istemeye istemeye sattı. Şimdilerde ise evlilik arifesinde olduğu için Nişantaşı butiklerinde gelinlik bakmaktan ve masraf yapmaktan Harem Altın'daki grafiklere içi yana yana bakar. Direksiyon hakimiyeti efsanedir; arabasına toz kondurmaz demek isterdik ama arabanın kaputu komple kuş pisliğiyle kaplıdır ve asla yıkatmaz. Ortamda yabancı bir kız görünce hafiften çekinmesi, evde Recep İvedik açıp rahatına bakması ve saf esnaf samimiyetiyle ekibin gözbebeğidir.",
     duties: [
       "Mangal başında sıfır iş yapıp sandalyeye kurularak ortama kesintisiz makara sağlamak.",
       "35 derece sıcakta bile üşümeyi başarıp yedek mont/hırka tedarikini sağlamak.",
@@ -200,9 +200,9 @@ export const teamMembers: TeamMember[] = [
       "Eski motorcu günlerini yad edip 'ah o motoru satmayacaktık' muhabbetini canlı tutmak.",
       "Grubun her türlü çadır/kamp teklifini anında veto edip ev konforunu savunmak.",
     ],
-    weakness: "Klimanın 24 derecenin altına inmesi (anında mont giyer), mangal yellemeye çağrılmak, Nişantaşı gelinlik fiyatları ve motor ilanları.",
-    secretWeapon: "Yaz kış üzerinden çıkmayan montu, mangal başı oturma pozisyonu, Harem Altın canlı grafiği ve usta direksiyonu.",
-    tags: ["🌙 RESMÎ İSTANBUL BEKÇİSİ", "Mangalda Sıfır İş", "Yaz Kış Montlu", "Nişantaşı Damadı", "Eski Motorcu"],
+    weakness: "Klimanın 24 derecenin altına inmesi (anında mont giyer), oto yıkamaya para vermek, mangal yellemeye çağrılmak ve Nişantaşı gelinlik fiyatları.",
+    secretWeapon: "Yaz kış üzerinden çıkmayan montu, kaputu kuş pisliği kaplı arabası, Harem Altın canlı grafiği ve usta direksiyonu.",
+    tags: ["🌙 RESMÎ İSTANBUL BEKÇİSİ", "Mangalda Sıfır İş", "Kaputu Kuş Pisliği", "Yaz Kış Montlu", "Nişantaşı Damadı"],
     focus: "Mangal makarası (sıfır iş), mont konforu, altın piyasası takibi ve evlilik bütçesi.",
     tilt: "1deg",
   },
