@@ -1,0 +1,18 @@
+/* Balkan Dergâhı reminder: static map = tactile paper atlas; teal outward route, brick-red return. */
+.atlas-map-static { overflow: hidden; background: #eee5d4; }
+.atlas-map-static svg { display: block; width: 100%; height: 100%; }
+.atlas-map-static text { user-select: none; }
+.atlas-map-country { fill: #607870; font: 600 13px var(--font-mono); letter-spacing: 2px; opacity: .78; }
+.atlas-map-water { fill: #427d86; font: italic 21px var(--font-display); letter-spacing: .04em; opacity: .7; }
+.atlas-route-line { stroke: #145c64; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 10 7; filter: drop-shadow(1px 2px 0 rgba(255,250,240,.85)); }
+.atlas-route-line--return { stroke: #b54b38; }
+.atlas-pin circle:first-child { fill: #85968f; stroke: #fffaf0; stroke-width: 2; }
+.atlas-pin circle:nth-child(2) { fill: #fffaf0; }
+.atlas-pin text { fill: #46544e; font: 500 12px var(--font-mono); paint-order: stroke; stroke: #f7f0e3; stroke-width: 5px; stroke-linejoin: round; }
+.atlas-pin--active circle:first-child { fill: #145c64; stroke: #fffaf0; stroke-width: 3; }
+.atlas-pin--active circle:nth-child(2) { fill: #f3bc86; }
+.atlas-pin--active text { fill: #1b4d53; font-weight: 700; }
+.atlas-north { fill: none; stroke: #485a54; stroke-width: 2; }
+.atlas-north text { fill: #485a54; stroke: none; font: 600 12px var(--font-mono); }
+.atlas-map-note { fill: #69766f; font: 500 10px var(--font-mono); letter-spacing: .25px; }
+@media (max-width: 760px) { .atlas-map-country { font-size: 11px; }.atlas-map-water { font-size: 17px; }.atlas-pin text { font-size: 10px; }.atlas-map-note { font-size: 8px; } }
