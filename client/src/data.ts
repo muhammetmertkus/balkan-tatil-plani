@@ -102,7 +102,7 @@ export const teamMembers: TeamMember[] = [
       "Geceleri 47 farklı kurgusal senaryo üreterek ertesi günkü araç içi muhabbet malzemesini hazırlamak.",
     ],
     weakness: "Gece sessizliğinde aniden başlayan overthinking atakları, bit pazarında harcanan saatler ve kutu oyununda zar tutulması.",
-    secretWeapon: "Tescilli Catan şampiyonluğu zekası, EDC acil durum çantası (parol, mide hapı, multitol) ve bitmeyen makara.",
+    secretWeapon: "Tescilli Catan şampiyonluğu, EDC acil durum çantası (parasetamol ve adı havalı bir sürü ilaç) ayrıca kasma moruk.",
     tags: ["🏆 CATAN AVRUPA ŞAMPİYONU", "Kutu Oyunu Prosu", "⭐ PROFESYONEL BEKÂR ⭐", "Yürüyen Eczane / EDC", "Bit Pazarı Kurdu"],
     focus: "Catan/kutu oyunu hakimiyeti, EDC lojistiği (ilaç/alet), bit pazarı ve aşırı düşünmek.",
     tilt: "2deg",
