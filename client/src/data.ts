@@ -79,12 +79,13 @@ export const assets = {
   eyup: "./assets/eyup.jpeg",
   fatih: "./assets/fatih.jpeg",
   mert: "./assets/mert2.jpeg",
+  enis: "./assets/enis.jpeg",
 };
 
 export const teamMembers: TeamMember[] = [
   {
     id: "mert",
-    name: "Mert",
+    name: "Mert Kuş",
     code: "BYE-001 / BEKAR",
     badge: "🏆 CATAN ŞAMPİYONU & PROFESYONEL BEKÂR ⭐",
     role: "Catan Avrupa Şampiyonu · Yürüyen EDC Eczanesi & Kutu Oyunu Prosu",
@@ -109,7 +110,7 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: "ikra",
-    name: "İkra Siren",
+    name: "İkra Gürdal",
     code: "BYE-002 / PLAN",
     badge: "👑 ZATEEN PRENSESİ",
     role: "Rota Amirali · Tek Kelimelik Otorite & VIP Planlayıcı",
@@ -179,6 +180,31 @@ export const teamMembers: TeamMember[] = [
     tags: ["Sanat & Kültür", "Puro Gurmesi", "Şarap Eksperi", "Bohem Entelektüel", "Kitap Kurdu"],
     focus: "Sanat durakları, yerel şarap/puro tadımı ve ekibe bohem bir estetik katmak.",
     tilt: "-1deg",
+  },
+  {
+    id: "enis",
+    name: "Enis Aldemir",
+    code: "BYE-005 / GÖNÜL",
+    badge: "💛 İSTANBUL NÖBETÇİSİ / HAREM ALTIN 📱",
+    role: "Eski Telefoncu · Yeni Kuyumcu & Harem Altın Bağımlısı",
+    title: "İstanbul Masası Şefi, Usta Şoför & 'Kankiii' Genel Sekreteri",
+    quote: "“Kankiii bu sefer gelemedim ama Harem Altın'da gram kaç oldu baksanıza bi...”",
+    photo: assets.enis,
+    summary: "Saf ve temiz kalbi, Harem Altın bağımlılığı, usta şoförlüğü ve bitmeyen 'Kankiii' enerjisiyle İstanbul nöbetçisi.",
+    detail:
+      "Dünyanın en saf, temiz kalpli ve masum insanı. Bu seferki Balkan turuna iş-güç ve yoğunluk sebebiyle katılamasa da ekibin kalbindeki yeri her zaman en öndedir. Gün boyu kuyumcu tezgâhında ve telefonunda Harem Altın uygulamasından gram ve ons fiyatlarını canlı takip eder. Eski telefonculuk günlerinden kalma samimiyetiyle herkese 'Kankiii' diye seslenir. Eski futbolcudur ama şu an futbolla alakası kalmamıştır; fakat direksiyon başına geçtiğinde tam bir usta şofördür. En tatlı çekincesi ise ortamda tanımadığı yabancı bir kız olduğunda hafiften çekinip köşeye çekilmesidir. Mert'ten gizli köşede sigara yakması, rahat rahat geğirip osurması ve baştan sona Recep İvedik filmlerini izlemesi en sevdiği vazgeçilmezleridir.",
+    duties: [
+      "Balkanlar'daki ekibe Harem Altın uygulamasından anlık döviz ve altın kuru bildirmek.",
+      "Mert'in radarına yakalanmadan gün içinde gizlice 3 nefes sigara molası vermek.",
+      "Grup WhatsApp'ına günde 15 kez 'Kankiii naptınız ya' ses kaydı göndermek.",
+      "İstanbul'dan ekibin yolunu gözleyip dönüşte efsane muhabbet sofrasını kurmak.",
+      "Akşamları evde baştan sona Recep İvedik maratonu açıp tam tekmil rahatlamak.",
+    ],
+    weakness: "Ortamda aniden beliren tanımadığı bir kız, altının 50 TL düşmesi ve Mert'e sigara içerken yakalanmak.",
+    secretWeapon: "Harem Altın canlı ekranı, sağlam şoförlüğü, Mert'ten saklanan gizli sigara ve sınırsız 'Kankiii' enerjisi.",
+    tags: ["💛 İSTANBUL NÖBETÇİSİ", "Harem Altın Bağımlısı", "Yeni Kuyumcu", "Mertten Gizli Sigaracı", "Recep İvedik Fanatiği"],
+    focus: "Harem Altın takibi, usta şoförlük, Recep İvedik seansları ve İstanbul'dan tam destek.",
+    tilt: "1deg",
   },
 ];
 

@@ -15,14 +15,14 @@ interface MemberPackingState {
 const memberProfiles: { id: MemberKey; name: string; title: string; badge: string; weapon: string }[] = [
   {
     id: "mert",
-    name: "Mert",
-    title: "Moral Lideri & Overthinking CEO",
-    badge: "⭐ PROFESYONEL BEKÂR ⭐",
-    weapon: "100 saatlik Balkan yol şarkıları & çevrimdışı playlist, overthinking defteri ve bekarlık bayrağı.",
+    name: "Mert Kuş",
+    title: "Catan Şampiyonu & Profesyonel Bekâr",
+    badge: "🏆 CATAN ŞAMPİYONU ⭐",
+    weapon: "Tescilli Catan şampiyonluğu, EDC acil durum çantası (parasetamol ve adı havalı bir sürü ilaç) ayrıca kasma moruk.",
   },
   {
     id: "ikra",
-    name: "İkra Siren",
+    name: "İkra Gürdal",
     title: "Balkan Prensesi & Baş Planlayıcı",
     badge: "👑 PLAN A–Z",
     weapon: "4 farklı güneş gözlüğü, acil durum kombinleri ve VIP otel otopark/klima denetim cetveli.",
