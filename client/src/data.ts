@@ -87,11 +87,11 @@ export const teamMembers: TeamMember[] = [
     name: "Mert",
     code: "BYE-001 / BEKAR",
     badge: "⭐ PROFESYONEL BEKÂR ⭐",
-    role: "Moral Lideri · Profesyonel Bekâr & Teknoloji Radarı",
-    title: "Makara Bakanı & Overthinking CEO",
+    role: "Komik, Tatlı & Yakışıklı Mühendis · Profesyonel Bekâr",
+    title: "Makara Bakanı & Yakışıklı Mühendis",
     quote: "“Şimdi size çok mantıklı bir şey söyleyeceğim ama lütfen gülmeyin...”",
     photo: assets.mert,
-    summary: "Dışarıdan en gamsız, içeride 38 sekme açık; yapay zeka kurgucusu ve bekarlık bayrağı temsilcisi.",
+    summary: "Dışarıdan en gamsız, içeride 38 sekme açık; ekibin en tatlı, yakışıklı mühendisi ve bekarlık lideri.",
     detail:
       "Grubun dışarıdan en dertsiz, en gamsız görünen ama içeride aynı anda 38 internet sekmesi açık gezen can damarı. Ortamdaki en gergin krizi 3 saniyede absürt bir şakayla kahkahaya çevirebilir ya da en basit olaydan saçma sapan problemler çıkarabilir. Fakat gece yastığa başını koyduğunda “Ohrid’deki garsona teşekkür ederken ses tonum fazla mı sertti, gidip özür mü dilesem?”, “Acaba gizli gay miyim?” gibi varoluşsal sorgulamalarla sabahı edebilir. Kadronun bekarlık bayrağını tek başına, bağımsız ve gururla dalgalandıran yegane temsilcisidir.",
     duties: [
@@ -103,7 +103,7 @@ export const teamMembers: TeamMember[] = [
     ],
     weakness: "Gece sessizliğinde aniden başlayan aşırı düşünme (overthinking) atakları ve sabah kahvesinin gecikmesi.",
     secretWeapon: "Yapay zeka araçları, montaj yeteneği, teknoloji radarı ve bitmek bilmeyen laf sokma cephanesi.",
-    tags: ["⭐ PROFESYONEL BEKÂR ⭐", "Yapay Zeka & Montaj", "F/P Dedektifi", "Overthinking Şampiyonu", "Teknoloji Bakanı"],
+    tags: ["⭐ PROFESYONEL BEKÂR ⭐", "Yakışıklı Mühendis", "Ekibin En Tatlısı", "Overthinking Şampiyonu", "Yapay Zeka & Montaj"],
     focus: "Foto/video çekimi, yapay zeka montajı, ucuz fırsat radarı ve ekibin moralini zirvede tutmak.",
     tilt: "2deg",
   },
