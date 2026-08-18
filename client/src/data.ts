@@ -200,7 +200,7 @@ export const teamMembers: TeamMember[] = [
       "Nişantaşı gelinlik turları arasında Harem Altın'dan altın/euro arbitraj analizi geçmek.",
       "35 derece sıcakta bile üşümeyi başarıp yedek mont/hırka tedarikini sağlamak.",
     ],
-    weakness: "Telefon şarjının bitmesi (FaceTime yapamaz), 'abim' dediği kişinin telefonu açmaması, oto yıkama ücreti ve Nişantaşı gelinlik fiyatları.",
+    weakness: "Ortamda aniden beliren tanımadığı kızlar, telefon şarjının bitmesi (FaceTime yapamaz), 'abim' dediği kişinin telefonu açmaması, oto yıkama ücreti ve Nişantaşı gelinlik fiyatları.",
     secretWeapon: "Yarı ünlü fenomen rehberi, 'Benim bir abim var' kartviziti, yaz kış üzerinden çıkmayan montu ve usta direksiyonu.",
     tags: ["🌙 RESMÎ İSTANBUL BEKÇİSİ", "Benim Bir Abim Var", "Fenomenlerle FaceTime", "Mangalda Sıfır İş", "Yaz Kış Montlu"],
     focus: "Fenomen FaceTime seansları, 'benim bir abim var' çözümleri, mangal makarası ve altın takibi.",
