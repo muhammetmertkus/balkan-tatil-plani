@@ -868,6 +868,7 @@ export default function Home() {
           <footer>
             <span>© 2026 Balkan Macerası · Balkan Yol Ekibi Saha Dosyası</span>
             <span>İkra · Fatih · Eyüpcan · Mert</span>
+            <span className="created-by-kus">✦ Created by Kus ✦</span>
           </footer>
         </section>
       </main>

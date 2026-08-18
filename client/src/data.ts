@@ -78,7 +78,7 @@ export const assets = {
   ikra: "./assets/ikra.jpeg",
   eyup: "./assets/eyup.jpeg",
   fatih: "./assets/fatih.jpeg",
-  mert: "./assets/mert.jpeg",
+  mert: "./assets/mert2.jpeg",
 };
 
 export const teamMembers: TeamMember[] = [
@@ -87,23 +87,24 @@ export const teamMembers: TeamMember[] = [
     name: "Mert",
     code: "BYE-001 / BEKAR",
     badge: "⭐ PROFESYONEL BEKÂR ⭐",
-    role: "Moral Lideri · Profesyonel Bekâr & Gece Düşünürü",
+    role: "Moral Lideri · Profesyonel Bekâr & Teknoloji Radarı",
     title: "Makara Bakanı & Overthinking CEO",
     quote: "“Şimdi size çok mantıklı bir şey söyleyeceğim ama lütfen gülmeyin...”",
     photo: assets.mert,
-    summary: "Dışarıdan en gamsız, içeride 38 sekme açık; bekarlık bayrağını gururla dalgalandıran makara lideri.",
+    summary: "Dışarıdan en gamsız, içeride 38 sekme açık; yapay zeka kurgucusu ve bekarlık bayrağı temsilcisi.",
     detail:
-      "Grubun dışarıdan en dertsiz, en gamsız görünen ama içeride aynı anda 38 internet sekmesi açık gezen can damarı. Ortamdaki en gergin krizi 3 saniyede absürt bir şakayla kahkahaya çevirebilir. Fakat gece yastığa başını koyduğunda “Ohrid’deki garsona teşekkür ederken ses tonum fazla mı samimiydi?”, “Virajı dönerken lastik taşa mı değdi?” gibi varoluşsal sorgulamalarla sabahı edebilir. Kadronun bekarlık bayrağını tek başına, bağımsız ve gururla dalgalandıran yegane temsilcisidir.",
+      "Grubun dışarıdan en dertsiz, en gamsız görünen ama içeride aynı anda 38 internet sekmesi açık gezen can damarı. Ortamdaki en gergin krizi 3 saniyede absürt bir şakayla kahkahaya çevirebilir ya da en basit olaydan saçma sapan problemler çıkarabilir. Fakat gece yastığa başını koyduğunda “Ohrid’deki garsona teşekkür ederken ses tonum fazla mı sertti, gidip özür mü dilesem?”, “Acaba gizli gay miyim?” gibi varoluşsal sorgulamalarla sabahı edebilir. Kadronun bekarlık bayrağını tek başına, bağımsız ve gururla dalgalandıran yegane temsilcisidir.",
     duties: [
-      "Uzun transfer günlerinde araç playlist’ini, enerji seviyesini ve ekibin moralini zirvede tutmak.",
-      "Yol üstü atıştırmalık, soğuk su tedariki ve gereksiz panik anlarını mizahla dağıtmak.",
+      "Tüm rota boyunca ekibin fotoğraflarını ve videolarını çekmek, yapay zeka ile kurgulayıp montajlamak.",
+      "Yol üstü en ucuz ve fiyat/performans fırsatlarını, yerel esnaf açıklarını anında tespit etmek.",
+      "Ekibin tüm teknolojik ihtiyaçlarını, roaming/eSIM ayarlarını ve dijital krizlerini tek elde çözmek.",
       "Evli çiftler ve ilişkiler arasında “Bağımsız Bekâr Gözlemci” tarafsızlığını ve neşesini korumak.",
       "Geceleri 47 farklı kurgusal senaryo üreterek ekibin ertesi günkü sohbet malzemesini hazırlamak.",
     ],
     weakness: "Gece sessizliğinde aniden başlayan aşırı düşünme (overthinking) atakları ve sabah kahvesinin gecikmesi.",
-    secretWeapon: "100 saatlik Balkan yol müzikleri arşivi, güneş gözlüğü ve bitmek bilmeyen laf sokma cephanesi.",
-    tags: ["⭐ PROFESYONEL BEKÂR ⭐", "Makara Müdürü", "38 Sekme Açık", "Overthinking Şampiyonu", "Playlist Generali"],
-    focus: "Uzun transfer günlerinde araç playlist’ini, enerji seviyesini ve ekibin moralini zirvede tutmak.",
+    secretWeapon: "Yapay zeka araçları, montaj yeteneği, teknoloji radarı ve bitmek bilmeyen laf sokma cephanesi.",
+    tags: ["⭐ PROFESYONEL BEKÂR ⭐", "Yapay Zeka & Montaj", "F/P Dedektifi", "Overthinking Şampiyonu", "Teknoloji Bakanı"],
+    focus: "Foto/video çekimi, yapay zeka montajı, ucuz fırsat radarı ve ekibin moralini zirvede tutmak.",
     tilt: "2deg",
   },
   {
