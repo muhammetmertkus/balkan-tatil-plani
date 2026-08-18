@@ -136,14 +136,14 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow">
               <span />
-              Sayı 01 · 30 Ağustos — 6 Eylül 2026
+              Sayı 01 · 29 Ağustos — 6 Eylül 2026
             </p>
             <h1 id="hero-title">
               Balkanlar,<br />
               <em>biz geliyoruz.</em>
             </h1>
             <p className="hero-intro">
-              4 kişi · 2 ülke · 8 gün · yaklaşık 1.180 km çalışma rotası. Yolun romantizmi kadar otoparkı, sınır kuyruğu, lezzet durakları ve Splitwise tahsilatı da bu dosyada.
+              4 kişi · 2 ülke · 9 gün · yaklaşık 1.180 km çalışma rotası. Yolun romantizmi kadar otoparkı, sınır kuyruğu, lezzet durakları ve Splitwise tahsilatı da bu dosyada.
             </p>
             <div className="hero-actions flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3.5 mt-6">
               <button
