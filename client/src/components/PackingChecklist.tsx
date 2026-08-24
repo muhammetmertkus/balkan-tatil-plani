@@ -183,6 +183,17 @@ export function PackingChecklist() {
     { id: "custom", label: "Yol & Araç", icon: Car },
   ];
 
+  // Group filtered items by category (used to render section headers in "Tüm Valiz" view)
+  const groupedByCategory: { category: string; categoryLabel: string; items: typeof filteredList }[] = [];
+  filteredList.forEach((item) => {
+    const lastGroup = groupedByCategory[groupedByCategory.length - 1];
+    if (lastGroup && lastGroup.category === item.category) {
+      lastGroup.items.push(item);
+    } else {
+      groupedByCategory.push({ category: item.category, categoryLabel: item.categoryLabel, items: [item] });
+    }
+  });
+
   return (
     <div className="packing-dossier relative rounded-none border-2 border-[#1d211c] bg-[#fffcf3] p-4 sm:p-6 md:p-8 shadow-[8px_10px_0_rgba(29,33,28,0.18)]">
       {/* Top Header */}
@@ -295,52 +306,70 @@ export function PackingChecklist() {
         })}
       </div>
 
-      {/* Checklist Items Grid */}
-      <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
-        {filteredList.map((item) => {
-          const isChecked = !!currentMemberChecks[item.id];
+      {/* Checklist Items Grid, grouped by category with section headers */}
+      <div className="mt-5 space-y-6">
+        {groupedByCategory.map((group) => (
+          <div key={`${group.category}-${group.items[0]?.id}`}>
+            {activeCategory === "all" && (
+              <div className="mb-2.5 flex items-center gap-2 border-b border-[#29312e]/15 pb-1.5">
+                <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
+                  {group.categoryLabel}
+                </h4>
+                <span className="font-mono text-[10px] text-[#8e9893]">
+                  ({group.items.filter((i) => currentMemberChecks[i.id]).length}/{group.items.length})
+                </span>
+              </div>
+            )}
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              {group.items.map((item) => {
+                const isChecked = !!currentMemberChecks[item.id];
 
-          return (
-            <div
-              key={item.id}
-              onClick={() => toggleCheck(item.id)}
-              className={`group flex cursor-pointer items-start gap-3 rounded border p-3 transition-all ${
-                isChecked
-                  ? "border-[#145c64]/30 bg-[#f0f6f4] opacity-80"
-                  : "border-[#cac1ae] bg-white hover:border-[#145c64] hover:shadow-[3px_3px_0_rgba(20,92,100,0.15)]"
-              }`}
-            >
-              <button
-                type="button"
-                className="mt-0.5 text-[#145c64] transition-transform group-hover:scale-110"
-                aria-label={isChecked ? "İşareti kaldır" : "Valize ekle"}
-              >
-                {isChecked ? <CheckSquare size={20} className="text-[#145c64]" /> : <Square size={20} className="text-[#8e9893]" />}
-              </button>
-
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-1">
-                  <span
-                    className={`font-serif text-sm font-semibold leading-tight ${
-                      isChecked ? "text-[#5b6560] line-through" : "text-[#1d211c]"
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => toggleCheck(item.id)}
+                    className={`group flex cursor-pointer items-start gap-3 rounded border p-3 transition-all ${
+                      isChecked
+                        ? "border-[#145c64]/30 bg-[#f0f6f4] opacity-80"
+                        : "border-[#cac1ae] bg-white hover:border-[#145c64] hover:shadow-[3px_3px_0_rgba(20,92,100,0.15)]"
                     }`}
                   >
-                    {item.text}
-                  </span>
-                  <span className="rounded bg-[#ded5c2] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#29312e]">
-                    {item.categoryLabel.split(" ")[0]}
-                  </span>
-                </div>
+                    <button
+                      type="button"
+                      className="mt-0.5 text-[#145c64] transition-transform group-hover:scale-110"
+                      aria-label={isChecked ? "İşareti kaldır" : "Valize ekle"}
+                    >
+                      {isChecked ? <CheckSquare size={20} className="text-[#145c64]" /> : <Square size={20} className="text-[#8e9893]" />}
+                    </button>
 
-                {item.desc && (
-                  <p className="mt-1 font-serif text-xs leading-normal text-[#68716c]">
-                    {item.desc}
-                  </p>
-                )}
-              </div>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center justify-between gap-1">
+                        <span
+                          className={`font-serif text-sm font-semibold leading-tight ${
+                            isChecked ? "text-[#5b6560] line-through" : "text-[#1d211c]"
+                          }`}
+                        >
+                          {item.text}
+                        </span>
+                        {activeCategory !== "all" && (
+                          <span className="rounded bg-[#ded5c2] px-1.5 py-0.5 font-mono text-[9px] font-bold text-[#29312e]">
+                            {item.categoryLabel.split(" ")[0]}
+                          </span>
+                        )}
+                      </div>
+
+                      {item.desc && (
+                        <p className="mt-1 font-serif text-xs leading-normal text-[#68716c]">
+                          {item.desc}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
       {filteredList.length === 0 && (
