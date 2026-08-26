@@ -17,7 +17,9 @@ import {
   WifiOff, 
   Trash2, 
   Users, 
-  User
+  User,
+  FolderPlus,
+  Tag
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { db } from "@/lib/firebase";
@@ -40,6 +42,11 @@ interface CustomItem {
   desc: string;
   addedBy?: string;
   isCommon?: boolean;
+}
+
+interface CustomCategory {
+  id: string;
+  label: string;
 }
 
 const memberProfiles: { id: MemberKey; name: string; title: string; badge: string; weapon: string }[] = [
@@ -71,6 +78,16 @@ const memberProfiles: { id: MemberKey; name: string; title: string; badge: strin
     badge: "🚀 HER ŞEYE OK",
     weapon: "Deri ceket, karizma siyah gül, araç hasar teftiş büyüteci ve her ortama anında uyum.",
   },
+];
+
+const DEFAULT_CATEGORIES: { id: string; label: string; icon: any }[] = [
+  { id: "all", label: "Tüm Valiz", icon: Backpack },
+  { id: "docs", label: "🛂 Evraklar & Rezervasyon", icon: ShieldCheck },
+  { id: "money", label: "💶 Para & Kartlar", icon: CreditCard },
+  { id: "clothing", label: "🎒 Giyim & Plaj", icon: Shirt },
+  { id: "health", label: "🩹 Sağlık & Koruma", icon: HeartPulse },
+  { id: "electronics", label: "🔌 Elektronik & Şarj", icon: Zap },
+  { id: "custom", label: "🚗 Yol & Araç İçi", icon: Car },
 ];
 
 const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "packing_state_v2" };
@@ -108,13 +125,25 @@ export function PackingChecklist() {
     return { mert: [], ikra: [], fatih: [], eyup: [] };
   });
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newText, setNewText] = useState("");
-  const [newCategory, setNewCategory] = useState<string>("custom");
-  const [addScope, setAddScope] = useState<"individual" | "all">("individual");
-  const isUpdatingFromFirebase = useRef(false);
+  // Custom user created categories
+  const [customCategories, setCustomCategories] = useState<CustomCategory[]>(() => {
+    try {
+      const saved = localStorage.getItem("balkan_packing_custom_categories_2026");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [];
+  });
 
-  // Realtime Firestore Listener
+  // Modal states
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showNewCatInput, setShowNewCatInput] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newText, setNewText] = useState("");
+  const [newCategory, setNewCategory] = useState<string>("docs");
+  const [addScope, setAddScope] = useState<"individual" | "all">("individual");
+  const hasMergedLocalRef = useRef(false);
+
+  // Realtime Firestore Listener with intelligent local merge
   useEffect(() => {
     try {
       const docRef = doc(db, FIRESTORE_DOC_PATH.collection, FIRESTORE_DOC_PATH.id);
@@ -123,34 +152,88 @@ export function PackingChecklist() {
         (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-            isUpdatingFromFirebase.current = true;
 
-            if (data.memberStates) {
-              setMemberStates((prev) => ({
-                ...prev,
-                ...data.memberStates,
-              }));
-              try {
-                localStorage.setItem("balkan_packing_per_member_2026", JSON.stringify(data.memberStates));
-              } catch {}
+            // Intelligent local data merge on first visit so no local progress is lost
+            let mergedMemberStates: MemberPackingState = {
+              mert: { ...(data.memberStates?.mert || {}) },
+              ikra: { ...(data.memberStates?.ikra || {}) },
+              fatih: { ...(data.memberStates?.fatih || {}) },
+              eyup: { ...(data.memberStates?.eyup || {}) },
+            };
+
+            let mergedCustomItems: Record<MemberKey, CustomItem[]> = {
+              mert: [...(data.customItems?.mert || [])],
+              ikra: [...(data.customItems?.ikra || [])],
+              fatih: [...(data.customItems?.fatih || [])],
+              eyup: [...(data.customItems?.eyup || [])],
+            };
+
+            let mergedCustomCats: CustomCategory[] = [...(data.customCategories || [])];
+
+            if (!hasMergedLocalRef.current) {
+              hasMergedLocalRef.current = true;
+              let hasLocalDifferences = false;
+
+              // Merge local member check states (if any checked locally)
+              (["mert", "ikra", "fatih", "eyup"] as MemberKey[]).forEach((m) => {
+                const localChecks = memberStates[m] || {};
+                Object.keys(localChecks).forEach((key) => {
+                  if (localChecks[key] && !mergedMemberStates[m][key]) {
+                    mergedMemberStates[m][key] = true;
+                    hasLocalDifferences = true;
+                  }
+                });
+
+                // Merge local custom items
+                const localItems = customItems[m] || [];
+                localItems.forEach((lItem) => {
+                  if (!mergedCustomItems[m].some((i) => i.id === lItem.id)) {
+                    mergedCustomItems[m].push(lItem);
+                    hasLocalDifferences = true;
+                  }
+                });
+              });
+
+              // Merge local categories
+              customCategories.forEach((lCat) => {
+                if (!mergedCustomCats.some((c) => c.id === lCat.id)) {
+                  mergedCustomCats.push(lCat);
+                  hasLocalDifferences = true;
+                }
+              });
+
+              // If client had local items not in DB, sync them up to DB
+              if (hasLocalDifferences) {
+                setDoc(
+                  docRef,
+                  {
+                    memberStates: mergedMemberStates,
+                    customItems: mergedCustomItems,
+                    customCategories: mergedCustomCats,
+                    lastUpdated: new Date().toISOString(),
+                  },
+                  { merge: true }
+                ).catch((err) => console.error("Firestore sync merge error:", err));
+              }
             }
 
-            if (data.customItems) {
-              setCustomItems(data.customItems);
-              try {
-                localStorage.setItem("balkan_packing_custom_items_2026", JSON.stringify(data.customItems));
-              } catch {}
-            }
+            setMemberStates(mergedMemberStates);
+            setCustomItems(mergedCustomItems);
+            setCustomCategories(mergedCustomCats);
 
-            setTimeout(() => {
-              isUpdatingFromFirebase.current = false;
-            }, 100);
+            try {
+              localStorage.setItem("balkan_packing_per_member_2026", JSON.stringify(mergedMemberStates));
+              localStorage.setItem("balkan_packing_custom_items_2026", JSON.stringify(mergedCustomItems));
+              localStorage.setItem("balkan_packing_custom_categories_2026", JSON.stringify(mergedCustomCats));
+            } catch {}
+
             setSyncStatus("synced");
           } else {
             // First time initialization: write initial data to Firestore
             setDoc(docRef, {
               memberStates,
               customItems,
+              customCategories,
               createdAt: new Date().toISOString(),
               lastUpdated: new Date().toISOString(),
             }).catch((err) => console.error("Initial Firestore push error:", err));
@@ -170,17 +253,20 @@ export function PackingChecklist() {
     }
   }, []);
 
-  // Save changes helper to update both state, localStorage, and Firestore
+  // Save changes helper to update state, localStorage, and Firestore
   const persistChanges = async (
     newMemberStates: MemberPackingState,
-    newCustomItems: Record<MemberKey, CustomItem[]>
+    newCustomItems: Record<MemberKey, CustomItem[]>,
+    newCustomCategories: CustomCategory[] = customCategories
   ) => {
     setMemberStates(newMemberStates);
     setCustomItems(newCustomItems);
+    setCustomCategories(newCustomCategories);
 
     try {
       localStorage.setItem("balkan_packing_per_member_2026", JSON.stringify(newMemberStates));
       localStorage.setItem("balkan_packing_custom_items_2026", JSON.stringify(newCustomItems));
+      localStorage.setItem("balkan_packing_custom_categories_2026", JSON.stringify(newCustomCategories));
     } catch (e) {}
 
     try {
@@ -190,6 +276,7 @@ export function PackingChecklist() {
         {
           memberStates: newMemberStates,
           customItems: newCustomItems,
+          customCategories: newCustomCategories,
           lastUpdated: new Date().toISOString(),
         },
         { merge: true }
@@ -221,7 +308,7 @@ export function PackingChecklist() {
       });
     }
 
-    persistChanges(updatedAll, customItems);
+    persistChanges(updatedAll, customItems, customCategories);
   };
 
   const handleResetMember = () => {
@@ -231,30 +318,49 @@ export function PackingChecklist() {
         ...memberStates,
         [activeMember]: {},
       };
-      persistChanges(updatedAll, customItems);
+      persistChanges(updatedAll, customItems, customCategories);
     }
   };
+
+  // All available categories combined
+  const allCategoryOptions = [
+    { id: "docs", label: "🛂 Evraklar & Rezervasyon" },
+    { id: "money", label: "💶 Para & Kartlar" },
+    { id: "clothing", label: "🎒 Giyim & Plaj" },
+    { id: "health", label: "🩹 Sağlık & Koruma" },
+    { id: "electronics", label: "🔌 Elektronik & Şarj" },
+    { id: "custom", label: "🚗 Yol & Araç İçi" },
+    ...customCategories,
+  ];
 
   const handleAddCustom = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newText.trim()) return;
 
-    const categoryLabels: Record<string, string> = {
-      docs: "🛂 Evraklar & Rezervasyon",
-      money: "💶 Para & Kartlar",
-      clothing: "🎒 Giyim & Plaj",
-      health: "🩹 Sağlık & Koruma",
-      electronics: "🔌 Elektronik & Şarj",
-      custom: "🚗 Yol & Araç İçi",
-    };
+    let targetCategoryId = newCategory;
+    let targetCategoryLabel = allCategoryOptions.find((c) => c.id === newCategory)?.label || "Ekstra Ekipman";
+    let updatedCats = [...customCategories];
+
+    // If user is creating a new category
+    if (showNewCatInput && newCatName.trim()) {
+      const cleanName = newCatName.trim();
+      targetCategoryId = `cat_${Date.now()}`;
+      targetCategoryLabel = cleanName.startsWith("🏷️") || cleanName.match(/\p{Extended_Pictographic}/u) ? cleanName : `🏷️ ${cleanName}`;
+      
+      const newCatObj: CustomCategory = {
+        id: targetCategoryId,
+        label: targetCategoryLabel,
+      };
+      updatedCats.push(newCatObj);
+    }
 
     const newItemId = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const currentMemberName = memberProfiles.find((m) => m.id === activeMember)?.name || activeMember;
 
     const newItem: CustomItem = {
       id: newItemId,
-      category: newCategory,
-      categoryLabel: categoryLabels[newCategory] || "Ekstra Ekipman",
+      category: targetCategoryId,
+      categoryLabel: targetCategoryLabel,
       text: newText.trim(),
       desc: addScope === "all" ? `Ortak Ekip Maddesi (Ekleyen: ${currentMemberName})` : `${currentMemberName} tarafından eklendi.`,
       addedBy: currentMemberName,
@@ -279,8 +385,10 @@ export function PackingChecklist() {
       };
     }
 
-    persistChanges(memberStates, updatedCustom);
+    persistChanges(memberStates, updatedCustom, updatedCats);
     setNewText("");
+    setNewCatName("");
+    setShowNewCatInput(false);
     setShowAddModal(false);
   };
 
@@ -295,7 +403,7 @@ export function PackingChecklist() {
       eyup: (customItems.eyup || []).filter((i) => i.id !== itemId),
     };
 
-    // Also clean up checks
+    // Clean up checks
     const updatedMemberStates: MemberPackingState = {
       mert: { ...memberStates.mert },
       ikra: { ...memberStates.ikra },
@@ -307,7 +415,7 @@ export function PackingChecklist() {
     delete updatedMemberStates.fatih[itemId];
     delete updatedMemberStates.eyup[itemId];
 
-    persistChanges(updatedMemberStates, updatedCustom);
+    persistChanges(updatedMemberStates, updatedCustom, customCategories);
   };
 
   const currentProfile = memberProfiles.find((m) => m.id === activeMember) || memberProfiles[0];
@@ -324,7 +432,8 @@ export function PackingChecklist() {
   const completedItemsCount = currentMemberAllItems.filter((item) => currentMemberChecks[item.id]).length;
   const percentCompleted = totalItemsCount > 0 ? Math.round((completedItemsCount / totalItemsCount) * 100) : 0;
 
-  const categories = [
+  // Render categories tabs list
+  const categoryTabList = [
     { id: "all", label: "Tüm Valiz", icon: Backpack },
     { id: "docs", label: "Evraklar", icon: ShieldCheck },
     { id: "money", label: "Para & Kart", icon: CreditCard },
@@ -332,9 +441,14 @@ export function PackingChecklist() {
     { id: "health", label: "Sağlık", icon: HeartPulse },
     { id: "electronics", label: "Elektronik", icon: Zap },
     { id: "custom", label: "Yol & Araç", icon: Car },
+    ...customCategories.map((c) => ({
+      id: c.id,
+      label: c.label.replace(/^[\p{Extended_Pictographic}\uFE0F\s]+/u, "") || c.label,
+      icon: Tag,
+    })),
   ];
 
-  // Group filtered items by category
+  // Group filtered items by category for rendering
   const groupedByCategory: { category: string; categoryLabel: string; items: typeof filteredList }[] = [];
   filteredList.forEach((item) => {
     const lastGroup = groupedByCategory[groupedByCategory.length - 1];
@@ -391,7 +505,7 @@ export function PackingChecklist() {
             Hazırlık & <em>Valiz Dosyası</em>
           </h3>
           <p className="mt-1 max-w-2xl font-serif text-xs sm:text-sm text-[#49534f]">
-            Tüm ekip üyeleri anlık olarak canlı senkronizedir. Eklenen yeni maddeler veya işaretlenen onaylar anında tüm telefonlarda güncellenir.
+            Tüm ekip üyeleri anlık olarak canlı senkronizedir. Eklenen yeni maddeler, kategoriler ve işaretlemeler anında tüm telefonlarda güncellenir.
           </p>
         </div>
 
@@ -464,7 +578,7 @@ export function PackingChecklist() {
 
       {/* Category Filter Tabs */}
       <div className="mt-5 flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-[#29312e]/10 pt-1 no-scrollbar sm:flex-wrap">
-        {categories.map((cat) => {
+        {categoryTabList.map((cat) => {
           const Icon = cat.icon;
           const isSelected = activeCategory === cat.id;
           const catItems = currentMemberAllItems.filter((i) => (cat.id === "all" ? true : i.category === cat.id));
@@ -488,6 +602,19 @@ export function PackingChecklist() {
             </button>
           );
         })}
+
+        {/* Quick Add Category Button */}
+        <button
+          onClick={() => {
+            setShowAddModal(true);
+            setShowNewCatInput(true);
+          }}
+          className="flex shrink-0 cursor-pointer items-center gap-1 rounded-sm border border-dashed border-[#145c64] bg-[#f0f6f4] px-2.5 py-1.5 font-mono text-xs font-medium text-[#145c64] hover:bg-[#e2efe9]"
+          title="Yeni Kategori Oluştur"
+        >
+          <FolderPlus size={13} />
+          <span>+ Yeni Kategori</span>
+        </button>
       </div>
 
       {/* Checklist Items Grid */}
@@ -495,13 +622,28 @@ export function PackingChecklist() {
         {groupedByCategory.map((group) => (
           <div key={`${group.category}-${group.items[0]?.id}`}>
             {activeCategory === "all" && (
-              <div className="mb-2.5 flex items-center gap-2 border-b border-[#29312e]/15 pb-1.5">
-                <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
-                  {group.categoryLabel}
-                </h4>
-                <span className="font-mono text-[10px] text-[#8e9893]">
-                  ({group.items.filter((i) => currentMemberChecks[i.id]).length}/{group.items.length})
-                </span>
+              <div className="mb-2.5 flex items-center justify-between border-b border-[#29312e]/15 pb-1.5">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
+                    {group.categoryLabel}
+                  </h4>
+                  <span className="font-mono text-[10px] text-[#8e9893]">
+                    ({group.items.filter((i) => currentMemberChecks[i.id]).length}/{group.items.length})
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewCategory(group.category);
+                    setShowNewCatInput(false);
+                    setShowAddModal(true);
+                  }}
+                  className="flex items-center gap-1 font-mono text-[11px] text-[#145c64] hover:underline"
+                >
+                  <Plus size={12} />
+                  <span>Bu Kategoriye Ekle</span>
+                </button>
               </div>
             )}
             <div className="grid gap-2.5 sm:grid-cols-2">
@@ -577,13 +719,29 @@ export function PackingChecklist() {
 
       {/* Bottom Actions */}
       <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[#29312e]/15 pt-5">
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex cursor-pointer items-center gap-1.5 rounded-sm bg-[#145c64] px-4 py-2 font-mono text-xs font-semibold text-white shadow-[3px_3px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95"
-        >
-          <Plus size={15} />
-          <span>Yeni Valiz / Ekipman Maddesi Ekle</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => {
+              setShowNewCatInput(false);
+              setShowAddModal(true);
+            }}
+            className="flex cursor-pointer items-center gap-1.5 rounded-sm bg-[#145c64] px-4 py-2 font-mono text-xs font-semibold text-white shadow-[3px_3px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95"
+          >
+            <Plus size={15} />
+            <span>Yeni Eşya / Madde Ekle</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setShowNewCatInput(true);
+              setShowAddModal(true);
+            }}
+            className="flex cursor-pointer items-center gap-1.5 rounded-sm border border-[#145c64] bg-[#f0f6f4] px-3 py-2 font-mono text-xs font-semibold text-[#145c64] shadow-[2px_2px_0_#cac1ae] transition-transform hover:bg-[#e2efe9]"
+          >
+            <FolderPlus size={14} />
+            <span>Yeni Kategori Oluştur</span>
+          </button>
+        </div>
 
         <button
           onClick={handleResetMember}
@@ -594,18 +752,19 @@ export function PackingChecklist() {
         </button>
       </div>
 
-      {/* Add Custom Item Modal */}
+      {/* Add Custom Item / Category Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md border-2 border-[#1d211c] bg-[#fffcf3] p-6 shadow-[10px_12px_0_rgba(29,33,28,0.3)]">
             <h4 className="font-display text-2xl text-[#1d211c]">
-              Yeni Valiz Maddesi Ekle
+              {showNewCatInput ? "Yeni Kategori & Madde Ekle" : "Yeni Valiz Maddesi Ekle"}
             </h4>
             <p className="mt-1 font-serif text-xs text-[#68716c]">
-              Eklenen bu madde anında Firebase Firestore üzerinden canlı olarak senkronize edilir.
+              Eklediğiniz her şey Firestore bulut veritabanına kaydedilir ve tüm ekibin ekranında anında görünür.
             </p>
 
             <form onSubmit={handleAddCustom} className="mt-4 space-y-3.5 font-mono text-xs">
+              {/* Scope Selection */}
               <div>
                 <label className="block font-semibold text-[#29312e]">Kime Eklenecek?</label>
                 <div className="mt-1 grid grid-cols-2 gap-2">
@@ -636,8 +795,52 @@ export function PackingChecklist() {
                 </div>
               </div>
 
+              {/* Category Picker & New Category toggle */}
               <div>
-                <label className="block font-semibold text-[#29312e]">Eşya / Görev Adı</label>
+                <div className="flex items-center justify-between">
+                  <label className="block font-semibold text-[#29312e]">Kategori Seçimi</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCatInput(!showNewCatInput)}
+                    className="font-mono text-[11px] text-[#145c64] underline hover:text-[#b54b38]"
+                  >
+                    {showNewCatInput ? "Mevcut Kategorilerden Seç" : "+ Yeni Kategori Oluştur"}
+                  </button>
+                </div>
+
+                {showNewCatInput ? (
+                  <div className="mt-1.5 rounded border border-[#145c64] bg-[#f0f6f4] p-2.5">
+                    <label className="block font-bold text-[#145c64]">Yeni Kategori Adı</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Örn: 🎮 Eğlence & Catan, ⛺ Kamp, 🍿 Atıştırmalık..."
+                      value={newCatName}
+                      onChange={(e) => setNewCatName(e.target.value)}
+                      className="mt-1 w-full border border-[#cac1ae] bg-white p-2 text-xs text-[#1d211c] focus:border-[#145c64] focus:outline-none"
+                    />
+                    <span className="mt-1 block text-[10px] text-[#5b6560]">
+                      Bu kategori kalıcı olarak kategori sekmesine ve tüm ekibe eklenecektir.
+                    </span>
+                  </div>
+                ) : (
+                  <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="mt-1 w-full border border-[#cac1ae] bg-white p-2 text-xs"
+                  >
+                    {allCategoryOptions.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Item Name */}
+              <div>
+                <label className="block font-semibold text-[#29312e]">Eşya / Madde Adı</label>
                 <input
                   type="text"
                   required
@@ -648,26 +851,14 @@ export function PackingChecklist() {
                 />
               </div>
 
-              <div>
-                <label className="block font-semibold text-[#29312e]">Kategori</label>
-                <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  className="mt-1 w-full border border-[#cac1ae] bg-white p-2 text-xs"
-                >
-                  <option value="docs">🛂 Evraklar & Rezervasyon</option>
-                  <option value="money">💶 Para & Kartlar</option>
-                  <option value="clothing">🎒 Giyim & Plaj</option>
-                  <option value="health">🩹 Sağlık & Koruma</option>
-                  <option value="electronics">🔌 Elektronik & Şarj</option>
-                  <option value="custom">🚗 Yol & Araç İçi</option>
-                </select>
-              </div>
-
+              {/* Form Buttons */}
               <div className="mt-5 flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setShowNewCatInput(false);
+                  }}
                   className="cursor-pointer border border-[#cac1ae] bg-[#e9e2d1] px-3 py-1.5 font-mono text-xs text-[#29312e]"
                 >
                   İptal
