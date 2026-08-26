@@ -1,12 +1,46 @@
 import { useState } from "react";
-import { Banknote, Calculator, ReceiptText, ShieldAlert, ArrowRightLeft, UserCheck, TrendingUp, AlertTriangle } from "lucide-react";
+import { 
+  Calculator, 
+  CheckCircle2, 
+  Circle, 
+  Receipt, 
+  Building2, 
+  Plane, 
+  ShieldCheck, 
+  CreditCard, 
+  Sparkles,
+  PieChart
+} from "lucide-react";
+
+interface HolidayExpenseItem {
+  id: string;
+  label: string;
+  category: "flight" | "insurance" | "tax" | "stay";
+  amount: number;
+  isPaid: boolean;
+  note?: string;
+  date?: string;
+}
+
+const HOLIDAY_EXPENSES: HolidayExpenseItem[] = [
+  { id: "e1", label: "GİDİŞ UÇAK (İstanbul ✈️ Üsküp)", category: "flight", amount: 17200, isPaid: true, note: "4 kişilik gidiş uçuş biletleri ödendi" },
+  { id: "e2", label: "DÖNÜŞ UÇAK (Üsküp ✈️ İstanbul)", category: "flight", amount: 16876, isPaid: true, note: "4 kişilik dönüş uçuş biletleri ödendi" },
+  { id: "e3", label: "SİGORTA (Seyahat Sağlık)", category: "insurance", amount: 1853, isPaid: true, note: "4 kişilik poliçe kapatıldı" },
+  { id: "e4", label: "Y.D ÇIKIŞ HARÇ (4 Kişi)", category: "tax", amount: 5000, isPaid: false, note: "Kişi başı 1.250 ₺ havalimanı çıkış harcı" },
+  { id: "e5", label: "29-30 ÜSKÜP AIRBNB (1. Gece)", category: "stay", amount: 3019, isPaid: false, date: "29–30 Ağustos", note: "Üsküp Merkez / Debar Maalo 2 yatak odalı daire" },
+  { id: "e6", label: "30-31 OHRİD AIRBNB (2. Gece)", category: "stay", amount: 4594, isPaid: false, date: "30–31 Ağustos", note: "Ohri Old Town / Göl Kıyısı daire" },
+  { id: "e7", label: "31-3 SARANDE OTEL (3 Gece)", category: "stay", amount: 33210, isPaid: false, date: "31 Ağustos – 3 Eylül", note: "İyon kıyısı 3 gece kesintisiz sabit konaklama" },
+  { id: "e8", label: "3-4 DURES AIRBNB (6. Gece)", category: "stay", amount: 5512, isPaid: false, date: "3–4 Eylül", note: "Durrës Vollga sahil kordonu apart" },
+  { id: "e9", label: "4-5 TİRAN AIRBNB (7. Gece)", category: "stay", amount: 3812, isPaid: false, date: "4–5 Eylül", note: "Tiran Blloku / Merkez daire" },
+  { id: "e10", label: "5-6 ÜSKÜP AIRBNB (8. Gece)", category: "stay", amount: 4429, isPaid: false, date: "5–6 Eylül", note: "Dönüş öncesi Üsküp Aerodrom / Merkez apart" },
+];
 
 export function BudgetCalculator() {
   const [calcAmount, setCalcAmount] = useState<number>(100);
   const [calcCurrency, setCalcCurrency] = useState<"EUR" | "MKD" | "ALL" | "TRY">("EUR");
   const [splitCount, setSplitCount] = useState<number>(4);
 
-  // Approximate FX conversion rates (reference values from research)
+  // Approximate FX conversion rates
   // 1 EUR = ~61.5 MKD = ~100 ALL = ~38.5 TRY
   const fxRates = {
     EUR: 1,
@@ -14,6 +48,14 @@ export function BudgetCalculator() {
     ALL: 100.2,
     TRY: 38.5,
   };
+
+  const totalFixedBudget = HOLIDAY_EXPENSES.reduce((sum, item) => sum + item.amount, 0);
+  const totalPaidAmount = HOLIDAY_EXPENSES.filter((i) => i.isPaid).reduce((sum, item) => sum + item.amount, 0);
+  const totalRemainingAmount = totalFixedBudget - totalPaidAmount;
+
+  const perPersonTotal = totalFixedBudget / 4;
+  const perPersonPaid = totalPaidAmount / 4;
+  const perPersonRemaining = totalRemainingAmount / 4;
 
   // Convert given amount to base EUR
   const baseEur = calcAmount / (fxRates[calcCurrency] || 1);
@@ -34,50 +76,147 @@ export function BudgetCalculator() {
 
   return (
     <div className="budget-dossier space-y-8">
-      {/* Top Banner: Fixed & Paid Costs */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded border border-[#145c64]/30 bg-[#f0f6f4] p-5 shadow-[4px_4px_0_#145c64]">
-          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
-            ÖDENMİŞ & SABİT KAYIT
-          </span>
-          <div className="mt-2 font-display text-3xl text-[#1d211c]">35.929 TL</div>
-          <p className="mt-1 font-serif text-xs text-[#49534f]">
-            İstanbul ↔ Üsküp uçak biletleri + 4 kişilik Seyahat Sağlık Sigortası poliçeleri kapatıldı.
-          </p>
-          <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-semibold text-[#145c64]">
-            Kişi Başı: 8.982,25 TL
-          </div>
-        </div>
-
-        <div className="rounded border border-[#cac1ae] bg-[#fffcf3] p-5 shadow-[4px_4px_0_rgba(29,33,28,0.1)]">
+      {/* Top Banner: Real Recorded Costs */}
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+        <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-5 shadow-[4px_4px_0_#145c64]">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
-              SENARYO 1: ÖLÇÜLÜ & EKSİKSİZ
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
+              ÖDENMİŞ SABİT KAYIT
             </span>
-            <span className="rounded bg-[#145c64] px-1.5 py-0.5 font-mono text-[10px] text-white">545 € / Kişi</span>
+            <span className="rounded bg-emerald-600 px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+              KAPATILDI
+            </span>
           </div>
-          <div className="mt-2 font-display text-3xl text-[#1d211c]">2.180 EUR</div>
+          <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
+            {totalPaidAmount.toLocaleString("tr-TR")} ₺
+          </div>
           <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Apart konaklamaları, yerel lezzetler, Butrint antik kenti ve yakıt/otopark dahil 4 kişilik saha bütçesi.
+            Gidiş-dönüş uçak biletleri + 4 kişilik Seyahat Sağlık Sigortası poliçeleri ödendi.
           </p>
-          <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs text-[#68716c]">
-            Kişi başı ~20.980 TL (Yerinde harcama)
+          <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-bold text-[#145c64]">
+            Kişi Başı: {perPersonPaid.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
           </div>
         </div>
 
-        <div className="rounded border border-[#b54b38]/40 bg-[#fff8f5] p-5 shadow-[4px_4px_0_#b54b38]">
+        <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 shadow-[4px_4px_0_#b54b38]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
-              SENARYO 2: RAHAT KIYI TEMPOSU
+              TOPLAM ÖN ÖDEME & REZERVASYON
             </span>
-            <span className="rounded bg-[#b54b38] px-1.5 py-0.5 font-mono text-[10px] text-white">790 € / Kişi</span>
+            <span className="rounded bg-[#1d211c] px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+              10 KALEM
+            </span>
           </div>
-          <div className="mt-2 font-display text-3xl text-[#1d211c]">3.160 EUR</div>
+          <div className="mt-2 font-display text-3xl sm:text-4xl text-[#b54b38]">
+            {totalFixedBudget.toLocaleString("tr-TR")} ₺
+          </div>
           <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Kıyıda deniz mahsulleri ziyafetleri, butik oteller, beach club şezlongları ve ekstra molalar dahil.
+            Uçaklar, sigorta, yurt dışı çıkış harcı ve 7 gece (Üsküp, Ohri, Sarandë, Durrës, Tiran) konaklama bütçesi.
           </p>
-          <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs text-[#b54b38]">
-            Kişi başı ~30.415 TL (Yerinde harcama)
+          <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs font-bold text-[#b54b38]">
+            Kişi Başı: {perPersonTotal.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺ (~{Math.round(perPersonTotal / 38.5)} €)
+          </div>
+        </div>
+
+        <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-5 shadow-[4px_4px_0_rgba(29,33,28,0.12)]">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
+              REZERVASYON / KALAN PAY
+            </span>
+            <span className="rounded bg-[#ded5c2] px-2 py-0.5 font-mono text-[10px] font-bold text-[#29312e]">
+              ÖDENECEK
+            </span>
+          </div>
+          <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
+            {totalRemainingAmount.toLocaleString("tr-TR")} ₺
+          </div>
+          <p className="mt-1 font-serif text-xs text-[#49534f]">
+            Airbnb / Otel ödemeleri ve havalimanı harçları için ayrılması gereken net bütçe.
+          </p>
+          <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs font-bold text-[#145c64]">
+            Kişi Başı: {perPersonRemaining.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺
+          </div>
+        </div>
+      </div>
+
+      {/* DETAILED "TATİL HARCAMA" CHECKLIST CARD (Matching User Notes App) */}
+      <div className="rounded border-2 border-[#1d211c] bg-[#111311] p-5 sm:p-7 text-white shadow-[8px_10px_0_rgba(29,33,28,0.25)]">
+        <div className="flex flex-col gap-2 border-b border-stone-800 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#f3bc86]">
+              <Receipt size={16} />
+              <span>Resmî Ön Ödeme & Rezervasyon Tablosu</span>
+            </div>
+            <h3 className="mt-1 font-display text-2xl sm:text-3xl text-white tracking-wide">
+              TATİL HARCAMA
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 font-mono text-xs text-amber-400">
+              <CheckCircle2 size={16} className="text-amber-400 fill-amber-400/20" />
+              <span>Ödendi ({HOLIDAY_EXPENSES.filter(i => i.isPaid).length})</span>
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-xs text-stone-400">
+              <Circle size={16} className="text-stone-500" />
+              <span>Beklemede ({HOLIDAY_EXPENSES.filter(i => !i.isPaid).length})</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Expense List Items */}
+        <div className="mt-5 divide-y divide-stone-800/80 font-mono text-sm">
+          {HOLIDAY_EXPENSES.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-stone-900/60 px-2 rounded"
+            >
+              <div className="flex items-center gap-3">
+                {item.isPaid ? (
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-black font-bold">
+                    ✓
+                  </div>
+                ) : (
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-stone-600 text-transparent">
+                    ○
+                  </div>
+                )}
+                <div>
+                  <span className={`font-bold tracking-wider ${item.isPaid ? "text-amber-100" : "text-stone-300"}`}>
+                    {item.label}
+                  </span>
+                  {item.note && (
+                    <span className="block font-serif text-xs text-stone-400">
+                      {item.note}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-baseline justify-between sm:justify-end gap-3 pl-9 sm:pl-0">
+                <span className="font-mono text-base sm:text-lg font-bold text-amber-400">
+                  : {item.amount.toLocaleString("tr-TR")} ₺
+                </span>
+                <span className="font-mono text-[11px] text-stone-400">
+                  (Kişi: {(item.amount / 4).toLocaleString("tr-TR")} ₺)
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Total Summary Footer */}
+        <div className="mt-6 border-t-2 border-amber-500/40 bg-stone-900/90 p-4 rounded flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
+          <span className="text-xs uppercase tracking-widest text-stone-300 font-bold">
+            TOPLAM REZERVASYON & ÖN ÖDEME BÜTÇESİ
+          </span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-2xl sm:text-3xl font-bold text-amber-400">
+              {totalFixedBudget.toLocaleString("tr-TR")} ₺
+            </span>
+            <span className="text-xs text-stone-400">
+              (Kişi Başı: <b>{perPersonTotal.toLocaleString("tr-TR")} ₺</b>)
+            </span>
           </div>
         </div>
       </div>
@@ -187,9 +326,9 @@ export function BudgetCalculator() {
       {/* Detailed Expense Breakdown Table / Responsive Cards on Mobile */}
       <div className="overflow-hidden rounded border border-[#29312e]/20 bg-[#fffcf3] shadow-[4px_6px_0_rgba(29,33,28,0.1)]">
         <div className="border-b border-[#29312e]/15 bg-[#f5f0e5] p-4 sm:px-6 sm:py-4">
-          <h4 className="font-display text-lg sm:text-xl text-[#1d211c]">Kalem Kalem 8 Günlük Harcama Matrisi</h4>
+          <h4 className="font-display text-lg sm:text-xl text-[#1d211c]">Kalem Kalem 9 Günlük Saha Harcama Matrisi (Yerinde Harcamalar)</h4>
           <p className="font-mono text-[11px] sm:text-xs text-[#68716c]">
-            4 yetişkin, 1.180 km toplam sürüş ve 7 gece konaklama baz alınarak hazırlanmıştır.
+            4 yetişkin, 1.220 km toplam sürüş ve yeni rota durakları (Üsküp, Ohri, Sarandë 3G, Durrës, Tiran) baz alınmıştır.
           </p>
         </div>
 
@@ -197,28 +336,22 @@ export function BudgetCalculator() {
         <div className="block sm:hidden divide-y divide-[#cac1ae]/40 p-3 space-y-3">
           {[
             {
-              item: "🏠 Konaklama (7 Gece)",
-              sc1: "170 € / 680 €",
-              sc2: "245 € / 980 €",
-              desc: "Üsküp (2), Ohri (1), Sarandë (2), Himarë (1), Berat (1). Otopark garantili apart ve oteller.",
-            },
-            {
               item: "🚗 Kiralık Araç & Sınır & Yakıt",
-              sc1: "135 € / 540 €",
-              sc2: "185 € / 740 €",
-              desc: "Kompakt/SUV araç kira bedeli + Arnavutluk sınır geçiş izni + Green Card + ~85 L benzin + gişe/otoparklar.",
+              sc1: "140 € / 560 €",
+              sc2: "190 € / 760 €",
+              desc: "Kompakt/SUV araç kira bedeli + Arnavutluk sınır geçiş izni + Green Card + ~95 L benzin + gişe/otoparklar.",
             },
             {
-              item: "🍽️ Yeme - İçme (8 Gün)",
-              sc1: "185 € / 740 €",
-              sc2: "260 € / 1.040 €",
-              desc: "Günde 1 ekonomik öğün + akşam yerel sofra + Sarandë/Himarë'de taze balık ve ızgara ahtapot gecesi.",
+              item: "🍽️ Yeme - İçme (9 Gün)",
+              sc1: "195 € / 780 €",
+              sc2: "280 € / 1.120 €",
+              desc: "Günde 1 ekonomik öğün + akşam yerel sofra + Sarandë ve Durrës'te taze balık / deniz mahsulleri ziyafeti.",
             },
             {
-              item: "🏛️ Müze, Butrint & Plaj Giriş",
-              sc1: "25 € / 100 €",
-              sc2: "45 € / 180 €",
-              desc: "Butrint Antik Kenti (1.000 ALL), Blue Eye (50 ALL), Kaleler (Berat/Gjirokastër) + şezlong/şemsiye payı.",
+              item: "🏛️ Müze, Butrint, Dajti & Plaj Giriş",
+              sc1: "30 € / 120 €",
+              sc2: "50 € / 200 €",
+              desc: "Butrint Antik Kenti (1.000 ALL), Blue Eye, Durrës Amfitiyatrosu, Bunk'Art 2, Matka tekne turu + şezlong.",
             },
             {
               item: "📶 eSIM / Acil Durum / Nakit Payı",
@@ -242,13 +375,13 @@ export function BudgetCalculator() {
           ))}
 
           <div className="pt-3 border-t-2 border-[#145c64] bg-[#f5f0e5] p-3 rounded">
-            <div className="font-mono text-xs font-bold text-[#145c64] uppercase">TOPLAM YERİNDE BÜTÇE</div>
+            <div className="font-mono text-xs font-bold text-[#145c64] uppercase">TOPLAM SAHA HARCAMA TAHMİNİ</div>
             <div className="mt-1 flex items-center justify-between font-mono text-xs">
-              <span className="text-[#145c64] font-bold">545 € / 2.180 €</span>
-              <span className="text-[#b54b38] font-bold">790 € / 3.160 €</span>
+              <span className="text-[#145c64] font-bold">395 € / 1.580 €</span>
+              <span className="text-[#b54b38] font-bold">575 € / 2.300 €</span>
             </div>
             <p className="mt-1 font-serif text-[10px] text-[#29312e]">
-              + %12 kişisel beklenmeyen payı (~65–95 €) cebinizde kalmalıdır.
+              * Önceden ödenen uçak/otel bütçesi hariç, sahada harcanacak cep bütçesidir.
             </p>
           </div>
         </div>
@@ -266,28 +399,22 @@ export function BudgetCalculator() {
             </thead>
             <tbody className="divide-y divide-[#cac1ae]/40 text-xs">
               <tr className="hover:bg-[#fbf9f2]">
-                <td className="p-3.5 font-bold text-[#1d211c]">🏠 Konaklama (7 Gece)</td>
-                <td className="p-3.5 font-mono">170 € / <b>680 €</b></td>
-                <td className="p-3.5 font-mono text-[#b54b38]">245 € / <b>980 €</b></td>
-                <td className="p-3.5 text-[#49534f]">Üsküp (2), Ohri (1), Sarandë (2), Himarë (1), Berat (1). Otopark garantili apart ve oteller.</td>
-              </tr>
-              <tr className="hover:bg-[#fbf9f2]">
                 <td className="p-3.5 font-bold text-[#1d211c]">🚗 Kiralık Araç & Sınır & Yakıt</td>
-                <td className="p-3.5 font-mono">135 € / <b>540 €</b></td>
-                <td className="p-3.5 font-mono text-[#b54b38]">185 € / <b>740 €</b></td>
-                <td className="p-3.5 text-[#49534f]">Kompakt/SUV araç kira bedeli + Arnavutluk sınır geçiş izni + Green Card + ~85 L benzin + gişe/otoparklar.</td>
+                <td className="p-3.5 font-mono">140 € / <b>560 €</b></td>
+                <td className="p-3.5 font-mono text-[#b54b38]">190 € / <b>760 €</b></td>
+                <td className="p-3.5 text-[#49534f]">Kompakt/SUV araç kira bedeli + Arnavutluk sınır geçiş izni + Green Card + ~95 L benzin + gişe/otoparklar.</td>
               </tr>
               <tr className="hover:bg-[#fbf9f2]">
-                <td className="p-3.5 font-bold text-[#1d211c]">🍽️ Yeme - İçme (8 Gün)</td>
-                <td className="p-3.5 font-mono">185 € / <b>740 €</b></td>
-                <td className="p-3.5 font-mono text-[#b54b38]">260 € / <b>1.040 €</b></td>
-                <td className="p-3.5 text-[#49534f]">Günde 1 ekonomik öğün + akşam yerel sofra + Sarandë/Himarë'de taze balık ve ızgara ahtapot gecesi.</td>
+                <td className="p-3.5 font-bold text-[#1d211c]">🍽️ Yeme - İçme (9 Gün)</td>
+                <td className="p-3.5 font-mono">195 € / <b>780 €</b></td>
+                <td className="p-3.5 font-mono text-[#b54b38]">280 € / <b>1.120 €</b></td>
+                <td className="p-3.5 text-[#49534f]">Günde 1 ekonomik öğün + akşam yerel sofra + Sarandë ve Durrës'te taze balık / deniz mahsulleri ziyafeti.</td>
               </tr>
               <tr className="hover:bg-[#fbf9f2]">
-                <td className="p-3.5 font-bold text-[#1d211c]">🏛️ Müze, Butrint & Plaj Giriş</td>
-                <td className="p-3.5 font-mono">25 € / <b>100 €</b></td>
-                <td className="p-3.5 font-mono text-[#b54b38]">45 € / <b>180 €</b></td>
-                <td className="p-3.5 text-[#49534f]">Butrint Antik Kenti (1.000 ALL), Blue Eye (50 ALL), Kaleler (Berat/Gjirokastër) + şezlong/şemsiye payı.</td>
+                <td className="p-3.5 font-bold text-[#1d211c]">🏛️ Müze, Butrint, Dajti & Plaj Giriş</td>
+                <td className="p-3.5 font-mono">30 € / <b>120 €</b></td>
+                <td className="p-3.5 font-mono text-[#b54b38]">50 € / <b>200 €</b></td>
+                <td className="p-3.5 text-[#49534f]">Butrint Antik Kenti (1.000 ALL), Blue Eye, Durrës Amfitiyatrosu, Bunk'Art 2, Matka tekne turu + şezlong.</td>
               </tr>
               <tr className="hover:bg-[#fbf9f2]">
                 <td className="p-3.5 font-bold text-[#1d211c]">📶 eSIM / Acil Durum / Nakit Payı</td>
@@ -296,10 +423,10 @@ export function BudgetCalculator() {
                 <td className="p-3.5 text-[#49534f]">Yerel internet eSIM (Airalo/Balkan pass), banka komisyonları ve ortak acil durum amortismanı.</td>
               </tr>
               <tr className="bg-[#f5f0e5] font-mono font-bold">
-                <td className="p-3.5 text-sm text-[#145c64]">TOPLAM YERİNDE BÜTÇE</td>
-                <td className="p-3.5 text-sm text-[#145c64]">545 € / 2.180 €</td>
-                <td className="p-3.5 text-sm text-[#b54b38]">790 € / 3.160 €</td>
-                <td className="p-3.5 font-serif text-[11px] font-normal text-[#29312e]">+ %12 kişisel beklenmeyen payı (yaklaşık 65–95 €) cebinizde kalmalıdır.</td>
+                <td className="p-3.5 text-sm text-[#145c64]">TOPLAM SAHA HARCAMA TAHMİNİ</td>
+                <td className="p-3.5 text-sm text-[#145c64]">395 € / 1.580 €</td>
+                <td className="p-3.5 text-sm text-[#b54b38]">575 € / 2.300 €</td>
+                <td className="p-3.5 font-serif text-[11px] font-normal text-[#29312e]">* Ön ödemesi yapılan uçak ve konaklama haricinde cepte bulunması gereken bütçedir.</td>
               </tr>
             </tbody>
           </table>

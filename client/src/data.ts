@@ -385,16 +385,27 @@ export const gpsPoints: Record<string, GpsPoint> = {
     desc: "Bulutların üstünden İyon Denizi'ni gören nefes kesici virajlı dağ manzarası.",
     parkingTip: "Seyir terasındaki resmî cepte durun; yokuş aşağı inerken motor freni kullanın.",
   },
-  berat_mangalem: {
-    id: "berat_mangalem",
-    label: "Berat (Bin Pencereli Şehir)",
-    city: "Berat",
+  durres_amphitheatre: {
+    id: "durres_amphitheatre",
+    label: "Durrës (Dıraç Sahili & Roma Amfitiyatrosu)",
+    city: "Durrës",
     country: "Arnavutluk",
-    lat: 40.7058,
-    lng: 19.9522,
+    lat: 41.3128,
+    lng: 19.4453,
     type: "culture",
-    desc: "UNESCO miras kenti; Mangalem, Gorica Köprüsü, Osumi Nehri ve tepe kalesi.",
-    parkingTip: "Mangalem dar sokaklarına araç sokmayın. Gorica veya çeper otel parkını kullanın.",
+    desc: "Balkanların en büyük antik Roma amfitiyatrolarından biri, Venedik Kulesi ve Adriyatik sahil kordonu.",
+    parkingTip: "Liman yakınındaki geniş otoparkı veya Airbnb konaklama otoparkını kullanın; kordon trafiğine girmeyin.",
+  },
+  tirana_skanderbeg: {
+    id: "tirana_skanderbeg",
+    label: "Tiran (İskender Bey Meydanı & Bunk'Art 2)",
+    city: "Tiran",
+    country: "Arnavutluk",
+    lat: 41.3275,
+    lng: 19.8187,
+    type: "culture",
+    desc: "Arnavutluk başkenti; İskender Bey Meydanı, Ethem Bey Camii, Piramit ve Blloku canlı kafe bölgesi.",
+    parkingTip: "Şehir merkezinde sokak parkı çok zordur. Aracı Airbnb otoparkına bırakıp şehri yürüyerek gezin.",
   },
 };
 
@@ -403,34 +414,34 @@ export const dayPlans: DayPlan[] = [
     id: "G0",
     dayNumber: 0,
     date: "29 Ağustos – 6 Eylül 2026",
-    city: "Tüm Balkan Döngüsü (1.180 km)",
-    title: "İstanbul ✈️ Üsküp → Ohri → Sarandë → Ksamil → Himarë → Berat → Üsküp ✈️ İstanbul",
-    sleep: "Üsküp (3 Gece) · Ohri (1 Gece) · Sarandë (2 Gece) · Himarë (1 Gece) · Berat (1 Gece)",
-    drive: "Toplam ~1.180 km Karayolu Sürüşü + 2 Uçuş",
-    walk: "Toplam ~74 km Antik Kent, Kale & Plaj Yürüyüşü",
+    city: "Tüm Balkan Döngüsü (1.220 km)",
+    title: "İstanbul ✈️ Üsküp → Ohri → Sarandë (3G) → Durrës → Tiran → Üsküp ✈️ İstanbul",
+    sleep: "Üsküp (2 Gece) · Ohri (1 Gece) · Sarandë (3 Gece) · Durrës (1 Gece) · Tiran (1 Gece)",
+    drive: "Toplam ~1.220 km Karayolu Sürüşü + 2 Uçuş",
+    walk: "Toplam ~76 km Antik Kent, Kale, Kordon & Doğa Yürüyüşü",
     risk: "Qafë Thanë sınır kapısı pasaport kuyruğu & Llogara virajlı dağ geçidi",
-    route: "İstanbul ✈️ SKP → A2 Otoyolu → Ohri → Qafë Thanë Sınırı → Gjirokastër → Blue Eye → Sarandë → Ksamil → Butrint → Borsh → Porto Palermo → Himarë → Llogara Geçidi → Berat → Elbasan → Üsküp (Matka) → SKP ✈️ İstanbul",
+    route: "İstanbul ✈️ SKP → A2 Otoyolu → Ohri → Qafë Thanë Sınırı → Gjirokastër → Blue Eye → Sarandë (Ksamil / Butrint / Borsh) → Llogara Dağ Geçidi → Vlorë → Durrës → Tiran → Elbasan → Qafë Thanë → Üsküp (Matka) → SKP ✈️ İstanbul",
     timing: [
-      "G1 (29 Ağu): İstanbul ✈️ Üsküp iniş, araç teslimi ve Eski Çarşı / Bit Pazar keşfi",
-      "G2 (30 Ağu): Üsküp → Straža Dağ Geçidi böreği → Ohri Samuel Kalesi & Kaneo gün batımı",
-      "G3 (31 Ağu): Ohri → Qafë Thanë sınırı → Gjirokastër Kalesi → Blue Eye → Sarandë kordonu",
-      "G4 (1 Eyl): Sarandë → Ksamil Adalar koyu & Butrint UNESCO antik kenti",
-      "G5 (2 Eyl): Sarandë → Borsh Şelalesi → Porto Palermo Ali Paşa Kalesi → Himarë Spile",
-      "G6 (3 Eyl): Himarë → Livadhi Koyu → Llogara Dağ Geçidi (1.043m) → Berat Mangalem",
-      "G7 (4 Eyl): Berat Kalesi → Belsh Gölleri → Elbasan → Üsküp varış & dinlenme",
-      "G8 (5 Eyl): Üsküp → Matka Kanyonu tekne turu, Bit Pazar avı & Veda ziyafeti",
+      "G1 (29 Ağu): İstanbul ✈️ Üsküp iniş, araç teslimi ve Eski Çarşı / Bit Pazar keşfi (29-30 Üsküp Airbnb - 3.019 ₺)",
+      "G2 (30 Ağu): Üsküp → Straža Dağ Geçidi böreği → Ohri Samuel Kalesi & Kaneo gün batımı (30-31 Ohri Airbnb - 4.594 ₺)",
+      "G3 (31 Ağu): Ohri → Qafë Thanë sınırı → Gjirokastër Kalesi → Blue Eye → Sarandë kordonu (31 Ağu-3 Eyl Sarandë Otel - 1. Gece)",
+      "G4 (1 Eyl): Sarandë → Ksamil Adalar koyu & Butrint UNESCO antik kenti (Sarandë Otel - 2. Gece)",
+      "G5 (2 Eyl): Sarandë → Borsh Koyu & Şelalesi, Porto Palermo & İyon Denizi dinlenmesi (Sarandë Otel - 3. Gece)",
+      "G6 (3 Eyl): Sarandë → Llogara Dağ Geçidi (1.043m) → Vlorë → Durrës Amfitiyatro & Kordon (3-4 Durrës Airbnb - 5.512 ₺)",
+      "G7 (4 Eyl): Durrës → Tiran İskender Bey Meydanı, Bunk'Art 2, Piramit & Blloku gecesi (4-5 Tiran Airbnb - 3.812 ₺)",
+      "G8 (5 Eyl): Tiran → Qafë Thanë Sınırı → Gostivar → Üsküp Matka Kanyonu & Veda Ziyafeti (5-6 Üsküp Airbnb - 4.429 ₺)",
       "G9 (6 Eyl): Üsküp → SKP Havalimanı araç iadesi → İstanbul ✈️ Büyük Dönüş",
     ],
     car: "Tüm rota boyunca kiralık araçla Kuzey Makedonya ve Arnavutluk karayolları, otoyolları ve virajlı sahil yolları kullanılır.",
-    foot: "Ohri kalesi, Gjirokastër dik taş yokuşları, Butrint antik kenti ve Berat kaleleri yürünerek fethedilir.",
+    foot: "Ohri kalesi, Gjirokastër dik taş yokuşları, Butrint antik kenti, Durrës amfitiyatrosu ve Tiran caddeleri yürünerek keşfedilir.",
     eat: {
-      summary: "9 gün boyunca kebap, tavče gravče, lagün midyesi, taze deniz mahsulleri ve geleneksel Balkan lezzetleri.",
-      places: "Destan, Belvedere Ohri, Taverna Kuka, The Mussel House, Taverna Lefteri, Antigoni Berat.",
-      mustTry: ["Destan Köfte & Şopska", "Ohri Alabalığı", "Butrint Lagün Midyesi", "Himarë Ahtapot", "Tavë Kosi"],
+      summary: "9 gün boyunca kebap, tavče gravče, lagün midyesi, taze deniz mahsulleri, Durrës balığı ve Tiran lezzetleri.",
+      places: "Destan, Belvedere Ohri, Taverna Kuka, The Mussel House, Taverna Lefteri, Durrës Vollga, Tiran Pazari i Ri.",
+      mustTry: ["Destan Köfte & Şopska", "Ohri Alabalığı", "Butrint Lagün Midyesi", "Adriyatik Deniz Mahsulleri", "Tiran Fërgesë"],
       tips: "Yerel küçük mekanlarda nakit ödeyin; balığı sipariş etmeden önce kilogram fiyatına göre tarttırın.",
     },
     shop: {
-      summary: "Üsküp Bit Pazarı, East Gate Mall, Gjirokastër taş oymaları ve Himarë sızma zeytinyağı.",
+      summary: "Üsküp Bit Pazarı, East Gate Mall, Gjirokastër taş oymaları, Tiran Pazari i Ri ve sızma zeytinyağı.",
       target: "Yerel hediyelikler, deri eşyalar, zeytinyağı, kahve ve elektronik.",
       tips: "Pazarlarda nakit MKD/ALL ile pazarlık yapın; büyük alışverişleri AVM'de kartla halledin.",
     },
@@ -439,9 +450,10 @@ export const dayPlans: DayPlan[] = [
       "Ohri Gölü ve Kaneo Kilisesi gün batımı",
       "Syri i Kaltër (Mavi Göz) buz gibi kaynak suyu",
       "Ksamil 3 Adalar ve Butrint UNESCO Antik Kenti",
-      "Porto Palermo Ali Paşa Kalesi ve Borsh Kıyı Yolu",
+      "3 Gece Kesintisiz Sarandë İyon Kıyısı Keyfi",
       "Llogara Dağ Geçidi (1.043m) panoramik Adriyatik manzarası",
-      "Berat Bin Pencereli Şehir ve Tarihî Mangalem",
+      "Durrës Antik Roma Amfitiyatrosu & Vollga Sahili",
+      "Tiran İskender Bey Meydanı & Bunk'Art 2",
       "Matka Kanyonu zümrüt yeşili tekne keşfi",
     ],
     points: [
@@ -450,17 +462,16 @@ export const dayPlans: DayPlan[] = [
       "skopje_bazaar",
       "ohrid_oldtown",
       "ohrid_kaneo",
-      "border_qafethane",
       "gjirokaster_castle",
       "blue_eye",
       "sarande_promenade",
-      "ksamil_beach",
+      "ksamil_islands",
       "butrint_park",
       "borsh_beach",
       "porto_palermo",
-      "himare_spile",
       "llogara_pass",
-      "berat_mangalem",
+      "durres_amphitheatre",
+      "tirana_skanderbeg",
       "skopje_eastgate",
     ],
   },
@@ -470,14 +481,14 @@ export const dayPlans: DayPlan[] = [
     date: "29 Ağustos · Cumartesi",
     city: "İstanbul → Üsküp",
     title: "Balkan Topraklarına İniş & Eski Çarşı İlk Adım",
-    sleep: "Üsküp · Debar Maalo veya Merkez (2 yatak odalı apart)",
+    sleep: "29-30 Ağustos Üsküp Airbnb · Merkez / Debar Maalo (3.019 ₺)",
     drive: "22 km · 25 dk saf sürüş (A4 bağlantısı)",
     walk: "4,2 km · Düz ayak tarihî merkez halkası",
     risk: "Uçuş varış saatine ve araç teslimine göre Eski Çarşı süresini ayarlayın; akşam geç saate kalmayın.",
-    route: "İstanbul Havalimanı → Üsküp SKP → Konaklama Check-in → Eski Çarşı → Taş Köprü → Makedonya Meydanı",
+    route: "İstanbul Havalimanı → Üsküp SKP → Airbnb Check-in → Eski Çarşı → Taş Köprü → Makedonya Meydanı",
     timing: [
       "12:30–14:00: SKP İniş + Kiralık araç teslimi & çizik tutanağı (Eyüpcan teftişi)",
-      "14:30–15:30: Konaklamaya varış + valiz bırakma + hızlı dinlenme",
+      "14:30–15:30: Üsküp Airbnb'ye varış + valiz bırakma + hızlı dinlenme",
       "15:45–17:45: Eski Çarşı (Old Bazaar) sokakları, Kurşunlu Han & Murat Paşa Camii",
       "18:00–19:15: Taş Köprü'den geçiş, Makedonya Meydanı & Vardar Nehri kordonu",
       "19:30–21:00: Destan veya Kaj Serdarot'ta ilk akşam kebabı & şopska salatası",
@@ -505,14 +516,14 @@ export const dayPlans: DayPlan[] = [
     date: "30 Ağustos · Pazar",
     city: "Üsküp → Ohri (Ohrid)",
     title: "Göl Kıyısına İntikal, Samuel Kalesi & Kaneo Gün Batımı",
-    sleep: "Ohri · Old Town alt kotu veya göl kıyısı (Teyitli otoparklı apart)",
+    sleep: "30-31 Ağustos Ohri Airbnb · Old Town / Göl Kıyısı (4.594 ₺)",
     drive: "180 km · 2 sa 50 dk saf sürüş (A2 / E65 dağ yolu)",
     walk: "3,8 km · Tarihî taş sokaklar & falez merdivenleri",
     risk: "Ohri Old Town sokaklarına araç sokmak yasaktır/riskli. Otoparkı varıştan önce arayıp kesinleştirin.",
     route: "Üsküp → Tetovo / Gostivar hattı → Ohri Varış → Antik Tiyatro → Samuel Kalesi → St. John Kaneo",
     timing: [
-      "08:30: Üsküp'ten çıkış (Yakıt ve kahve molası: 20 dk)",
-      "11:45–12:30: Ohri'ye varış, otopark ve check-in",
+      "08:30: Üsküp Airbnb'den çıkış (Yakıt ve kahve molası: 20 dk)",
+      "11:45–12:30: Ohri'ye varış, otopark ve Airbnb check-in",
       "13:00–14:30: Çarşı içi öğle yemeği (Tavče Gravče güveçte kuru fasulye)",
       "15:00–17:00: Ayasofya Kilisesi, Antik Tiyatro ve Samuel Kalesi tepe manzarası",
       "17:30–19:30: Ahşap göl köprüsünden St. John at Kaneo'ya yürüyüş ve efsane gün batımı",
@@ -540,22 +551,22 @@ export const dayPlans: DayPlan[] = [
     date: "31 Ağustos · Pazartesi",
     city: "Ohri → Gjirokastër → Blue Eye → Sarandë",
     title: "Büyük Sınır Geçişi, Taş Şehir & Turkuaz Göz",
-    sleep: "Sarandë · Merkez veya Rruga Butrinti (2 gece sabit üs)",
+    sleep: "31 Ağustos – 3 Eylül Sarandë Otel · Kordon / Rruga Butrinti (33.210 ₺ - 1. Gece)",
     drive: "356 km · 6 sa 29 dk saf sürüş (Toplam gün 9–10 saat)",
     walk: "2,6 km · Odaklı kale ve doğa yürüyüşü",
     risk: "Rotanın EN KRİTİK transfer günüdür. 06:30'da yola çıkılmazsa Sarandë'ye gece varılır!",
     route: "Ohri → Qafë Thanë Sınır Kapısı → Korçë → Gjirokastër → Syri i Kaltër (Blue Eye) → Sarandë",
     timing: [
-      "06:15–06:45: Ohri'den erken çıkış ve sınır kapısına intikal",
+      "06:15–06:45: Ohri Airbnb'den erken çıkış ve sınır kapısına intikal",
       "07:30–08:30: Makedonya-Arnavutluk sınır geçişi (Green Card kontrolü - Eyüpcan devrede)",
       "09:00–11:30: Korçë üzerinden dağ manzaralarıyla Gjirokastër'e sürüş",
       "11:30–13:45: Gjirokastër Kalesi + Eski Çarşı + Taverna Kuka'da hızlı öğle yemeği",
       "14:30–16:30: Syri i Kaltër (Mavi Göz) doğa kaynağı yürüyüşü ve fotoğraf",
-      "17:30–18:30: Sarandë'ye varış, otel check-in ve İyon Denizi esintisi",
+      "17:30–18:30: Sarandë'ye varış, otel check-in (3 gece sabit üs) ve İyon Denizi esintisi",
       "20:00–22:00: Sarandë Kordonu akşam yürüyüşü ve ilk deniz ürünleri ziyafeti",
     ],
-    car: "Depoyu sabah Ohri'de fulleyin. Green Card ve araç sınır izin belgesini torpidoda değil el altında tutun. Çevrimdışı Google Maps haritasını mutlaka indirin.",
-    foot: "Gjirokastër'de aracı çarşı girişinde bırakın; dik taş yokuşlarda dikkatli yürüyün. Blue Eye'da otoparktan kaynağa asfalt/patika 1.5 km yürünür.",
+    car: "Depoyu sabah Ohri'de fulleyin. Green Card ve araç sınır izin belgesini el altında tutun. Çevrimdışı haritayı indirin.",
+    foot: "Gjirokastër'de aracı çarşı girişinde bırakın; dik taş yokuşlarda dikkatli yürüyün. Blue Eye'da otoparktan kaynağa 1.5 km yürünür.",
     eat: {
       summary: "Gjirokastër'de otantik fërgesë ve qofte; akşam Sarandë'de taze kalamar ve karides.",
       places: "Öğlen: Taverna Kuka (Gjirokastër) / Akşam: Fish Filipi veya Limani (Sarandë)",
@@ -575,8 +586,8 @@ export const dayPlans: DayPlan[] = [
     dayNumber: 4,
     date: "1 Eylül · Salı",
     city: "Sarandë ↔ Ksamil & Butrint",
-    title: "Balkanların Maldivleri & 2500 Yıllık UNESCO Mirası",
-    sleep: "Sarandë · Aynı otel (Valiz toplama yok, rahat gün)",
+    title: "Balkanların Maldivleri Ksamil & 2500 Yıllık UNESCO Mirası",
+    sleep: "Sarandë Otel (2. Gece · Valiz toplama yok, rahat gün)",
     drive: "37 km · 1 sa 25 dk toplam saf sürüş (SH81 yolu)",
     walk: "3,4 km · Antik kent zeytinlikleri + kumsal",
     risk: "Ksamil otoparkları 09:30'da dolar! Butrint'e ise öğle sıcağında değil 16:00'da girilmelidir.",
@@ -588,18 +599,18 @@ export const dayPlans: DayPlan[] = [
       "16:00–18:30: Butrint Antik Kenti (Tiyatro, Vaftizhane, Bazilika, Venedik Kalesi)",
       "19:30–22:00: Sarandë'de muazzam gün batımı ve deniz ürünleri gecesi",
     ],
-    car: "SH81 yolu virajlıdır ve sezon trafiği olur. Ksamil'de aracı güvenli, makbuz veren özel otoparka bırakın (500–800 ALL). Butrint parkı ücretsizdir.",
-    foot: "Butrint düzensiz taş zemin ve patikalardan oluşur; deniz terliğiyle değil yürüyüş ayakkabısıyla gelin. Sivrisinek spreyini unutmayın.",
+    car: "SH81 yolu virajlıdır. Ksamil'de aracı güvenli otoparka bırakın. Butrint parkı ücretsizdir.",
+    foot: "Butrint düzensiz taş zemin ve patikalardan oluşur; yürüyüş ayakkabısıyla gelin.",
     eat: {
       summary: "Günün taze tutulmuş balığı, midye tava (Butrint Lagünü midyeleri meşhurdur) ve karides güveç.",
-      places: "Fish Filipi, Taverna Rustico veya The Mussel House (Ksamil gölü yolu)",
-      mustTry: ["Butrint Lagün Midyesi (Mussels Bouzoukia)", "Izgara Çipura / Levrek (Kg fiyatını önce sorun)", "Kalamar Tava", "Arnavut Trileçesi"],
-      tips: "Balık siparişi vermeden önce balığı tarttırıp net fiyatını öğrenin (Fatih Kuralı!).",
+      places: "Fish Filipi, Taverna Rustico veya The Mussel House",
+      mustTry: ["Butrint Lagün Midyesi (Mussels Bouzoukia)", "Izgara Çipura / Levrek", "Kalamar Tava", "Arnavut Trileçesi"],
+      tips: "Balık siparişi vermeden önce balığı tarttırıp net fiyatını öğrenin.",
     },
     shop: {
       summary: "Plaj günü tedariki ve yerel zeytinyağı.",
       target: "Sarandë yerel marketleri",
-      tips: "Plaj kulübünde su ve meyveye 5 katı ödememek için Sarandë marketinden soğuk su ve atıştırmalık stoklayın.",
+      tips: "Plaj kulübünde yüksek fiyat ödememek için marketten soğuk su stoklayın.",
     },
     highlights: ["Ksamil Adaları", "Butrint Antik Tiyatrosu", "Vaftizhane Mozaikleri", "Vivari Kanalı"],
     points: ["ksamil_islands", "butrint_park", "sarande_promenade"],
@@ -608,128 +619,129 @@ export const dayPlans: DayPlan[] = [
     id: "G5",
     dayNumber: 5,
     date: "2 Eylül · Çarşamba",
-    city: "Sarandë → Borsh → Porto Palermo → Himarë",
-    title: "Arnavutluk Rivierası, Ali Paşa Kalesi & Kıyı Cenneti",
-    sleep: "Himarë · Merkez / Spile Kordonu (Butik sahil oteli)",
-    drive: "57 km · 1 sa 37 dk saf sürüş (SH8 Kıyı panoraması)",
-    walk: "2,1 km · Kale burçları & kordon yürüyüşü",
-    risk: "Kısa km ama çok duraklı gündür. SH8 virajlarını gece karanlığına bırakmayın!",
-    route: "Sarandë → Borsh Plajı & Şelale Kafe → Porto Palermo Ali Paşa Kalesi → Himarë Spile",
+    city: "Sarandë ↔ Borsh & Porto Palermo",
+    title: "Borsh Şelalesi, Ali Paşa Kalesi & İyon Kıyısında Dinlenme",
+    sleep: "Sarandë Otel (3. Gece · Kıyıdaki son akşam ve veda ziyafeti)",
+    drive: "85 km · 2 sa toplam gidiş-dönüş sahil sürüşü",
+    walk: "2,5 km · Sahil & kale yürüyüşü",
+    risk: "SH8 sahil virajlarında acele etmeyin; akşam Sarandë'de gün batımını kaçırmayın.",
+    route: "Sarandë → Borsh Sahili & Şelale Kafe → Porto Palermo Kalesi & Körfezi → Sarandë Dönüş",
     timing: [
-      "09:15: Sarandë'den çıkış",
-      "10:15–12:30: Borsh'ta 7 km'lik devasa sahilde deniz molası ve şelale kenarında kahve",
-      "13:00–14:30: Borsh sahilinde taze byrek & deniz kenarı öğle atıştırmalığı",
-      "15:00–16:15: Porto Palermo Kalesi'ne çıkış, üçgen burçlar ve körfez fotoğrafları",
-      "16:45: Himarë'ye varış, otele yerleşme ve Spile plajında gün batımı",
-      "20:00–22:30: Taverna Lefteri veya Himara 28'de ızgara ahtapot ve İyon mezeleri ziyafeti",
+      "09:30: Sarandë'den hareket",
+      "10:30–13:00: Borsh 7 km'lik sahilinde deniz keyfi & şelale kenarında kahve molası",
+      "13:30–15:00: Porto Palermo Ali Paşa Kalesi keşfi & körfez manzaraları",
+      "15:30: Sarandë'ye dönüş, otelde dinlenme & serbest plaj/çarşı zamanı",
+      "20:00–22:30: Sarandë'de taze deniz ürünleri ve İyon kıyısında kutlama yemeği",
     ],
-    car: "SH8 yolu deniz uçurumları boyunca kıvrılır; manzara büyüleyicidir. Fotoğraf için sadece güvenli ceplerde durun. Himarë'de otel parkını teyit edin.",
-    foot: "Porto Palermo Kalesi'ne yarımadadan kısa bir patika tırmanışı vardır. Himarë akşamı ise araçsız, kordon boyunca keyif yürüyüşüdür.",
+    car: "SH8 yolu deniz uçurumları boyunca kıvrılır; manzara harikadır. Güvenli ceplerde durun.",
+    foot: "Porto Palermo Kalesi'ne kısa bir patika tırmanışı vardır. Akşam Sarandë kordonu düzlüktür.",
     eat: {
       summary: "Izgara ahtapot, taze deniz mahsulleri ve Yunan esintili taze Arnavut mezeleri.",
-      places: "Taverna Lefteri (Spile) veya Taverna Velco",
-      mustTry: ["Izgara Ahtapot (Octopus on Grill)", "Közlenmiş Patlıcan Ezmesi", "Saganaki Peyniri", "Lokal Kıyı Beyaz Şarabı"],
-      tips: "Taverna Lefteri Himarë'nin en ikonik noktasıdır; akşam 20:00 civarı masa kapmak için İkra erkenden operasyonu başlatmalıdır.",
+      places: "Taverna Rustico, Limani veya Fish Filipi",
+      mustTry: ["Izgara Ahtapot", "Közlenmiş Patlıcan Ezmesi", "Saganaki Peyniri", "Lokal Beyaz Şarap"],
+      tips: "Sarandë'deki son geceniz; İyon kıyısında gün batımı masası ayırtın.",
     },
     shop: {
       summary: "Riviera sızma zeytinyağı ve dağ balı.",
       target: "Yol kenarı yerel üretici tezgâhları",
-      tips: "Himarë ve Borsh civarında köylülerin sattığı soğuk sıkım zeytinyağları harikadır; pet şişede bagaja sızdırmaz şekilde sarın.",
+      tips: "Borsh civarında köylülerin sattığı soğuk sıkım zeytinyağları harikadır.",
     },
-    highlights: ["Borsh Sahili", "Porto Palermo Kalesi", "Himarë Spile Kordonu", "SH8 Riviera Manzaraları"],
-    points: ["borsh_beach", "porto_palermo", "himare_spile"],
+    highlights: ["Borsh Sahili", "Porto Palermo Kalesi", "Sarandë Kordonu", "İyon Denizi Gün Batımı"],
+    points: ["borsh_beach", "porto_palermo", "sarande_promenade"],
   },
   {
     id: "G6",
     dayNumber: 6,
     date: "3 Eylül · Perşembe",
-    city: "Himarë → Llogara Geçidi → Berat",
-    title: "Livadhi Sabah Denizi, Bulutlar Üstü Llogara & Bin Pencereli Şehir",
-    sleep: "Berat · Gorica veya Mangalem dış çeperi (Arabayla erişilebilir otel)",
-    drive: "174 km · 2 sa 55 dk saf sürüş (Llogara Geçidi + A2 Otoyolu)",
-    walk: "2,8 km · Osumi Nehri kordonu & Gorica Köprüsü akşamı",
-    risk: "Himarë'den 14:00'ten geç çıkmayın; Berat'a hava kararmadan varmak otopark için hayatidir.",
-    route: "Himarë (Livadhi Koyu) → Llogara Dağ Geçidi (1.043m) → Fier / A2 → Berat Mangalem",
+    city: "Sarandë → Llogara Geçidi → Vlorë → Durrës",
+    title: "Bulutlar Üstü Llogara Dağ Geçidi, Adriyatik Kıyısı & Dıraç Varış",
+    sleep: "3-4 Eylül Durrës Airbnb · Sahil Kordonu / Vollga (5.512 ₺)",
+    drive: "235 km · 3 sa 45 dk saf sürüş (SH8 Panorama + A2 Otoyolu)",
+    walk: "3,2 km · Dıraç Roma Amfitiyatrosu & Sahil Kordonu",
+    risk: "Llogara 1.043m dağ tırmanışında motor harareti yapmayın, inerken motor freni kullanın.",
+    route: "Sarandë Otel Check-out → SH8 Sahil Yolu → Llogara Dağ Geçidi (1.043m) → Vlorë Sahili → Fier A2 → Durrës Airbnb & Amfitiyatro",
     timing: [
-      "08:30–11:30: Livadhi Koyu'nda berrak sabah denizi & sakin plaj keyfi",
-      "12:00–13:00: Duş, check-out ve Himarë merkezinde hafif öğle yemeği",
-      "13:30–14:30: Llogara Geçidi'ne tırmanış, panoramik seyir terasında fotoğraf molası",
-      "17:00–17:45: Berat'a varış ve konaklama garajına park",
-      "18:15–20:00: Tarihî Gorica Taş Köprüsü, Mangalem ışıkları ve nehir boyu piyasa",
-      "20:15–22:30: Antigoni veya Tradita e Beratit'te Tavë Kosi (Kuzu fırın) ziyafeti",
+      "08:30: Sarandë otel check-out ve çıkış",
+      "10:00–11:00: Llogara Dağ Geçidi seyir terasında fotoğraf molası & dağ çayı",
+      "11:45–13:00: Vlorë sahil kordonunda yürüyüş & öğle yemeği",
+      "14:45–15:30: Durrës'e varış, Airbnb check-in ve otopark yerleşimi",
+      "16:00–18:00: Balkanların en büyük Roma yapılarından Durrës Antik Amfitiyatrosu & Venedik Kulesi",
+      "18:30–20:00: Vollga Kordonu boyunca Adriyatik gün batımı yürüyüşü",
+      "20:15–22:30: Durrës sahilinde taze Adriyatik balığı ve İtalyan esintili akşam yemeği",
     ],
-    car: "Llogara Geçidi 1.043 metreye tırmanır; dik virajlarda hararet yapmamak için sakin sürün; inerken motor freni kullanın. Berat merkezinde dar sokaklara girmeyin.",
-    foot: "Akşam Gorica Köprüsü ve nehir kenarı düzlüktür. Berat Kalesi tırmanışını yorgun olmamak için ertesi sabah 08:00'e bırakıyoruz.",
+    car: "Llogara Geçidi 1.043 metreye tırmanır; dik virajlarda dikkatli sürün. Vlorë sonrası Fier–Durrës duble otoyolu rahattır.",
+    foot: "Durrës Roma Amfitiyatrosu ve Vollga sahil kordonu düz ayak ve yürüyüş için çok keyiflidir.",
     eat: {
-      summary: "Arnavutluk'un millî fırın yemeği Tavë Kosi (yoğurtlu fırın kuzu) ve fërgesë.",
-      places: "Antigoni Restaurant (Gorica manzaralı teras) veya Tradita e Beratit",
-      mustTry: ["Tavë Kosi (Yoğurtlu Fırınlanmış Kuzu Eti)", "Pispili (Mısır unlu pırasalı börek)", "Berat Usulü Dolma", "Yerel Berat Kırmızı Şarabı"],
-      tips: "Antigoni'nin üst terasından karşıdaki Mangalem pencerelerinin gece aydınlatması büyüleyicidir.",
+      summary: "Adriyatik Denizi taze balıkları, deniz mahsullü linguine ve İtalyan dondurması.",
+      places: "Gusto di Mare, Aragosta veya 2 Kitarrat (Durrës Vollga)",
+      mustTry: ["Deniz Mahsullü Makarna (Linguine Frutti di Mare)", "Izgara Çipura", "Dıraç Trileçesi", "İtalyan Dondurması"],
+      tips: "Vollga Kordonu boyunca deniz kenarındaki restoranlarda gün batımını izlemek çok keyiflidir.",
     },
     shop: {
-      summary: "Berat ceviz reçeli (Gliko) ve Çobo şarapları.",
-      target: "Berat çarşısı ve yerel tatlıcılar",
-      tips: "Berat'ın meşhur 'Gliko' ceviz ve incir tatlıları küçük kavanozlarda taşımaya çok uygundur.",
+      summary: "Durrës sahil çarşısı ve İtalyan ürünleri.",
+      target: "Durrës Merkez & Vollga Kordonu",
+      tips: "Adriyatik kıyısında zeytin ve yerel peynir alışverişi yapılabilir.",
     },
-    highlights: ["Livadhi Beach", "Llogara Seyir Noktası", "Gorica Köprüsü", "Mangalem Evleri", "Osumi Nehri"],
-    points: ["himare_spile", "llogara_pass", "berat_mangalem"],
+    highlights: ["Llogara Seyir Noktası", "Vlorë Sahili", "Durrës Roma Amfitiyatrosu", "Vollga Kordonu Gün Batımı"],
+    points: ["llogara_pass", "durres_amphitheatre"],
   },
   {
     id: "G7",
     dayNumber: 7,
     date: "4 Eylül · Cuma",
-    city: "Berat → Sınır → Üsküp",
-    title: "Berat Kalesi Keşfi & Üsküp'e Büyük Dönüş İntikali",
-    sleep: "Üsküp · Aerodrom veya Merkez (Rahat üs)",
-    drive: "313 km · 5 sa 40 dk saf sürüş (Mola + sınırla ~7-8 saat)",
-    walk: "2,3 km · Sabah kale içi tarihi halkası",
-    risk: "Sınır kapısı yoğunluğunu hesaba katarak en geç 10:30'da Berat'tan çıkılmalıdır.",
-    route: "Berat Kalesi & Onufri Müzesi → Elbasan → Qafë Thanë Sınır Kapısı → Gostivar → Üsküp",
+    city: "Durrës → Tiran (Tirana)",
+    title: "Arnavutluk Başkenti Tiran: İskender Bey, Bunk'Art & Blloku",
+    sleep: "4-5 Eylül Tiran Airbnb · Blloku / Şehir Merkezi (3.812 ₺)",
+    drive: "38 km · 45 dk saf sürüş (SH2 Otoyolu)",
+    walk: "5,5 km · Şehir meydanları, parklar & Blloku sokakları",
+    risk: "Tiran şehir içi trafiği yoğundur; Airbnb otoparkına aracı bırakıp şehri yürüyerek keşfedin.",
+    route: "Durrës Airbnb Check-out → SH2 Otoyolu → Tiran Airbnb Check-in → İskender Bey Meydanı → Bunk'Art 2 → Piramit → Blloku",
     timing: [
-      "08:00–10:00: Berat Kalesi ana kapısı, sur manzarası ve Onufri İkon Müzesi",
-      "10:30: Berat'tan hareket",
-      "12:30–13:15: Yol üstü yakıt ve hafif öğle yemeği molası",
-      "14:00–15:15: Arnavutluk-Makedonya sınır geçişi (Sınır kuyruğu payı)",
-      "18:00–19:00: Üsküp'e varış, otele giriş ve dinlenme",
-      "20:00–22:00: Debar Maalo sokaklarında rahat bir akşam yemeği",
+      "09:30: Durrës'ten hareket (SH2 duble yolu)",
+      "10:30: Tiran'a varış, Airbnb check-in ve güvenli otopark",
+      "11:15–13:30: İskender Bey Meydanı, Ethem Bey Camii, Tarih Müzesi Mozaikleri & Bunk'Art 2 Yeraltı Sığınağı",
+      "13:30–15:00: Tiran Pazarı (Pazari i Ri) geleneksel öğle yemeği (Fërgesë & Qofte)",
+      "15:30–17:30: Tiran Piramidi seyir terası veya Dajti Ekspres teleferik gezisi",
+      "18:00–22:30: Blloku'nun renkli kafeleri, canlı müzik, akşam yemeği ve İkra'nın kahve keyfi",
     ],
-    car: "Dönüş yolu uzun ve sınırlıdır. Depoyu sınır öncesi makul seviyede tutun.",
-    foot: "Berat Kalesi içi taşlıktır, sabah serinliğinde 1.5 saatlik gezi yeterlidir.",
+    car: "SH2 otoyolu düzgündür. Tiran merkezinde araba kullanmayın, Airbnb otoparkına çekin.",
+    foot: "İskender Bey Meydanı'ndan Blloku'ya tüm ana arterler yürüyüş mesafesindedir.",
     eat: {
-      summary: "Dönüş günü pratik börek/pide; Üsküp'te lezzetli bir akşam sofrası.",
-      places: "Gostivar börekçileri (öğlen) / Kaj Serdarot (Üsküp)",
-      mustTry: ["Gostivar Kıymalı Böreği", "Makedon Tava Ciğeri", "Kaymaklı Kırmızı Biber", "Makedon Rakısı"],
-      tips: "Yol yorgunluğu için akşamı Debar Maalo'da hafif tutun.",
+      summary: "Geleneksel Tiran güveçleri (Fërgesë Tiranë), ızgara köfteler ve Blloku'nun modern mutfakları.",
+      places: "Oda Restaurant, Era Blloku veya Mullixhiu (Büyük Park)",
+      mustTry: ["Fërgesë Tiranë me Gjizë", "Tavë Dheu (Güveçte Ciğer & Peynir)", "Qofte Korçe", "Yerel Tiran Bira (Korca/Tirana)"],
+      tips: "Blloku bölgesinde şık kafelerde akşam kahvesi ve kokteyl molası verin.",
     },
     shop: {
-      summary: "Elbasan yol üstü taze meyve ve dağ kekiği.",
-      target: "Yol kenarı yerel tezgâhlar",
-      tips: "Küçük nakit bozukluk bulundurun.",
+      summary: "Pazari i Ri (Yeni Pazar) yerel baharatlar, çaylar ve el sanatları.",
+      target: "Pazari i Ri & Tiran Çarşısı",
+      tips: "Renkli binalarla çevrili pazardan taze meyve, kuruyemiş ve dağ çayı alınabilir.",
     },
-    highlights: ["Berat Kalesi", "Onufri Müzesi", "Qafë Thanë Sınırı", "Üsküp Kordonu"],
-    points: ["berat_mangalem", "skopje_bazaar"],
+    highlights: ["İskender Bey Meydanı", "Bunk'Art 2", "Tiran Piramidi", "Blloku Eğlence Bölgesi", "Pazari i Ri"],
+    points: ["durres_amphitheatre", "tirana_skanderbeg"],
   },
   {
     id: "G8",
     dayNumber: 8,
     date: "5 Eylül · Cumartesi",
-    city: "Üsküp & Matka Kanyonu & Bit Pazar",
-    title: "Matka Kanyonu Zümrüt Suları, Bit Pazar Avı & Büyük Veda Sofrası",
-    sleep: "Üsküp · Aerodrom veya Merkez (Havalimanına 20 dk)",
-    drive: "48 km · 1 sa 10 dk toplam şehir içi & kanyon sürüşü",
-    walk: "4,5 km · Kanyon patikası & çarşı keşfi",
-    risk: "Son geceyi valizleri düzenleyip dinlenerek geçirin; 6 Eylül sabahı araç iadesi ve uçuş var!",
-    route: "Üsküp Merkez → Matka Kanyonu & Vrelo Mağarası Tekne Turu → Bit Pazar & Eski Çarşı → East Gate Mall → Büyük Kapanış Yemeği",
+    city: "Tiran → Sınır → Üsküp",
+    title: "Makedonya'ya Dönüş, Matka Kanyonu & Büyük Veda Sofrası",
+    sleep: "5-6 Eylül Üsküp Airbnb · Aerodrom / Merkez (4.429 ₺)",
+    drive: "245 km · 4 sa 15 dk saf sürüş (+ sınır kuyruğu payı)",
+    walk: "3,8 km · Matka Kanyonu & Eski Çarşı",
+    risk: "Sınır kapısı yoğunluğu nedeniyle Tiran'dan en geç 08:30'da çıkılmalıdır.",
+    route: "Tiran Airbnb Check-out → Elbasan Tüneli → Qafë Thanë Sınır Kapısı → Gostivar → Üsküp Matka Kanyonu → Üsküp Airbnb → Veda Yemeği",
     timing: [
-      "09:00–12:30: Matka Kanyonu'na intikal, kanyon tekne turu ve Vrelo Mağarası keşfi",
-      "13:00–14:30: Kanyon kıyısında taze alabalık veya Eski Çarşı'da öğle yemeği",
-      "15:00–17:30: Mert'in favorisi Bit Pazar antika ve vintage avı + Eski Çarşı kahvesi",
-      "18:00–19:30: East Gate Mall son dakika gümrüksüz ve süpermarket alışverişleri",
-      "20:00–22:30: Ekibin büyük veda ziyafeti, kutu oyunu turnuvası ve anıların paylaşılması",
-      "22:45–23:30: Fatih'in son Splitwise mahkemesi ve kapanış hesaplaşması",
+      "08:15: Tiran Airbnb'den hareket",
+      "09:30–10:30: Elbasan ve Qafë Thanë sınır kapısına varış (Arnavutluk-Makedonya geçişi)",
+      "12:00–12:45: Straža / Gostivar börek molası",
+      "14:00–16:30: Üsküp Matka Kanyonu tekne turu ve Vrelo Mağarası",
+      "17:30–18:30: Üsküp Airbnb check-in & dinlenme",
+      "19:00–20:30: Bit Pazar & East Gate Mall son dakika hediyelikleri",
+      "20:45–23:00: Destan / Kaj Serdarot ekibin büyük veda ziyafeti & Fatih'in Splitwise bütçe kapanışı",
     ],
-    car: "Matka Kanyonu hafta sonu yoğunlaşabilir; sabah erken saatte varıp resmî cebe park edin. Akşam AVM kapalı otoparkı rahattır.",
-    foot: "Matka kanyonu boyunca yürüyüş yolu taşlıktır, rahat ayakkabı tercih edin.",
+    car: "Elbasan tüneli ve otoyol hızlıdır; sınır sonrası Makedonya içi A2 otoyolu kullanılır.",
+    foot: "Matka Kanyonu patikası ve Üsküp Eski Çarşı yürünür.",
     eat: {
       summary: "Balkanlara veda ziyafeti; kanyon kıyısında balık, çarşıda kebap ve meşhur tatlılar.",
       places: "Kanyon Restaurant Matka veya Kaj Serdarot / Distrikt",
@@ -739,10 +751,10 @@ export const dayPlans: DayPlan[] = [
     shop: {
       summary: "Bit Pazar antikaları, East Gate Mall yerel lezzetler ve hatıra magnetleri.",
       target: "Üsküp Bit Pazarı & East Gate Mall",
-      tips: "Balkan çikolataları, ajvar kavanozları ve hediyelik peynirleri süpermarketten uygun fiyata kapatın.",
+      tips: "Balkan çikolataları, ajvar kavanozları ve hediyelik peynirleri süpermarketten kapatın.",
     },
     highlights: ["Matka Kanyonu", "Vrelo Mağarası", "Bit Pazar Antika Avı", "Büyük Veda Ziyafeti"],
-    points: ["skopje_bazaar", "skopje_bitpazar", "skopje_eastgate"],
+    points: ["tirana_skanderbeg", "skopje_bazaar", "skopje_bitpazar", "skopje_eastgate"],
   },
   {
     id: "G9",
@@ -757,12 +769,12 @@ export const dayPlans: DayPlan[] = [
     route: "Otel Check-out → Benzinlik Depo Fulü → Kiralık Araç Teslimi → SKP Terminal → İstanbul",
     timing: [
       "08:30–09:30: Rahat kahvaltı & son valiz kontrolü (Pasaportlar el çantasında!)",
-      "10:00–10:30: Otelden çıkış",
+      "10:00–10:30: Üsküp Airbnb'den çıkış",
       "10:45–11:15: Havalimanı yakınında son benzinlikte depoyu tam fulleme & fişi alma",
       "11:30–12:00: Kiralık araç teslimi (Eyüpcan & Fatih iade tutanağı kontrolü)",
       "12:15–14:20: Bagaj teslim, pasaport kontrolü, Duty Free & 14:20 Uçuşu",
     ],
-    car: "Aracı aldığınız yakıt seviyesinde (genelde full-to-full) teslim edin. Dış gövdenin son halini videoya çekin. Depozito iade fişini Fatih'e teslim edin.",
+    car: "Aracı aldığınız yakıt seviyesinde (full-to-full) teslim edin. Dış gövdenin son halini videoya çekin. Depozito iade fişini Fatih'e teslim edin.",
     foot: "Yalnızca terminal içi yürüyüş.",
     eat: {
       summary: "Hafif bir kahvaltı ve havalimanı kahvesi.",
@@ -1354,17 +1366,14 @@ export const realRoadPaths: Record<string, [number, number][]> = {
     [39.7689, 20.0048], // Ksamil Beach & Islands
     [39.7444, 20.0213], // Butrint UNESCO Park
     [39.8753, 20.0058], // Sarandë Return
-    [39.9912, 19.9145], // Lukovë
-    [40.0611, 19.8522], // Borsh Beach & Waterfall
+    [40.0611, 19.8522], // Borsh Beach
     [40.0622, 19.7919], // Porto Palermo Ali Pasha Fortress
-    [40.0898, 19.7645], // Qeparo
-    [40.1039, 19.7456], // Himarë Spile & Livadhi Beach
-    [40.1512, 19.6412], // Dhermi
+    [40.1039, 19.7456], // Himarë Spile
     [40.1983, 19.5961], // Llogara Mountain Pass (1.043m Panorama)
     [40.4234, 19.4876], // Vlorë
     [40.7234, 19.5567], // Fier (A2 Highway)
-    [40.7058, 19.9522], // Berat Mangalem & Castle
-    [40.8543, 19.8876], // Belsh Lakes
+    [41.3128, 19.4453], // Durrës (Dıraç Sahili & Amfitiyatro)
+    [41.3275, 19.8187], // Tiran (İskender Bey Meydanı & Blloku)
     [41.1123, 20.0845], // Elbasan
     [41.1523, 20.5892], // Qafë Thanë Border (Return)
     [41.5123, 20.9582], // Kičevo
@@ -1419,40 +1428,42 @@ export const realRoadPaths: Record<string, [number, number][]> = {
   ],
   G5: [
     [39.8753, 20.0058], // Sarandë
-    [39.9456, 19.9543], // Shen Vasil
     [39.9912, 19.9145], // Lukovë
     [40.0611, 19.8522], // Borsh Beach & Waterfall
     [40.0622, 19.7919], // Porto Palermo Ali Pasha Fortress
-    [40.0898, 19.7645], // Qeparo
-    [40.1039, 19.7456], // Himarë Spile & Livadhi Beach
+    [40.0611, 19.8522], // Borsh
+    [39.8753, 20.0058], // Sarandë Return
   ],
   G6: [
-    [40.1039, 19.7456], // Himarë (Livadhi Beach)
-    [40.1512, 19.6412], // Dhermi / Drymades
+    [39.8753, 20.0058], // Sarandë
+    [40.0611, 19.8522], // Borsh
+    [40.0622, 19.7919], // Porto Palermo
+    [40.1039, 19.7456], // Himarë
     [40.1983, 19.5961], // Llogara Mountain Pass (1.043m Panorama)
-    [40.2876, 19.4987], // Dukat / Orikum
-    [40.4234, 19.4876], // Vlorë bypass
+    [40.2876, 19.4987], // Orikum
+    [40.4234, 19.4876], // Vlorë Kordon
     [40.7234, 19.5567], // Fier (A2 Highway)
-    [40.6876, 19.7543], // Roskovec / Ura Vajgurore
-    [40.7058, 19.9522], // Berat (Mangalem & Gorica Bridge)
+    [41.3128, 19.4453], // Durrës (Dıraç Sahili & Amfitiyatro)
   ],
   G7: [
-    [40.7058, 19.9522], // Berat Castle
-    [40.7512, 19.9123], // Kuçovë
-    [40.8543, 19.8876], // Belsh Lakes
-    [41.1123, 20.0845], // Elbasan
+    [41.3128, 19.4453], // Durrës
+    [41.3345, 19.6412], // Vore (SH2 Otoyolu)
+    [41.3275, 19.8187], // Tiran (İskender Bey Meydanı, Bunk'Art 2 & Blloku)
+  ],
+  G8: [
+    [41.3275, 19.8187], // Tiran
+    [41.1123, 20.0845], // Elbasan (Tünel & Otoyol)
     [41.1765, 20.3123], // Librazhd
     [41.1523, 20.5892], // Qafë Thanë Border Crossing
     [41.1765, 20.6789], // Struga
-    [41.3412, 20.8354], // Botun
     [41.5123, 20.9582], // Kičevo
     [41.6734, 20.8756], // Straža
     [41.7967, 20.9082], // Gostivar
     [41.9986, 20.9715], // Tetovo (A2)
-    [41.9965, 21.4589], // Skopje East Gate Mall
+    [41.9867, 21.3214], // Matka Kanyonu
     [42.0003, 21.4371], // Skopje Center
   ],
-  G8: [
+  G9: [
     [42.0003, 21.4371], // Skopje Center
     [41.9867, 21.5124], // A4 Highway
     [41.9616, 21.6214], // Skopje Airport (SKP Return)
@@ -1480,44 +1491,58 @@ export const flightArcs = {
 
 export const stayMatrix = [
   {
-    city: "Üsküp",
-    nights: "2 gece",
-    area: "Debar Maalo / Merkez (son gece Aerodrom alternatif)",
-    type: "2 yatak odalı apart / daire",
-    filter: "Özel otopark, klima, iptal seçeneği, havalimanı çıkışı",
-    why: "Şehir gecelerinde araçtan çok yürüyüş ve kafe önemli; dönüş gecesinde ise sabah havalimanına hızlı erişim gerekir.",
+    city: "Üsküp (1. Gece)",
+    dates: "29–30 Ağustos (1 Gece)",
+    price: "3.019 ₺",
+    area: "Merkez / Debar Maalo",
+    type: "29-30 Üsküp Airbnb",
+    filter: "Özel otopark, klima, Eski Çarşı ve Vardar Köprüsü'ne yürüme mesafesi",
+    why: "Uçuş inişi sonrası ilk gece; arabayı garaja çekip Eski Çarşı ve Debar Maalo kafe kültürünü yaşamak için.",
   },
   {
     city: "Ohri",
-    nights: "1 gece",
-    area: "Old Town alt kotu veya göl kıyısı",
-    type: "Pansiyon / butik apart",
-    filter: "Teyitli otopark, erken check-out, göle yürüme",
-    why: "Samuel Kalesi ve Kaneo yürüyüşü için konum avantajı; yokuş içindeki park cezası ve dar sokak riskini sıfırlar.",
+    dates: "30–31 Ağustos (1 Gece)",
+    price: "4.594 ₺",
+    area: "Old Town / Göl Kıyısı",
+    type: "30-31 Ohrid Airbnb",
+    filter: "Teyitli otopark, göl manzarası, Samuel Kalesi & Kaneo yürüyüş hattı",
+    why: "Ohri'nin büyülü gün batımını ve St. John at Kaneo kilisesini akşam serinliğinde izlemek için eşsiz konum.",
   },
   {
     city: "Sarandë",
-    nights: "2 gece",
-    area: "Merkez veya Rruga Butrinti",
-    type: "Parklı otel (2 oda)",
-    filter: "Balkon, klima, 24 saat resepsiyon, sabit otopark",
-    why: "Kıyıdaki en yoğun lojistik üssünüz; iki akşam ve Ksamil günü için bavul açıp sabit kalmak yorgunluğu önler.",
+    dates: "31 Ağustos – 3 Eylül (3 Gece Kesintisiz)",
+    price: "33.210 ₺ (3 Gece Toplam)",
+    area: "Kordon / Rruga Butrinti",
+    type: "31-3 Sarandë Otel",
+    filter: "Sabit otel otoparkı, klima, balkon, İyon Denizi manzarası",
+    why: "Kıyıdaki ana tatil üssünüz; valiz toplamadan 3 gece sabit kalarak Ksamil, Butrint, Borsh ve plajların tadını çıkarmak için.",
   },
   {
-    city: "Himarë",
-    nights: "1 gece",
-    area: "Merkez / Spile sahil kordonu",
-    type: "Butik sahil oteli",
-    filter: "Otopark dahil, plaja yürüme, geç check-in",
-    why: "SH8 Riviera gününü karanlığa bırakmamak ve akşam arabaya binmeden tavernalarda rahat etmek için.",
+    city: "Durrës (Dıraç)",
+    dates: "3–4 Eylül (1 Gece)",
+    price: "5.512 ₺",
+    area: "Vollga Sahil Kordonu / Merkez",
+    type: "3-4 Durrës Airbnb",
+    filter: "Otopark garantili, plaja ve Roma amfitiyatrosuna yakın",
+    why: "Llogara Geçidi sonrası Adriyatik kıyısında dinlenmek, taze balık yemek ve gün batımında Vollga kordonunda yürümek için.",
   },
   {
-    city: "Berat",
-    nights: "1 gece",
-    area: "Gorica veya Mangalem dış çeperi",
-    type: "Tarihî konuk evi / apart",
-    filter: "Arabayla erişim, dar sokak dışı güvenli park",
-    why: "Tarihî merkezde park aramak yerine aracı rahat bırakıp sabah kale ve pencereli evleri taze enerjiyle gezmek için.",
+    city: "Tiran",
+    dates: "4–5 Eylül (1 Gece)",
+    price: "3.812 ₺",
+    area: "Blloku / Şehir Merkezi",
+    type: "4-5 Tiran Airbnb",
+    filter: "Güvenli otopark, klima, İskender Bey Meydanı ve Blloku yürüyüş hattı",
+    why: "Arnavutluk başkentinin renkli kültürünü, Bunk'Art 2 müzesini ve Blloku'nun dinamik gece hayatını keşfetmek için.",
+  },
+  {
+    city: "Üsküp (Dönüş Gecesi)",
+    dates: "5–6 Eylül (1 Gece)",
+    price: "4.429 ₺",
+    area: "Aerodrom / Şehir Merkezi",
+    type: "5-6 Üsküp Airbnb",
+    filter: "Havalimanına hızlı çıkış (20 dk), özel otopark, klima",
+    why: "Matka Kanyonu ve veda ziyafeti sonrası rahat uyku; ertesi sabah havalimanı araç iadesi ve uçuşa sıfır stresle yetişmek için.",
   },
 ];
 
@@ -1545,24 +1570,24 @@ export const foodMatrix = [
   },
   {
     city: "Sarandë & Ksamil",
-    order: "Günün taze balığı, Butrint midyesi, ızgara karides",
+    order: "Günün taze balığı, Butrint lagün midyesi, ızgara karides",
     candidates: "Fish Filipi · Taverna Rustico · Sophra · The Mussel House",
     band: "10–25 EUR / kişi (Özel deniz ürünü masası 25–35 €)",
-    note: "Grupça bir 'büyük deniz mahsulü' akşamı; balığın kilosu ve tahmini gramajı siparişten önce sorulur.",
+    note: "3 gece boyunca İyon Denizi lezzetleri; balığın kilosu ve tahmini gramajı siparişten önce sorulur.",
   },
   {
-    city: "Himarë",
-    order: "Izgara ahtapot, taze çipura, Yunan-Arnavut mezeleri",
-    candidates: "Taverna Lefteri · Velco · Himara 28",
-    band: "8–15 EUR gündüz; akşam sofrası 20–30 EUR",
-    note: "Lefteri bölgenin en popüler noktasıdır; akşam 20:00'de masa için erken gidilmelidir.",
+    city: "Durrës",
+    order: "Adriyatik çipurası, deniz mahsullü makarna, İtalyan dondurması",
+    candidates: "Gusto di Mare · Aragosta · 2 Kitarrat",
+    band: "10–22 EUR / kişi",
+    note: "Vollga Kordonu boyunca deniz kenarındaki restoranlarda gün batımını izleyerek akşam yemeği.",
   },
   {
-    city: "Berat",
-    order: "Tavë Kosi (yoğurtlu kuzu), pispili, fërgesë",
-    candidates: "Antigoni · Tradita e Beratit · Ballkoni Gorices",
+    city: "Tiran",
+    order: "Fërgesë Tiranë me gjizë, Tavë Dheu, modern Blloku lezzetleri",
+    candidates: "Oda Restaurant · Era Blloku · Mullixhiu",
     band: "8–18 EUR / kişi",
-    note: "Antigoni terasından karşıdaki Mangalem pencerelerini izleyerek akşam yemeği yemesi paha biçilemez.",
+    note: "Tiran'ın otantik fırın güveçleri ve Blloku bölgesinde şık akşam kahveleri / tatlıları.",
   },
 ];
 

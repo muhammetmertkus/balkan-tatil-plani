@@ -17,12 +17,21 @@ const points: Record<string, Point> = {
   borsh: { key: "borsh", label: "Borsh", lat: 40.0658, lng: 19.8437 },
   porto: { key: "porto", label: "Porto Palermo", lat: 40.0560, lng: 19.7913 },
   himare: { key: "himare", label: "Himarë", lat: 40.1018, lng: 19.7444 },
-  berat: { key: "berat", label: "Berat", lat: 40.7058, lng: 19.9522 },
+  durres: { key: "durres", label: "Durrës", lat: 41.3128, lng: 19.4453 },
+  tirana: { key: "tirana", label: "Tiran", lat: 41.3275, lng: 19.8187 },
   airport: { key: "airport", label: "Üsküp Havalimanı", lat: 41.9616, lng: 21.6214 },
 };
 
 const dayRoutes: Record<string, string[]> = {
-  G1: ["airport", "skopje"], G2: ["skopje", "ohrid"], G3: ["ohrid", "gjirokaster", "blueEye", "sarande"], G4: ["sarande", "ksamil", "butrint", "sarande"], G5: ["sarande", "borsh", "porto", "himare"], G6: ["himare", "berat"], G7: ["berat", "skopje"], G8: ["skopje", "airport"],
+  G1: ["airport", "skopje"],
+  G2: ["skopje", "ohrid"],
+  G3: ["ohrid", "gjirokaster", "blueEye", "sarande"],
+  G4: ["sarande", "ksamil", "butrint", "sarande"],
+  G5: ["sarande", "borsh", "porto", "sarande"],
+  G6: ["sarande", "porto", "himare", "durres"],
+  G7: ["durres", "tirana"],
+  G8: ["tirana", "skopje"],
+  G9: ["skopje", "airport"],
 };
 
 function position(point: Point) {

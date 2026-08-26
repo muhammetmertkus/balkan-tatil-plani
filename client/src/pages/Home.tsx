@@ -82,7 +82,7 @@ export default function Home() {
         <nav className="desktop-nav hidden md:flex" aria-label="Ana menü">
           <button onClick={() => scrollToId("ekip")}>Kadro</button>
           <button onClick={() => scrollToId("atlas")}>Yol Atlası</button>
-          <button onClick={() => scrollToId("plan")}>8 Günlük Plan</button>
+          <button onClick={() => scrollToId("plan")}>9 Günlük Plan</button>
           <button onClick={() => scrollToId("valiz")}>Valiz Teftişi</button>
           <button onClick={() => scrollToId("kal")}>Kal / Ye / Al</button>
           <button onClick={() => scrollToId("butce")}>Kasa & Bütçe</button>
@@ -103,7 +103,7 @@ export default function Home() {
             {[
               ["Kadro Dosyası", "ekip"],
               ["Yol Atlası & Harita", "atlas"],
-              ["8 Günlük Saha Planı", "plan"],
+              ["9 Günlük Saha Planı", "plan"],
               ["Hazırlık & Valiz", "valiz"],
               ["Konaklama & Gastronomi", "kal"],
               ["Bütçe & Splitwise Kasa", "butce"],
@@ -192,7 +192,7 @@ export default function Home() {
               Kuzey Makedonya + Arnavutluk
             </p>
             <div className="font-mono text-[10px] font-bold text-[#145c64] tracking-wider uppercase">
-              ✦ 4 KİŞİ · 8 GÜN · 1.180 KM
+              ✦ 4 KİŞİ · 9 GÜN · 1.220 KM
             </div>
           </aside>
 
@@ -484,7 +484,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 8 GÜNLÜK DETAYLI SAHA PLANI (ITINERARY) */}
+        {/* 9 GÜNLÜK DETAYLI SAHA PLANI (ITINERARY) */}
         <section className="itinerary-section" id="plan">
           <div className="itinerary-intro">
             <div className="section-kicker">
@@ -497,9 +497,9 @@ export default function Home() {
               “nasıl?” da belli.
             </h2>
             <p>
-              Her gün saf sürüş, yürüyüş, park, yemek molaları, bit pazarı ve gecikme payları birlikte düşünülerek hazırlandı. G3 ve G7, rotanın takvime değil riske göre yönetilmesi gereken şafak günleri.
+              Her gün saf sürüş, yürüyüş, park, yemek molaları, bit pazarı ve gecikme payları birlikte düşünülerek hazırlandı. G3 ve G8, rotanın takvime değil riske göre yönetilmesi gereken şafak günleri.
             </p>
-            <div className="stamped-warning">G3 & G7 · ERKEN BAŞLA</div>
+            <div className="stamped-warning">G3 & G8 · ERKEN BAŞLA</div>
           </div>
 
           <div className="itinerary-list">
