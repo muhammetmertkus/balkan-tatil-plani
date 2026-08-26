@@ -58,13 +58,15 @@ const MEMBERS: MemberProfile[] = [
 ];
 
 // Default Fallback FX Rates (Base: 1 EUR)
-const DEFAULT_FX_RATES: Record<CurrencyKey, number> = {
+export const DEFAULT_FX_RATES: Record<CurrencyKey, number> = {
   EUR: 1,
   USD: 1.08,
   TRY: 38.50,
   MKD: 61.50,
   ALL: 100.20,
 };
+
+export const FX_RATES: Record<CurrencyKey, number> = DEFAULT_FX_RATES;
 
 const CURRENCY_SYMBOLS: Record<CurrencyKey, string> = {
   TRY: "₺",
