@@ -620,7 +620,7 @@ export function BudgetCalculator() {
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
             <span className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[#145c64]">
               <Sparkles size={15} />
-              Kasa & Splitwise Bakanlığı
+              Bâb-ı Âsafî · Defterdarlık & Masârifât Divanı
             </span>
 
             {/* Cloud Sync Status Badge */}
@@ -638,27 +638,27 @@ export function BudgetCalculator() {
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                   <Wifi size={12} />
-                  <span>Canlı DB Senkronize</span>
+                  <span>Rûznâme Canlı Senkron</span>
                 </>
               ) : syncStatus === "connecting" ? (
                 <>
                   <Wifi size={12} className="animate-spin" />
-                  <span>Buluta Bağlanıyor...</span>
+                  <span>Hazineye Bağlanıyor...</span>
                 </>
               ) : (
                 <>
                   <WifiOff size={12} />
-                  <span>Yerel Mod (Offline)</span>
+                  <span>Kayıt Defteri (Çevrimdışı)</span>
                 </>
               )}
             </div>
           </div>
 
           <h3 className="mt-1 font-display text-2xl sm:text-3xl md:text-4xl text-[#1d211c]">
-            Fatih'in Kasa & <em>Splitwise Defteri</em>
+            Balkan Seferi <em>Defterdarlığı</em> & Masârifât-ı Âmire
           </h3>
           <p className="mt-1 max-w-2xl font-serif text-xs sm:text-sm text-[#49534f]">
-            Tüm tatil harcamaları tek listede toplanmıştır. Üyeler kendi sekmelerinden veya genel listeden kendi paylarına tik attıkça <b>"Kim Kime Kaç Para Gönderecek?"</b> tablosu canlı güncellenir.
+            Kuruşu kuruşuna Rûznâme Kayıtları · Zimmet, matlûbât ve tahsilat-ı seferiyye. Her nefer kendi payına tik attıkça <b>"Kim Kime Kaç Para Gönderecek?"</b> mizanı anında temize çekilir.
           </p>
         </div>
 
@@ -747,20 +747,20 @@ export function BudgetCalculator() {
       </div>
 
       {/* ======================================================= */}
-      {/* ⚖️ SPLITWISE LIVE DEBT SETTLEMENT MATRIX */}
+      {/* ⚖️ MÎZÂN-I AHZ U İTÂ (BORÇ-ALACAK & HESAPLAŞMA) */}
       {/* ======================================================= */}
       <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[6px_8px_0_rgba(20,92,100,0.18)]">
         <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
               <ArrowRightLeft size={16} />
-              <span>Splitwise Canlı Hesaplaşma & Borç-Alacak Dengesi</span>
+              <span>Mîzân-ı Ahz u İtâ · Canlı Borç-Alacak Dengesi</span>
             </div>
             <h3 className="mt-1 font-display text-2xl sm:text-3xl text-[#1d211c]">
               Kim Kime Kaç Para Gönderecek?
             </h3>
             <p className="mt-0.5 font-serif text-xs text-[#49534f]">
-              Her üyenin cebinden ödediği toplam harcamalar ile henüz kapatmadığı payları otomatik dengelenir.
+              Her neferin cebinden ödediği meblağ ile payına düşen borçlar anında tenzil edilir; IBAN havaleleri hesaplanır.
             </p>
           </div>
 
@@ -769,7 +769,7 @@ export function BudgetCalculator() {
             className="flex cursor-pointer items-center gap-1.5 self-start sm:self-auto rounded bg-[#145c64] px-4 py-2.5 font-mono text-xs font-bold text-white shadow-[3px_3px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95"
           >
             <Plus size={16} />
-            <span>Yeni Harcama Ekle</span>
+            <span>+ Masraf-ı Seferiyye Ekle</span>
           </button>
         </div>
 
@@ -808,7 +808,7 @@ export function BudgetCalculator() {
                   <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-bold ${
                     isCreditor ? "bg-emerald-700 text-white" : isDebtor ? "bg-rose-700 text-white" : "bg-stone-200 text-stone-800"
                   }`}>
-                    {isCreditor ? "ALACAKLI 🟢" : isDebtor ? "BORÇLU 🔴" : "DENK ⚪"}
+                    {isCreditor ? "ALACAKLI 🟢 (Matlûb)" : isDebtor ? "BORÇLU 🔴 (Düyûn)" : "DENK ⚪"}
                   </span>
                 </div>
 
@@ -844,10 +844,10 @@ export function BudgetCalculator() {
           <div className="flex items-center justify-between">
             <h4 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
               <TrendingUp size={15} />
-              <span>Optimum Transfer / IBAN Çözümü ({splitwiseState.simplifiedDebts.length} Açık Transfer)</span>
+              <span>İbân-ı Şerîf Havale Talimatı ({splitwiseState.simplifiedDebts.length} Açık Havale)</span>
             </h4>
             <span className="font-mono text-[11px] text-[#49534f]">
-              (Tikler değiştikçe anında güncellenir)
+              (Tikler değiştikçe mizan anında yenilenir)
             </span>
           </div>
 
@@ -1121,14 +1121,14 @@ export function BudgetCalculator() {
               <Calculator size={18} />
             </div>
             <div>
-              <h4 className="font-display text-lg sm:text-xl text-[#1d211c]">Fatih'in Hızlı Döviz & Kişi Başı Hesap Makinesi</h4>
+              <h4 className="font-display text-lg sm:text-xl text-[#1d211c]">Sarrafiye & Sikke-i Hümâyûn Ta'şîr Cetveli</h4>
               <p className="font-mono text-[11px] sm:text-xs text-[#68716c]">
-                Herhangi bir tutarı girin; anında 5 para biriminde karşılığını ve kişi başı payı görün!
+                Herhangi bir masrafı girin; 5 ecnebi sikkesindeki karşılığını ve nefer başı hisseyi hesaplayın!
               </p>
             </div>
           </div>
           <span className="font-mono text-xs font-semibold text-[#b54b38] bg-[#fff0ed] px-2.5 py-1 rounded border border-[#b54b38]/20">
-            “25 cent'i kimse için yuvarlamıyorum!”
+            “Sikke-i osmanîde yarım akçe dahi zayi edilmez!”
           </span>
         </div>
 

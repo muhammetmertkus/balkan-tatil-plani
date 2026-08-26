@@ -106,7 +106,7 @@ export default function Home() {
               ["9 Günlük Saha Planı", "plan"],
               ["Hazırlık & Valiz", "valiz"],
               ["Konaklama & Gastronomi", "kal"],
-              ["Bütçe & Splitwise Kasa", "butce"],
+              ["Defterdarlık & Hazine", "butce"],
               ["10 Altın Kural", "kurallar"],
             ].map(([label, id]) => (
               <button
