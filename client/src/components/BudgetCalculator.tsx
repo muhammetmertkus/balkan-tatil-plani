@@ -249,28 +249,51 @@ export function BudgetCalculator() {
   });
   const [isFetchingFx, setIsFetchingFx] = useState<boolean>(false);
 
-  // Live Exchange Rate Fetcher (Auto-updates Firestore DB)
+  // Live Exchange Rate Fetcher (Auto-updates Firestore DB with multi-endpoint fallback)
   const fetchLiveRates = async () => {
     setIsFetchingFx(true);
     try {
-      const res = await fetch("https://open.er-api.com/v6/latest/EUR");
-      if (!res.ok) throw new Error("API response was not ok");
-      const data = await res.json();
+      let data: any = null;
+      
+      // Try Primary API Endpoint
+      try {
+        const res = await fetch("https://open.er-api.com/v6/latest/EUR");
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (e) {
+        console.warn("Primary FX API unreachable, attempting backup endpoint...", e);
+      }
+
+      // Try Secondary Backup Endpoint if needed
+      if (!data || !data.rates) {
+        try {
+          const res = await fetch("https://api.exchangerate-api.com/v4/latest/EUR");
+          if (res.ok) {
+            data = await res.json();
+          }
+        } catch (e) {
+          console.warn("Backup FX API also unreachable, using cached/DB rates.", e);
+        }
+      }
+
       if (data && data.rates) {
         const newRates: Record<CurrencyKey, number> = {
           EUR: 1,
-          USD: data.rates.USD || 1.08,
-          TRY: data.rates.TRY || 38.50,
-          MKD: data.rates.MKD || 61.50,
-          ALL: data.rates.ALL || 100.20,
+          USD: Number(data.rates.USD) || 1.08,
+          TRY: Number(data.rates.TRY) || 38.50,
+          MKD: Number(data.rates.MKD) || 61.50,
+          ALL: Number(data.rates.ALL) || 100.20,
         };
         setFxRates(newRates);
         const updateDate = data.time_last_update_utc 
           ? new Date(data.time_last_update_utc).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })
           : new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
         setFxLastUpdate(updateDate);
-        localStorage.setItem("balkan_live_fx_rates_v1", JSON.stringify(newRates));
-        localStorage.setItem("balkan_live_fx_date_v1", updateDate);
+        try {
+          localStorage.setItem("balkan_live_fx_rates_v1", JSON.stringify(newRates));
+          localStorage.setItem("balkan_live_fx_date_v1", updateDate);
+        } catch {}
 
         // Sync fresh live FX rates directly to Firebase Firestore
         try {
@@ -285,7 +308,7 @@ export function BudgetCalculator() {
         }
       }
     } catch (err) {
-      console.warn("Could not fetch live rates, keeping current rates:", err);
+      console.warn("Could not fetch live rates, safely keeping current saved rates:", err);
     } finally {
       setIsFetchingFx(false);
     }
@@ -295,21 +318,25 @@ export function BudgetCalculator() {
     fetchLiveRates();
   }, []);
 
-  // Convert any currency to any currency using live fxRates
+  // Convert any currency to any currency safely (never crashes or produces NaN)
   const convertCurrency = (amount: number, from: CurrencyKey, to: CurrencyKey): number => {
-    const baseEur = amount / (fxRates[from] || 1);
-    return baseEur * (fxRates[to] || 1);
+    if (!amount || isNaN(amount)) return 0;
+    const fromRate = fxRates?.[from] || DEFAULT_FX_RATES[from] || 1;
+    const toRate = fxRates?.[to] || DEFAULT_FX_RATES[to] || 1;
+    const baseEur = amount / (fromRate > 0 ? fromRate : 1);
+    return baseEur * (toRate > 0 ? toRate : 1);
   };
 
   // Format multi-currency equivalent line using live fxRates
   const getEquivalents = (amountTry: number) => {
-    const eur = convertCurrency(amountTry, "TRY", "EUR");
-    const usd = convertCurrency(amountTry, "TRY", "USD");
-    const mkd = convertCurrency(amountTry, "TRY", "MKD");
-    const all = convertCurrency(amountTry, "TRY", "ALL");
+    const validAmount = isNaN(amountTry) ? 0 : amountTry;
+    const eur = convertCurrency(validAmount, "TRY", "EUR");
+    const usd = convertCurrency(validAmount, "TRY", "USD");
+    const mkd = convertCurrency(validAmount, "TRY", "MKD");
+    const all = convertCurrency(validAmount, "TRY", "ALL");
 
     return {
-      tryFormatted: amountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺",
+      tryFormatted: validAmount.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺",
       eurFormatted: eur.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " €",
       usdFormatted: usd.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " $",
       mkdFormatted: Math.round(mkd).toLocaleString("tr-TR") + " MKD",
