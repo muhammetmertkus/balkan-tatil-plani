@@ -1086,21 +1086,21 @@ export function BudgetCalculator() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex cursor-pointer items-center gap-1.5 rounded bg-[#145c64] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c]"
+              className="flex cursor-pointer items-center gap-1.5 rounded bg-[#145c64] px-3.5 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c] active:scale-95 transition-all"
             >
               <Plus size={15} />
-              <span>+ Yeni Harcama Ekle</span>
+              <span>Yeni Harcama Ekle</span>
             </button>
           </div>
         </div>
 
-        {/* Member Filter Tabs */}
-        <div className="mt-5 flex flex-wrap items-center gap-1.5 border-b border-[#cac1ae] pb-3">
+        {/* Member Filter Tabs (Mobile Scrollable Pill Bar) */}
+        <div className="mt-4 flex items-center gap-1.5 overflow-x-auto border-b border-[#cac1ae] pb-2 text-xs no-scrollbar">
           <button
             onClick={() => setActiveTab("all")}
-            className={`cursor-pointer rounded-t px-3.5 py-1.5 font-mono text-xs font-bold transition-all ${
+            className={`shrink-0 cursor-pointer rounded-t px-3 py-1.5 font-mono text-xs font-bold transition-all ${
               activeTab === "all"
-                ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] text-[#145c64] shadow-xs"
+                ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] text-[#145c64] shadow-2xs"
                 : "text-[#5b6560] hover:bg-[#f0ece1]"
             }`}
           >
@@ -1114,9 +1114,9 @@ export function BudgetCalculator() {
               <button
                 key={m.id}
                 onClick={() => setActiveTab(m.id)}
-                className={`flex cursor-pointer items-center gap-1.5 rounded-t px-3 py-1.5 font-mono text-xs transition-all ${
+                className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-t px-2.5 py-1.5 font-mono text-xs transition-all ${
                   isSelected
-                    ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] font-bold text-[#1d211c] shadow-xs"
+                    ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] font-bold text-[#1d211c] shadow-2xs"
                     : "text-[#5b6560] hover:bg-[#f0ece1]"
                 }`}
               >
@@ -1370,43 +1370,44 @@ export function BudgetCalculator() {
           </div>
         </div>
 
-        {/* 5-Currency Result Cards */}
-        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
-          <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-2.5 text-center shadow-xs">
-            <span className="font-mono text-[9px] font-bold text-[#145c64]">TÜRK LİRASI (₺)</span>
-            <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.TRY} ₺</div>
-            <div className="mt-1 border-t border-[#145c64]/30 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
-              Kişi: {quickPerPerson.TRY} ₺
+        {/* 5-Currency Result Cards (Responsive Layout) */}
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
+          {/* Main Primary Card (TL) */}
+          <div className="col-span-2 rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3 text-center shadow-xs sm:col-span-1">
+            <span className="font-mono text-[9px] font-bold text-[#145c64] uppercase tracking-wider">TÜRK LİRASI (₺)</span>
+            <div className="mt-0.5 font-display text-lg sm:text-xl font-bold text-[#1d211c]">{quickConverted.TRY} ₺</div>
+            <div className="mt-1 border-t border-[#145c64]/30 pt-1 font-mono text-[10px] sm:text-[11px] font-bold text-[#145c64]">
+              Kişi Başı: {quickPerPerson.TRY} ₺
             </div>
           </div>
 
           <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
-            <span className="font-mono text-[9px] text-[#68716c]">EURO (€)</span>
-            <div className="font-display text-base sm:text-lg text-[#145c64]">{quickConverted.EUR} €</div>
+            <span className="font-mono text-[9px] text-[#68716c] font-semibold">EURO (€)</span>
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#145c64] font-bold">{quickConverted.EUR} €</div>
             <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#b54b38]">
               Kişi: {quickPerPerson.EUR} €
             </div>
           </div>
 
           <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
-            <span className="font-mono text-[9px] text-[#68716c]">DOLAR ($)</span>
-            <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.USD} $</div>
+            <span className="font-mono text-[9px] text-[#68716c] font-semibold">DOLAR ($)</span>
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">{quickConverted.USD} $</div>
             <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.USD} $
             </div>
           </div>
 
           <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
-            <span className="font-mono text-[9px] text-[#68716c]">MAKEDON DİNARI</span>
-            <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.MKD.toLocaleString()} MKD</div>
+            <span className="font-mono text-[9px] text-[#68716c] font-semibold">MAKEDON DİNARI</span>
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">{quickConverted.MKD.toLocaleString()} MKD</div>
             <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.MKD.toLocaleString()} MKD
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center col-span-2 sm:col-span-1">
-            <span className="font-mono text-[9px] text-[#68716c]">ARNAVUTLUK LEKİ</span>
-            <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.ALL.toLocaleString()} ALL</div>
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
+            <span className="font-mono text-[9px] text-[#68716c] font-semibold">ARNAVUTLUK LEKİ</span>
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">{quickConverted.ALL.toLocaleString()} ALL</div>
             <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.ALL.toLocaleString()} ALL
             </div>
