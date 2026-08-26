@@ -29,11 +29,10 @@ import {
   FileEdit,
   AlertCircle,
   TrendingUp,
-  ArrowDownRight,
-  ArrowUpRight,
-  Filter,
-  CheckSquare,
-  Square
+  Landmark,
+  Scale,
+  RefreshCw,
+  Info
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
@@ -74,6 +73,29 @@ const CURRENCY_SYMBOLS: Record<CurrencyKey, string> = {
   ALL: "ALL",
   MKD: "MKD",
 };
+
+// Convert any currency to any currency
+function convertCurrency(amount: number, from: CurrencyKey, to: CurrencyKey): number {
+  const baseEur = amount / (FX_RATES[from] || 1);
+  return baseEur * (FX_RATES[to] || 1);
+}
+
+// Format multi-currency equivalent line
+function getEquivalents(amountTry: number) {
+  const eur = convertCurrency(amountTry, "TRY", "EUR");
+  const usd = convertCurrency(amountTry, "TRY", "USD");
+  const mkd = convertCurrency(amountTry, "TRY", "MKD");
+  const all = convertCurrency(amountTry, "TRY", "ALL");
+
+  return {
+    tryFormatted: amountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺",
+    eurFormatted: eur.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " €",
+    usdFormatted: usd.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " $",
+    mkdFormatted: Math.round(mkd).toLocaleString("tr-TR") + " MKD",
+    allFormatted: Math.round(all).toLocaleString("tr-TR") + " ALL",
+    subline: `≈ ${Math.round(eur).toLocaleString("tr-TR")} € · ${Math.round(usd).toLocaleString("tr-TR")} $ · ${Math.round(mkd).toLocaleString("tr-TR")} MKD · ${Math.round(all).toLocaleString("tr-TR")} ALL`,
+  };
+}
 
 export interface ExpenseItem {
   id: string;
@@ -233,7 +255,6 @@ const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "budget_splitwise_v2
 
 export function BudgetCalculator() {
   const [syncStatus, setSyncStatus] = useState<"connecting" | "synced" | "offline">("connecting");
-  const [displayCurrency, setDisplayCurrency] = useState<CurrencyKey>("TRY");
   const [activeTab, setActiveTab] = useState<"all" | MemberKey>("all");
 
   const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
@@ -248,15 +269,15 @@ export function BudgetCalculator() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newAmount, setNewAmount] = useState<number | "">("");
-  const [newCurrency, setNewCurrency] = useState<CurrencyKey>("EUR");
+  const [newCurrency, setNewCurrency] = useState<CurrencyKey>("TRY");
   const [newPaidBy, setNewPaidBy] = useState<MemberKey>("fatih");
   const [newSplitBetween, setNewSplitBetween] = useState<MemberKey[]>(["mert", "ikra", "fatih", "eyup"]);
   const [newCategory, setNewCategory] = useState<ExpenseItem["category"]>("food");
   const [newNote, setNewNote] = useState("");
 
   // Quick FX Calculator Tool State
-  const [calcAmount, setCalcAmount] = useState<number>(100);
-  const [calcCurrency, setCalcCurrency] = useState<CurrencyKey>("EUR");
+  const [calcAmount, setCalcAmount] = useState<number>(1000);
+  const [calcCurrency, setCalcCurrency] = useState<CurrencyKey>("TRY");
   const [splitCount, setSplitCount] = useState<number>(4);
 
   // JSON Editor Modal State
@@ -329,20 +350,6 @@ export function BudgetCalculator() {
     }
   };
 
-  // Convert an amount from any currency to another currency
-  const convertCurrency = (amount: number, from: CurrencyKey, to: CurrencyKey): number => {
-    const baseEur = amount / (FX_RATES[from] || 1);
-    return baseEur * (FX_RATES[to] || 1);
-  };
-
-  const formatMoney = (amount: number, currency: CurrencyKey = displayCurrency): string => {
-    const symbol = CURRENCY_SYMBOLS[currency];
-    const rounded = currency === "TRY" || currency === "EUR" || currency === "USD" 
-      ? amount.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : Math.round(amount).toLocaleString("tr-TR");
-    return `${rounded} ${symbol}`;
-  };
-
   // Toggle individual member tick for an expense
   const toggleMemberShare = (expenseId: string, memberId: MemberKey) => {
     const updated = expenses.map((item) => {
@@ -412,16 +419,10 @@ export function BudgetCalculator() {
   // DYNAMIC SPLITWISE CALCULATION ENGINE BASED ON TICKS
   // -----------------------------------------------------------
   const splitwiseState = useMemo(() => {
-    // Total spent out of pocket by each person
     const totalPaidTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
-    
-    // Total legitimate obligation assigned to each person
     const totalObligationTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
-
-    // Total debt settled (paid to payer) by each person
     const totalSettledPaidTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
 
-    // Direct pairwise outstanding debts: debtMatrix[from][to] = amount in TRY
     const debtMatrix: Record<MemberKey, Record<MemberKey, number>> = {
       mert: { mert: 0, ikra: 0, fatih: 0, eyup: 0 },
       ikra: { mert: 0, ikra: 0, fatih: 0, eyup: 0 },
@@ -454,7 +455,6 @@ export function BudgetCalculator() {
       });
     });
 
-    // Net Pairwise Simplification (e.g. if Mert owes Fatih 100 and Fatih owes Mert 40 => Mert owes Fatih 60)
     const members: MemberKey[] = ["mert", "ikra", "fatih", "eyup"];
     const simplifiedDebts: SettlementDebt[] = [];
 
@@ -472,7 +472,6 @@ export function BudgetCalculator() {
       }
     }
 
-    // Net Balance per member (Receivable > 0, Payable < 0)
     const netBalanceTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
     members.forEach((m) => {
       let receivable = 0;
@@ -493,12 +492,11 @@ export function BudgetCalculator() {
     };
   }, [expenses]);
 
-  // Overall totals
+  // Overall totals in TRY
   const grandTotalTripTry = useMemo(() => {
     return expenses.reduce((sum, item) => sum + convertCurrency(item.amount, item.currency, "TRY"), 0);
   }, [expenses]);
 
-  // Total fully settled / closed across all items
   const totalSettledAmountTry = useMemo(() => {
     let sum = 0;
     expenses.forEach((item) => {
@@ -528,16 +526,16 @@ export function BudgetCalculator() {
   // Quick FX converter
   const quickBaseEur = calcAmount / (FX_RATES[calcCurrency] || 1);
   const quickConverted = {
+    TRY: (quickBaseEur * FX_RATES.TRY).toFixed(2),
     EUR: (quickBaseEur * FX_RATES.EUR).toFixed(2),
     USD: (quickBaseEur * FX_RATES.USD).toFixed(2),
-    TRY: (quickBaseEur * FX_RATES.TRY).toFixed(2),
     MKD: Math.round(quickBaseEur * FX_RATES.MKD),
     ALL: Math.round(quickBaseEur * FX_RATES.ALL),
   };
   const quickPerPerson = {
+    TRY: (parseFloat(quickConverted.TRY) / splitCount).toFixed(2),
     EUR: (parseFloat(quickConverted.EUR) / splitCount).toFixed(2),
     USD: (parseFloat(quickConverted.USD) / splitCount).toFixed(2),
-    TRY: (parseFloat(quickConverted.TRY) / splitCount).toFixed(2),
     MKD: Math.round(quickConverted.MKD / splitCount),
     ALL: Math.round(quickConverted.ALL / splitCount),
   };
@@ -548,8 +546,8 @@ export function BudgetCalculator() {
   const handleOpenJsonModal = () => {
     const exportData = {
       _rules: [
-        "📌 BALKAN YOL EKİBİ - BÜTÇE & SPLITWISE BİRLEŞİK JSON",
-        "1. expenses: Hem ön rezervasyonlar (uçak, otel, harç) hem de saha harcamaları bu listede yer alır.",
+        "📌 BALKAN YOL EKİBİ - BÜTÇE & DEFTERDARLIK JSON",
+        "1. expenses: Tüm harcama kalemleri (uçak, otel, harç, yol üstü harcamalar).",
         "2. paidBy: Harcamayı ödeyen üye ('mert', 'ikra', 'fatih', 'eyup').",
         "3. splitBetween: Harcamanın bölüşüleceği üyeler dizisi.",
         "4. settledShares: Her üyenin kendi payını ödeyip ödemediği (true/false).",
@@ -614,7 +612,7 @@ export function BudgetCalculator() {
 
   return (
     <div className="budget-dossier space-y-8 font-serif text-[#1d211c]">
-      {/* Top Header with Sync Badge & Global Currency Switcher */}
+      {/* Top Header with Sync Badge */}
       <div className="flex flex-col gap-4 border-b-2 border-[#1d211c] pb-5 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
@@ -658,33 +656,95 @@ export function BudgetCalculator() {
             Balkan Seferi <em>Defterdarlığı</em> & Masârifât-ı Âmire
           </h3>
           <p className="mt-1 max-w-2xl font-serif text-xs sm:text-sm text-[#49534f]">
-            Kuruşu kuruşuna Rûznâme Kayıtları · Zimmet, matlûbât ve tahsilat-ı seferiyye. Her nefer kendi payına tik attıkça <b>"Kim Kime Kaç Para Gönderecek?"</b> mizanı anında temize çekilir.
+            Tüm tutarlar birincil olarak büyük <b>Türk Lirası (₺)</b> cinsinden gösterilir, altlarında döviz ve yerel para karşılıkları yer alır.
           </p>
         </div>
+      </div>
 
-        {/* Currency Switcher Tabs */}
-        <div className="flex flex-col items-end gap-1.5">
-          <span className="font-mono text-[11px] font-bold text-[#38413c] uppercase">Görünüm Para Birimi:</span>
-          <div className="flex items-center gap-1 rounded border border-[#cac1ae] bg-[#f5f0e5] p-1 font-mono text-xs shadow-xs">
-            {(["TRY", "EUR", "USD", "MKD", "ALL"] as CurrencyKey[]).map((cur) => (
-              <button
-                key={cur}
-                onClick={() => setDisplayCurrency(cur)}
-                className={`cursor-pointer rounded px-2.5 py-1 font-bold transition-all ${
-                  displayCurrency === cur
-                    ? "bg-[#145c64] text-white shadow-[2px_2px_0_#b54b38]"
-                    : "text-[#29312e] hover:bg-[#e9e2d1]"
-                }`}
-              >
-                {CURRENCY_SYMBOLS[cur]} {cur}
-              </button>
-            ))}
+      {/* ======================================================= */}
+      {/* 🏛️ LIVE EXCHANGE RATES & SOURCE TICKER BAR (SARRAFİYE MASASI) */}
+      {/* ======================================================= */}
+      <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-4 sm:p-5 shadow-[4px_4px_0_#145c64]">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b border-[#145c64]/20 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded bg-[#145c64] text-white">
+              <Coins size={16} />
+            </div>
+            <div>
+              <h4 className="font-display text-base sm:text-lg text-[#1d211c]">
+                Güncel Döviz Kurları & Resmî Sarrafiye Pariteleri
+              </h4>
+              <p className="font-mono text-[10px] text-[#49534f]">
+                Otomatik hesaplamalarda kullanılan güncel dönüştürme katsayıları
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-[#145c64] bg-white px-2.5 py-1 rounded border border-[#145c64]/30 self-start md:self-auto">
+            <Landmark size={12} />
+            <span>Kaynak: TCMB · Bank of Albania · NBRNM Referans Kurları</span>
+          </div>
+        </div>
+
+        {/* Live FX Rate Cards */}
+        <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 font-mono text-xs">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
+              <span>💶 EURO (EUR)</span>
+              <span className="text-[10px] text-[#68716c]">1 €</span>
+            </div>
+            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+              38,50 ₺
+            </div>
+            <div className="text-[10px] text-[#68716c]">
+              1 EUR = 38,50 TRY
+            </div>
+          </div>
+
+          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
+              <span>💵 DOLAR (USD)</span>
+              <span className="text-[10px] text-[#68716c]">1 $</span>
+            </div>
+            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+              35,65 ₺
+            </div>
+            <div className="text-[10px] text-[#68716c]">
+              1 EUR = 1,08 USD
+            </div>
+          </div>
+
+          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
+              <span>🇲🇰 MAKEDON DİNARI</span>
+              <span className="text-[10px] text-[#68716c]">100 MKD</span>
+            </div>
+            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+              62,60 ₺
+            </div>
+            <div className="text-[10px] text-[#68716c]">
+              1 MKD ≈ 0,626 ₺ (1 € ≈ 61,5 MKD)
+            </div>
+          </div>
+
+          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
+              <span>🇦🇱 ARNAVUTLUK LEKİ</span>
+              <span className="text-[10px] text-[#68716c]">100 ALL</span>
+            </div>
+            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+              38,42 ₺
+            </div>
+            <div className="text-[10px] text-[#68716c]">
+              1 ALL ≈ 0,384 ₺ (1 € ≈ 100,2 ALL)
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Top Banner: Real Recorded Costs */}
+      {/* Top Banner: Big TL KPI Cards with Multi-Currency Equivalents Underneath */}
       <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+        {/* Card 1: Settled Paid */}
         <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-5 shadow-[4px_4px_0_#145c64]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
@@ -694,17 +754,27 @@ export function BudgetCalculator() {
               KAPATILDI
             </span>
           </div>
+
           <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
-            {formatMoney(convertCurrency(totalSettledAmountTry, "TRY", displayCurrency))}
+            {totalSettledAmountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
-          <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Ekip üyelerinin cebinden ödeyip kendi aralarında kapattığı / onayladığı toplam tutar.
+
+          {/* Sub-currencies */}
+          <div className="mt-1 font-mono text-[11px] font-bold text-[#145c64] bg-white/80 px-2 py-1 rounded border border-[#145c64]/20">
+            {getEquivalents(totalSettledAmountTry).subline}
+          </div>
+
+          <p className="mt-2 font-serif text-xs text-[#49534f]">
+            Ekip üyelerinin cebinden ödeyip kendi aralarında kapattığı toplam tutar.
           </p>
-          <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-bold text-[#145c64]">
-            Kişi Başı Ortalama: {formatMoney(convertCurrency(totalSettledAmountTry / 4, "TRY", displayCurrency))}
+
+          <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-bold text-[#145c64] flex justify-between items-baseline">
+            <span>Kişi Başı:</span>
+            <span>{(totalSettledAmountTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
           </div>
         </div>
 
+        {/* Card 2: Grand Total */}
         <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 shadow-[4px_4px_0_#b54b38]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
@@ -714,17 +784,27 @@ export function BudgetCalculator() {
               {expenses.length} HARCAMA KALEMİ
             </span>
           </div>
+
           <div className="mt-2 font-display text-3xl sm:text-4xl text-[#b54b38]">
-            {formatMoney(convertCurrency(grandTotalTripTry, "TRY", displayCurrency))}
+            {grandTotalTripTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
-          <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + yol üstünde eklenen tüm saha harcamaları.
+
+          {/* Sub-currencies */}
+          <div className="mt-1 font-mono text-[11px] font-bold text-[#b54b38] bg-[#fff5f2] px-2 py-1 rounded border border-[#b54b38]/20">
+            {getEquivalents(grandTotalTripTry).subline}
+          </div>
+
+          <p className="mt-2 font-serif text-xs text-[#49534f]">
+            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + yol üstünde eklenen tüm harcamalar.
           </p>
-          <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs font-bold text-[#b54b38]">
-            Kişi Başı: {formatMoney(convertCurrency(grandTotalTripTry / 4, "TRY", displayCurrency))}
+
+          <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs font-bold text-[#b54b38] flex justify-between items-baseline">
+            <span>Kişi Başı:</span>
+            <span>{(grandTotalTripTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺ (~{Math.round(convertCurrency(grandTotalTripTry / 4, "TRY", "EUR"))} €)</span>
           </div>
         </div>
 
+        {/* Card 3: Remaining Unsettled */}
         <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-5 shadow-[4px_4px_0_rgba(29,33,28,0.12)]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
@@ -734,14 +814,23 @@ export function BudgetCalculator() {
               ÖDENECEK
             </span>
           </div>
+
           <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
-            {formatMoney(convertCurrency(totalRemainingUnsettledTry, "TRY", displayCurrency))}
+            {totalRemainingUnsettledTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
-          <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Henüz ilgili üyelerce ödenmemiş veya onaylanmamış bekleyen toplam bakiye.
+
+          {/* Sub-currencies */}
+          <div className="mt-1 font-mono text-[11px] font-bold text-[#38413c] bg-white/80 px-2 py-1 rounded border border-[#cac1ae]">
+            {getEquivalents(totalRemainingUnsettledTry).subline}
+          </div>
+
+          <p className="mt-2 font-serif text-xs text-[#49534f]">
+            Henüz ilgili üyelerce ödenmemiş veya onaylanmamış bekleyen bakiye.
           </p>
-          <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs font-bold text-[#145c64]">
-            Kişi Başı Kalan: {formatMoney(convertCurrency(totalRemainingUnsettledTry / 4, "TRY", displayCurrency))}
+
+          <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs font-bold text-[#145c64] flex justify-between items-baseline">
+            <span>Kişi Başı Kalan:</span>
+            <span>{(totalRemainingUnsettledTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
           </div>
         </div>
       </div>
@@ -814,24 +903,44 @@ export function BudgetCalculator() {
 
                 <div className="mt-1 font-mono text-[10px] text-[#8e9893]">{member.badge}</div>
 
-                <div className="mt-3 space-y-1 border-t border-[#cac1ae]/40 pt-2 font-mono text-xs">
-                  <div className="flex justify-between text-[#49534f]">
-                    <span>Cebinden Ödediği:</span>
-                    <span className="font-bold">{formatMoney(convertCurrency(paid, "TRY", displayCurrency))}</span>
+                <div className="mt-3 space-y-1.5 border-t border-[#cac1ae]/40 pt-2 font-mono text-xs">
+                  <div>
+                    <div className="flex justify-between text-[#49534f]">
+                      <span>Cebinden Ödediği:</span>
+                      <span className="font-bold text-[#1d211c]">{paid.toLocaleString("tr-TR")} ₺</span>
+                    </div>
+                    <div className="text-[10px] text-[#8e9893] text-right">
+                      ≈ {Math.round(convertCurrency(paid, "TRY", "EUR"))} € · {Math.round(convertCurrency(paid, "TRY", "MKD"))} MKD
+                    </div>
                   </div>
-                  <div className="flex justify-between text-[#49534f]">
-                    <span>Toplam Payı:</span>
-                    <span>{formatMoney(convertCurrency(obligation, "TRY", displayCurrency))}</span>
+
+                  <div>
+                    <div className="flex justify-between text-[#49534f]">
+                      <span>Toplam Payı:</span>
+                      <span>{obligation.toLocaleString("tr-TR")} ₺</span>
+                    </div>
+                    <div className="text-[10px] text-[#8e9893] text-right">
+                      ≈ {Math.round(convertCurrency(obligation, "TRY", "EUR"))} €
+                    </div>
                   </div>
-                  <div className="flex justify-between text-[#49534f]">
-                    <span>Kapattığı Pay:</span>
-                    <span className="text-emerald-700 font-semibold">{formatMoney(convertCurrency(settled, "TRY", displayCurrency))}</span>
+
+                  <div>
+                    <div className="flex justify-between text-[#49534f]">
+                      <span>Kapattığı Pay:</span>
+                      <span className="text-emerald-700 font-semibold">{settled.toLocaleString("tr-TR")} ₺</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between pt-1 border-t border-[#cac1ae]/30 font-bold text-sm">
-                    <span>Net Kalan:</span>
-                    <span className={isCreditor ? "text-emerald-700 font-bold" : isDebtor ? "text-rose-700 font-bold" : "text-stone-700"}>
-                      {isCreditor ? "+" : ""}{formatMoney(convertCurrency(net, "TRY", displayCurrency))}
-                    </span>
+
+                  <div className="pt-1.5 border-t border-[#cac1ae]/40">
+                    <div className="flex justify-between font-bold text-sm">
+                      <span>Net Kalan:</span>
+                      <span className={isCreditor ? "text-emerald-700 font-bold" : isDebtor ? "text-rose-700 font-bold" : "text-stone-700"}>
+                        {isCreditor ? "+" : ""}{net.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-right font-bold text-[#49534f]">
+                      {getEquivalents(Math.abs(net)).subline}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -861,28 +970,33 @@ export function BudgetCalculator() {
               {splitwiseState.simplifiedDebts.map((tx, idx) => {
                 const fromMember = MEMBERS.find((m) => m.id === tx.from);
                 const toMember = MEMBERS.find((m) => m.id === tx.to);
+                const eq = getEquivalents(tx.amountTry);
 
                 return (
                   <div
                     key={idx}
-                    className="flex items-center justify-between rounded border border-[#145c64]/30 bg-white p-3 shadow-xs font-mono text-xs"
+                    className="flex flex-col gap-1 rounded border border-[#145c64]/30 bg-white p-3 shadow-xs font-mono text-xs"
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-rose-800 font-bold text-[11px]">
-                        {fromMember?.initial}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-rose-800 font-bold text-[11px]">
+                          {fromMember?.initial}
+                        </div>
+                        <span className="font-bold text-[#1d211c]">{fromMember?.name}</span>
+                        <span className="text-[#8e9893]">➔</span>
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
+                          {toMember?.initial}
+                        </div>
+                        <span className="font-bold text-[#1d211c]">{toMember?.name}</span>
                       </div>
-                      <span className="font-bold text-[#1d211c]">{fromMember?.name}</span>
-                      <span className="text-[#8e9893]">➔</span>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
-                        {toMember?.initial}
-                      </div>
-                      <span className="font-bold text-[#1d211c]">{toMember?.name}</span>
+
+                      <span className="font-mono text-base font-bold text-[#b54b38]">
+                        {tx.amountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                      </span>
                     </div>
 
-                    <div className="text-right">
-                      <span className="font-bold text-[#b54b38] text-sm">
-                        {formatMoney(convertCurrency(tx.amountTry, "TRY", displayCurrency))}
-                      </span>
+                    <div className="text-right text-[10px] text-[#68716c] font-mono border-t border-stone-100 pt-1">
+                      {eq.subline}
                     </div>
                   </div>
                 );
@@ -893,7 +1007,7 @@ export function BudgetCalculator() {
       </div>
 
       {/* ======================================================= */}
-      {/* 📋 UNIFIED "TATİL HARCAMA" TABLE (LIGHT / VINTAGE THEME) */}
+      {/* 📋 UNIFIED "TATİL HARCAMA" TABLE (BIG TL + EQUIVALENTS) */}
       {/* ======================================================= */}
       <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[8px_10px_0_rgba(29,33,28,0.18)]">
         <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -906,7 +1020,7 @@ export function BudgetCalculator() {
               TATİL HARCAMA
             </h3>
             <p className="font-serif text-xs text-[#5b6560]">
-              Tüm ön ödemeler ve seyahat harcamaları buradadır. Her üye kendi avatarına/kutusuna tıklayarak payını kapattığını onaylayabilir.
+              Tüm harcamalar büyük <b>TL (₺)</b> tutarında gösterilir; altlarında yabancı para karşılıkları mevcuttur.
             </p>
           </div>
 
@@ -980,8 +1094,11 @@ export function BudgetCalculator() {
           {filteredExpenses.map((item) => {
             const payer = MEMBERS.find((m) => m.id === item.paidBy);
             const splitCount = item.splitBetween.length;
-            const perPersonShareTry = convertCurrency(item.amount, item.currency, "TRY") / splitCount;
+            const itemAmountTry = convertCurrency(item.amount, item.currency, "TRY");
+            const perPersonShareTry = itemAmountTry / splitCount;
             const isAllSettled = item.splitBetween.every((m) => !!item.settledShares?.[m]);
+            const eqTotal = getEquivalents(itemAmountTry);
+            const eqShare = getEquivalents(perPersonShareTry);
 
             return (
               <div
@@ -1011,22 +1128,26 @@ export function BudgetCalculator() {
                       <span>Ödeyen (Kasa): <b>{payer?.name}</b></span>
                       {item.date && ` • ${item.date}`}
                       {item.note && ` • ${item.note}`}
+                      {item.currency !== "TRY" && ` • Orijinal: ${item.amount.toLocaleString("tr-TR")} ${CURRENCY_SYMBOLS[item.currency]}`}
                     </div>
                   </div>
 
-                  {/* Right: Total Amount & Delete Button */}
+                  {/* Right: Big TL Amount & Equivalents */}
                   <div className="flex items-center justify-between sm:justify-end gap-3">
                     <div className="text-right">
-                      <span className="font-mono text-base sm:text-lg font-bold text-[#b54b38]">
-                        {item.amount.toLocaleString("tr-TR")} {CURRENCY_SYMBOLS[item.currency]}
-                      </span>
-                      {item.currency !== displayCurrency && (
-                        <div className="text-[10px] text-[#8e9893]">
-                          ≈ {formatMoney(convertCurrency(item.amount, item.currency, displayCurrency))}
-                        </div>
-                      )}
-                      <div className="text-[11px] text-[#5b6560]">
-                        (Kişi: {formatMoney(convertCurrency(perPersonShareTry, "TRY", displayCurrency))})
+                      {/* Big TL Display */}
+                      <div className="font-mono text-base sm:text-lg font-bold text-[#b54b38]">
+                        {itemAmountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+                      </div>
+
+                      {/* Foreign Currencies Line */}
+                      <div className="text-[10px] text-[#145c64] font-bold">
+                        {eqTotal.subline}
+                      </div>
+
+                      {/* Per Person Share */}
+                      <div className="text-[11px] text-[#5b6560] mt-0.5">
+                        (Kişi Başı: <b>{perPersonShareTry.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</b> / ~{Math.round(convertCurrency(perPersonShareTry, "TRY", "EUR"))} €)
                       </div>
                     </div>
 
@@ -1042,7 +1163,7 @@ export function BudgetCalculator() {
                   </div>
                 </div>
 
-                {/* Bottom: Member Interactive Tick Bubbles & Checkboxes */}
+                {/* Bottom: Member Interactive Tick Bubbles */}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#cac1ae]/40 pt-2 bg-[#fdfbf7] p-2 rounded">
                   <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#49534f]">
                     <Users size={14} className="text-[#145c64]" />
@@ -1094,25 +1215,24 @@ export function BudgetCalculator() {
           <span className="text-xs uppercase tracking-widest text-[#1d211c] font-bold">
             TOPLAM {filteredExpenses.length} HARCAMA TUTARI
           </span>
-          <div className="flex items-baseline gap-3">
-            <span className="text-2xl sm:text-3xl font-bold text-[#b54b38]">
-              {formatMoney(
-                convertCurrency(
-                  filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0),
-                  "TRY",
-                  displayCurrency
-                )
-              )}
-            </span>
-            <span className="text-xs text-[#5b6560]">
-              (Kişi Başı: <b>{formatMoney(convertCurrency(grandTotalTripTry / 4, "TRY", displayCurrency))}</b>)
-            </span>
+          <div className="text-right">
+            <div className="text-2xl sm:text-3xl font-bold text-[#b54b38]">
+              {filteredExpenses
+                .reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0)
+                .toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+              ₺
+            </div>
+            <div className="text-xs font-bold text-[#145c64]">
+              {getEquivalents(
+                filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0)
+              ).subline}
+            </div>
           </div>
         </div>
       </div>
 
       {/* ======================================================= */}
-      {/* 💱 INTERACTIVE 5-CURRENCY CONVERTER TOOL */}
+      {/* 💱 INTERACTIVE SARRAFİYE & DÖVİZ HESAP MAKİNESİ */}
       {/* ======================================================= */}
       <div className="rounded border border-[#29312e]/20 bg-[#fffcf3] p-4 sm:p-6 shadow-[4px_6px_0_rgba(29,33,28,0.12)]">
         <div className="flex flex-col gap-2 border-b border-[#29312e]/15 pb-4 md:flex-row md:items-center md:justify-between">
@@ -1152,9 +1272,9 @@ export function BudgetCalculator() {
               onChange={(e) => setCalcCurrency(e.target.value as any)}
               className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2.5 font-mono text-xs sm:text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
             >
-              <option value="EUR">Euro (€) — Ortak Bütçe</option>
-              <option value="USD">Dolar ($)</option>
               <option value="TRY">Türk Lirası (₺)</option>
+              <option value="EUR">Euro (€)</option>
+              <option value="USD">Dolar ($)</option>
               <option value="MKD">Makedon Dinarı (MKD)</option>
               <option value="ALL">Arnavutluk Leki (ALL)</option>
             </select>
@@ -1182,6 +1302,14 @@ export function BudgetCalculator() {
 
         {/* 5-Currency Result Cards */}
         <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
+          <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-2.5 text-center shadow-xs">
+            <span className="font-mono text-[9px] font-bold text-[#145c64]">TÜRK LİRASI (₺)</span>
+            <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.TRY} ₺</div>
+            <div className="mt-1 border-t border-[#145c64]/30 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
+              Kişi: {quickPerPerson.TRY} ₺
+            </div>
+          </div>
+
           <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
             <span className="font-mono text-[9px] text-[#68716c]">EURO (€)</span>
             <div className="font-display text-base sm:text-lg text-[#145c64]">{quickConverted.EUR} €</div>
@@ -1195,14 +1323,6 @@ export function BudgetCalculator() {
             <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.USD} $</div>
             <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.USD} $
-            </div>
-          </div>
-
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
-            <span className="font-mono text-[9px] text-[#68716c]">TÜRK LİRASI (₺)</span>
-            <div className="font-display text-base sm:text-lg text-[#1d211c]">{quickConverted.TRY} ₺</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
-              Kişi: {quickPerPerson.TRY} ₺
             </div>
           </div>
 
@@ -1257,7 +1377,7 @@ export function BudgetCalculator() {
               Yeni Saha Harcaması Ekle
             </h4>
             <p className="mt-1 font-serif text-xs text-[#68716c]">
-              Eklenen harcama anında Firebase veritabanına yazılır ve Splitwise borç-alacak dengesini günceller.
+              Eklenen harcama anında Firebase veritabanına yazılır ve borç-alacak dengesini günceller.
             </p>
 
             <form onSubmit={handleAddExpense} className="mt-4 space-y-3.5 font-mono text-xs">
@@ -1283,7 +1403,7 @@ export function BudgetCalculator() {
                     step="0.01"
                     min="0.1"
                     required
-                    placeholder="Örn: 45"
+                    placeholder="Örn: 1500"
                     value={newAmount}
                     onChange={(e) => setNewAmount(e.target.value === "" ? "" : parseFloat(e.target.value))}
                     className="mt-1 w-full border border-[#cac1ae] bg-white p-2 text-sm font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
@@ -1297,8 +1417,8 @@ export function BudgetCalculator() {
                     onChange={(e) => setNewCurrency(e.target.value as CurrencyKey)}
                     className="mt-1 w-full border border-[#cac1ae] bg-white p-2 text-xs"
                   >
-                    <option value="EUR">Euro (€)</option>
                     <option value="TRY">Türk Lirası (₺)</option>
+                    <option value="EUR">Euro (€)</option>
                     <option value="USD">Dolar ($)</option>
                     <option value="ALL">Arnavutluk Leki (ALL)</option>
                     <option value="MKD">Makedon Dinarı (MKD)</option>
