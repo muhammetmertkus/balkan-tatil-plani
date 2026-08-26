@@ -57,8 +57,8 @@ const MEMBERS: MemberProfile[] = [
   { id: "eyup", name: "Eyüpcan Aldemir", shortName: "Eyüp", initial: "E", badge: "🚀 Kültür Bakanı", avatarColor: "#38413c", bgClass: "bg-[#38413c]" },
 ];
 
-// FX Rates (Base: 1 EUR)
-const FX_RATES: Record<CurrencyKey, number> = {
+// Default Fallback FX Rates (Base: 1 EUR)
+const DEFAULT_FX_RATES: Record<CurrencyKey, number> = {
   EUR: 1,
   USD: 1.08,
   TRY: 38.50,
@@ -73,29 +73,6 @@ const CURRENCY_SYMBOLS: Record<CurrencyKey, string> = {
   ALL: "ALL",
   MKD: "MKD",
 };
-
-// Convert any currency to any currency
-function convertCurrency(amount: number, from: CurrencyKey, to: CurrencyKey): number {
-  const baseEur = amount / (FX_RATES[from] || 1);
-  return baseEur * (FX_RATES[to] || 1);
-}
-
-// Format multi-currency equivalent line
-function getEquivalents(amountTry: number) {
-  const eur = convertCurrency(amountTry, "TRY", "EUR");
-  const usd = convertCurrency(amountTry, "TRY", "USD");
-  const mkd = convertCurrency(amountTry, "TRY", "MKD");
-  const all = convertCurrency(amountTry, "TRY", "ALL");
-
-  return {
-    tryFormatted: amountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺",
-    eurFormatted: eur.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " €",
-    usdFormatted: usd.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " $",
-    mkdFormatted: Math.round(mkd).toLocaleString("tr-TR") + " MKD",
-    allFormatted: Math.round(all).toLocaleString("tr-TR") + " ALL",
-    subline: `≈ ${Math.round(eur).toLocaleString("tr-TR")} € · ${Math.round(usd).toLocaleString("tr-TR")} $ · ${Math.round(mkd).toLocaleString("tr-TR")} MKD · ${Math.round(all).toLocaleString("tr-TR")} ALL`,
-  };
-}
 
 export interface ExpenseItem {
   id: string;
@@ -256,6 +233,76 @@ const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "budget_splitwise_v2
 export function BudgetCalculator() {
   const [syncStatus, setSyncStatus] = useState<"connecting" | "synced" | "offline">("connecting");
   const [activeTab, setActiveTab] = useState<"all" | MemberKey>("all");
+
+  // Dynamic Live FX Rates State
+  const [fxRates, setFxRates] = useState<Record<CurrencyKey, number>>(() => {
+    try {
+      const saved = localStorage.getItem("balkan_live_fx_rates_v1");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return DEFAULT_FX_RATES;
+  });
+  const [fxLastUpdate, setFxLastUpdate] = useState<string>(() => {
+    return localStorage.getItem("balkan_live_fx_date_v1") || "Canlı Bağlantı";
+  });
+  const [isFetchingFx, setIsFetchingFx] = useState<boolean>(false);
+
+  // Live Exchange Rate Fetcher
+  const fetchLiveRates = async () => {
+    setIsFetchingFx(true);
+    try {
+      const res = await fetch("https://open.er-api.com/v6/latest/EUR");
+      if (!res.ok) throw new Error("API response was not ok");
+      const data = await res.json();
+      if (data && data.rates) {
+        const newRates: Record<CurrencyKey, number> = {
+          EUR: 1,
+          USD: data.rates.USD || 1.08,
+          TRY: data.rates.TRY || 38.50,
+          MKD: data.rates.MKD || 61.50,
+          ALL: data.rates.ALL || 100.20,
+        };
+        setFxRates(newRates);
+        const updateDate = data.time_last_update_utc 
+          ? new Date(data.time_last_update_utc).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })
+          : new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+        setFxLastUpdate(updateDate);
+        localStorage.setItem("balkan_live_fx_rates_v1", JSON.stringify(newRates));
+        localStorage.setItem("balkan_live_fx_date_v1", updateDate);
+      }
+    } catch (err) {
+      console.warn("Could not fetch live rates, keeping current rates:", err);
+    } finally {
+      setIsFetchingFx(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveRates();
+  }, []);
+
+  // Convert any currency to any currency using live fxRates
+  const convertCurrency = (amount: number, from: CurrencyKey, to: CurrencyKey): number => {
+    const baseEur = amount / (fxRates[from] || 1);
+    return baseEur * (fxRates[to] || 1);
+  };
+
+  // Format multi-currency equivalent line using live fxRates
+  const getEquivalents = (amountTry: number) => {
+    const eur = convertCurrency(amountTry, "TRY", "EUR");
+    const usd = convertCurrency(amountTry, "TRY", "USD");
+    const mkd = convertCurrency(amountTry, "TRY", "MKD");
+    const all = convertCurrency(amountTry, "TRY", "ALL");
+
+    return {
+      tryFormatted: amountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺",
+      eurFormatted: eur.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " €",
+      usdFormatted: usd.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " $",
+      mkdFormatted: Math.round(mkd).toLocaleString("tr-TR") + " MKD",
+      allFormatted: Math.round(all).toLocaleString("tr-TR") + " ALL",
+      subline: `≈ ${Math.round(eur).toLocaleString("tr-TR")} € · ${Math.round(usd).toLocaleString("tr-TR")} $ · ${Math.round(mkd).toLocaleString("tr-TR")} MKD · ${Math.round(all).toLocaleString("tr-TR")} ALL`,
+    };
+  };
 
   const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
     try {
@@ -672,71 +719,83 @@ export function BudgetCalculator() {
             </div>
             <div>
               <h4 className="font-display text-sm sm:text-lg text-[#1d211c]">
-                Güncel Döviz Kurları & Resmî Sarrafiye Pariteleri
+                Canlı Döviz Kurları & Resmî Sarrafiye Pariteleri
               </h4>
               <p className="font-mono text-[9px] sm:text-[10px] text-[#49534f]">
-                Otomatik hesaplamalarda kullanılan güncel katsayılar
+                Tüm tutarlar bu anlık kurlarla Türk Lirası'na (₺) çevrilmektedir · Son Güncelleme: <span className="font-bold text-[#145c64]">{fxLastUpdate}</span>
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-semibold text-[#145c64] bg-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded border border-[#145c64]/30 self-start md:self-auto">
-            <Landmark size={11} className="shrink-0" />
-            <span>TCMB · Bank of Albania · NBRNM Kurları</span>
+          <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+            <div className="flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-semibold text-[#145c64] bg-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded border border-[#145c64]/30">
+              <Landmark size={11} className="shrink-0" />
+              <span>Canlı API: ExchangeRate-API (TCMB)</span>
+            </div>
+
+            <button
+              onClick={fetchLiveRates}
+              disabled={isFetchingFx}
+              title="Kurları güncel API'den yeniden çek"
+              className="flex cursor-pointer items-center gap-1 rounded bg-white px-2.5 py-1 font-mono text-[10px] font-bold text-[#145c64] border border-[#145c64]/40 hover:bg-[#145c64] hover:text-white transition-all active:scale-95 disabled:opacity-50"
+            >
+              <RefreshCw size={11} className={isFetchingFx ? "animate-spin" : ""} />
+              <span>{isFetchingFx ? "Çekiliyor..." : "Kurları Yenile"}</span>
+            </button>
           </div>
         </div>
 
-        {/* Live FX Rate Cards */}
+        {/* Live Dynamic FX Rate Cards */}
         <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4 sm:gap-3 font-mono text-xs">
           <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>💶 EURO</span>
+              <span>💶 EURO (EUR)</span>
               <span className="text-[9px] text-[#68716c]">1 €</span>
             </div>
             <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
-              38,50 ₺
+              {fxRates.TRY.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
-              1 EUR = 38,50 TRY
+              1 EUR = {fxRates.TRY.toFixed(2)} TRY
             </div>
           </div>
 
           <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>💵 DOLAR</span>
+              <span>💵 DOLAR (USD)</span>
               <span className="text-[9px] text-[#68716c]">1 $</span>
             </div>
             <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
-              35,65 ₺
+              {(fxRates.TRY / fxRates.USD).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
-              1 EUR = 1,08 USD
+              1 EUR = {fxRates.USD.toFixed(2)} USD
             </div>
           </div>
 
           <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>🇲🇰 DİNAR</span>
+              <span>🇲🇰 DİNAR (MKD)</span>
               <span className="text-[9px] text-[#68716c]">100 MKD</span>
             </div>
             <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
-              62,60 ₺
+              {((100 * fxRates.TRY) / fxRates.MKD).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
-              1 MKD ≈ 0,626 ₺
+              1 MKD ≈ {(fxRates.TRY / fxRates.MKD).toFixed(3)} ₺ (1 € ≈ {fxRates.MKD.toFixed(1)} MKD)
             </div>
           </div>
 
           <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>🇦🇱 LEK</span>
+              <span>🇦🇱 LEK (ALL)</span>
               <span className="text-[9px] text-[#68716c]">100 ALL</span>
             </div>
             <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
-              38,42 ₺
+              {((100 * fxRates.TRY) / fxRates.ALL).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
-              1 ALL ≈ 0,384 ₺
+              1 ALL ≈ {(fxRates.TRY / fxRates.ALL).toFixed(3)} ₺ (1 € ≈ {fxRates.ALL.toFixed(1)} ALL)
             </div>
           </div>
         </div>
