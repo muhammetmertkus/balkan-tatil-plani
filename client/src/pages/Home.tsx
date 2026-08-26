@@ -682,7 +682,9 @@ export default function Home() {
                 <Coffee size={20} />
                 <h3>Her Durakta Ne Yenir?</h3>
               </div>
-              <div className="food-scroll">
+
+              {/* Desktop Table View */}
+              <div className="food-scroll hidden md:block">
                 <table>
                   <thead>
                     <tr>
@@ -700,15 +702,39 @@ export default function Home() {
                         </td>
                         <td>{item.order}</td>
                         <td>
-                          {item.candidates}
-                          <small className="block text-[#145c64] font-semibold">{item.band}</small>
+                          <span className="font-serif">{item.candidates}</span>
+                          <small className="block text-[#145c64] font-semibold font-mono">{item.band}</small>
                         </td>
-                        <td>{item.note}</td>
+                        <td className="text-xs text-[#52605a]">{item.note}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Card List View */}
+              <div className="mt-3 divide-y divide-[#cac1ae]/60 md:hidden font-serif">
+                {foodMatrix.map((item) => (
+                  <div key={item.city} className="py-3 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <strong className="font-serif text-base text-[#1d211c]">{item.city}</strong>
+                      <span className="font-mono text-[10px] font-bold text-[#145c64] bg-[#e3eee9] px-2 py-0.5 rounded">
+                        {item.band}
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#145c64] font-semibold">
+                      🍽️ {item.order}
+                    </div>
+                    <div className="text-xs text-[#38413c]">
+                      📍 <b>Mekanlar:</b> {item.candidates}
+                    </div>
+                    <div className="text-[11px] text-[#68716c] font-sans bg-[#fdfbf7] p-1.5 rounded border border-[#cac1ae]/40">
+                      💡 {item.note}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <p className="panel-footnote">
                 Restoran adları rezervasyon adayıdır; masa, açık saat, menü ve güncel fiyat teyit edilmeden oturulmaz. Deniz ürününde kg fiyatı ve balığın ağırlığı siparişten önce sorulur.
               </p>
