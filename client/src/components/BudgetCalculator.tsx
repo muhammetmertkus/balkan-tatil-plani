@@ -60,10 +60,10 @@ const MEMBERS: MemberProfile[] = [
 // Default Fallback FX Rates (Base: 1 EUR)
 export const DEFAULT_FX_RATES: Record<CurrencyKey, number> = {
   EUR: 1,
-  USD: 1.08,
-  TRY: 38.50,
-  MKD: 61.50,
-  ALL: 100.20,
+  USD: 1.166986,
+  TRY: 56.148351,
+  MKD: 61.497,
+  ALL: 92.451319,
 };
 
 export const FX_RATES: Record<CurrencyKey, number> = DEFAULT_FX_RATES;
@@ -280,10 +280,10 @@ export function BudgetCalculator() {
       if (data && data.rates) {
         const newRates: Record<CurrencyKey, number> = {
           EUR: 1,
-          USD: Number(data.rates.USD) || 1.08,
-          TRY: Number(data.rates.TRY) || 38.50,
-          MKD: Number(data.rates.MKD) || 61.50,
-          ALL: Number(data.rates.ALL) || 100.20,
+          USD: Number(data.rates.USD) || DEFAULT_FX_RATES.USD,
+          TRY: Number(data.rates.TRY) || DEFAULT_FX_RATES.TRY,
+          MKD: Number(data.rates.MKD) || DEFAULT_FX_RATES.MKD,
+          ALL: Number(data.rates.ALL) || DEFAULT_FX_RATES.ALL,
         };
         setFxRates(newRates);
         const updateDate = data.time_last_update_utc 
