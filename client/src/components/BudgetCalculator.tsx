@@ -1167,14 +1167,23 @@ export function BudgetCalculator() {
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#cac1ae]/40 pt-2 bg-[#fdfbf7] p-2 rounded">
                   <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#49534f]">
                     <Users size={14} className="text-[#145c64]" />
-                    <span>Pay Onayları:</span>
+                    <span>{activeTab === "all" ? "Pay Onayları (Tüm Ekip):" : "Kişisel Pay Onayı:"}</span>
                   </div>
 
                   {/* Member Avatar / Tick Buttons */}
                   <div className="flex flex-wrap items-center gap-2">
-                    {MEMBERS.map((m) => {
+                    {(activeTab === "all" ? MEMBERS : MEMBERS.filter((m) => m.id === activeTab)).map((m) => {
                       const isIncluded = item.splitBetween.includes(m.id);
-                      if (!isIncluded) return null;
+                      if (!isIncluded) {
+                        if (activeTab !== "all") {
+                          return (
+                            <span key={m.id} className="text-[11px] text-stone-400 italic font-serif">
+                              (Bu harcamaya dahil değilsiniz)
+                            </span>
+                          );
+                        }
+                        return null;
+                      }
 
                       const isSettled = !!item.settledShares?.[m.id];
                       const isPayer = item.paidBy === m.id;
@@ -1184,11 +1193,11 @@ export function BudgetCalculator() {
                           key={m.id}
                           type="button"
                           onClick={() => toggleMemberShare(item.id, m.id)}
-                          className={`flex cursor-pointer items-center gap-1.5 rounded border px-2 py-1 text-xs transition-all ${
+                          className={`flex cursor-pointer items-center gap-1.5 rounded border px-2.5 py-1 text-xs transition-all ${
                             isSettled
-                              ? "border-emerald-600 bg-emerald-50 text-emerald-900 font-bold shadow-2xs"
-                              : "border-rose-300 bg-rose-50/60 text-rose-800 opacity-75 hover:opacity-100"
-                          } ${activeTab === m.id ? "ring-2 ring-[#145c64]" : ""}`}
+                              ? "border-emerald-600 bg-emerald-50 text-emerald-900 font-bold shadow-xs"
+                              : "border-rose-300 bg-rose-50/70 text-rose-800 opacity-90 hover:opacity-100 shadow-2xs"
+                          }`}
                           title={`${m.name}: ${isSettled ? "Ödendi / Kapatıldı (Tıkla ve Beklemeye Al)" : "Bekliyor / Borçlu (Tıkla ve Kapat)"}`}
                         >
                           <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white text-[9px] font-bold ${
@@ -1196,9 +1205,11 @@ export function BudgetCalculator() {
                           }`}>
                             {isSettled ? "✓" : m.initial}
                           </div>
-                          <span>{m.shortName}</span>
+                          <span className="font-bold">{m.shortName}</span>
                           <span className="text-[10px]">
-                            {isSettled ? (isPayer ? "(Kendi Payı)" : "Ödedi") : "Bekliyor"}
+                            {isSettled 
+                              ? (isPayer ? "Kendi Payı (Ödendi)" : "Payını Ödedi ✓") 
+                              : (isPayer ? "Kendi Payı Bekliyor" : "Payı Bekliyor ○")}
                           </span>
                         </button>
                       );
