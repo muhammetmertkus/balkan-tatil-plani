@@ -639,15 +639,17 @@ export default function Home() {
                 {stayMatrix.map((item) => (
                   <details key={item.city} className="group">
                     <summary className="cursor-pointer">
-                      <span>{item.city}</span>
-                      <div className="flex items-center gap-2">
-                        <b className="text-xs text-[#145c64] font-mono">{item.nights}</b>
+                      <span className="font-serif font-bold text-sm sm:text-base text-[#1d211c]">{item.city}</span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <b className="text-[10px] sm:text-xs text-[#145c64] font-mono whitespace-nowrap bg-[#ece4d4] px-1.5 py-0.5 rounded">
+                          {item.nights}
+                        </b>
                         {item.price && (
-                          <span className="rounded bg-[#ded5c2] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#b54b38]">
+                          <span className="rounded bg-[#ded5c2] px-1.5 py-0.5 font-mono text-[10px] sm:text-xs font-bold text-[#b54b38] whitespace-nowrap shadow-2xs">
                             {item.price}
                           </span>
                         )}
-                        <ChevronDown size={16} className="transition-transform group-open:rotate-180" />
+                        <ChevronDown size={15} className="text-[#145c64] shrink-0 transition-transform group-open:rotate-180" />
                       </div>
                     </summary>
                     <div>

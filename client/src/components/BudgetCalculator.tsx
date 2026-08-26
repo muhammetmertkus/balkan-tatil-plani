@@ -664,171 +664,171 @@ export function BudgetCalculator() {
       {/* ======================================================= */}
       {/* 🏛️ LIVE EXCHANGE RATES & SOURCE TICKER BAR (SARRAFİYE MASASI) */}
       {/* ======================================================= */}
-      <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-4 sm:p-5 shadow-[4px_4px_0_#145c64]">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b border-[#145c64]/20 pb-3">
+      <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[3px_3px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between border-b border-[#145c64]/20 pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-[#145c64] text-white">
-              <Coins size={16} />
+            <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded bg-[#145c64] text-white">
+              <Coins size={15} />
             </div>
             <div>
-              <h4 className="font-display text-base sm:text-lg text-[#1d211c]">
+              <h4 className="font-display text-sm sm:text-lg text-[#1d211c]">
                 Güncel Döviz Kurları & Resmî Sarrafiye Pariteleri
               </h4>
-              <p className="font-mono text-[10px] text-[#49534f]">
-                Otomatik hesaplamalarda kullanılan güncel dönüştürme katsayıları
+              <p className="font-mono text-[9px] sm:text-[10px] text-[#49534f]">
+                Otomatik hesaplamalarda kullanılan güncel katsayılar
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 font-mono text-[10px] font-semibold text-[#145c64] bg-white px-2.5 py-1 rounded border border-[#145c64]/30 self-start md:self-auto">
-            <Landmark size={12} />
-            <span>Kaynak: TCMB · Bank of Albania · NBRNM Referans Kurları</span>
+          <div className="flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-semibold text-[#145c64] bg-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded border border-[#145c64]/30 self-start md:self-auto">
+            <Landmark size={11} className="shrink-0" />
+            <span>TCMB · Bank of Albania · NBRNM Kurları</span>
           </div>
         </div>
 
         {/* Live FX Rate Cards */}
-        <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 font-mono text-xs">
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
-            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
-              <span>💶 EURO (EUR)</span>
-              <span className="text-[10px] text-[#68716c]">1 €</span>
+        <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4 sm:gap-3 font-mono text-xs">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
+              <span>💶 EURO</span>
+              <span className="text-[9px] text-[#68716c]">1 €</span>
             </div>
-            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
               38,50 ₺
             </div>
-            <div className="text-[10px] text-[#68716c]">
+            <div className="text-[9px] sm:text-[10px] text-[#68716c]">
               1 EUR = 38,50 TRY
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
-            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
-              <span>💵 DOLAR (USD)</span>
-              <span className="text-[10px] text-[#68716c]">1 $</span>
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
+              <span>💵 DOLAR</span>
+              <span className="text-[9px] text-[#68716c]">1 $</span>
             </div>
-            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
               35,65 ₺
             </div>
-            <div className="text-[10px] text-[#68716c]">
+            <div className="text-[9px] sm:text-[10px] text-[#68716c]">
               1 EUR = 1,08 USD
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
-            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
-              <span>🇲🇰 MAKEDON DİNARI</span>
-              <span className="text-[10px] text-[#68716c]">100 MKD</span>
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
+              <span>🇲🇰 DİNAR</span>
+              <span className="text-[9px] text-[#68716c]">100 MKD</span>
             </div>
-            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
               62,60 ₺
             </div>
-            <div className="text-[10px] text-[#68716c]">
-              1 MKD ≈ 0,626 ₺ (1 € ≈ 61,5 MKD)
+            <div className="text-[9px] sm:text-[10px] text-[#68716c]">
+              1 MKD ≈ 0,626 ₺
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 shadow-2xs">
-            <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px]">
-              <span>🇦🇱 ARNAVUTLUK LEKİ</span>
-              <span className="text-[10px] text-[#68716c]">100 ALL</span>
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
+              <span>🇦🇱 LEK</span>
+              <span className="text-[9px] text-[#68716c]">100 ALL</span>
             </div>
-            <div className="mt-1 font-display text-lg sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
               38,42 ₺
             </div>
-            <div className="text-[10px] text-[#68716c]">
-              1 ALL ≈ 0,384 ₺ (1 € ≈ 100,2 ALL)
+            <div className="text-[9px] sm:text-[10px] text-[#68716c]">
+              1 ALL ≈ 0,384 ₺
             </div>
           </div>
         </div>
       </div>
 
       {/* Top Banner: Big TL KPI Cards with Multi-Currency Equivalents Underneath */}
-      <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-6 md:grid-cols-3">
         {/* Card 1: Settled Paid */}
-        <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-5 shadow-[4px_4px_0_#145c64]">
+        <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[3px_3px_0_#145c64] sm:shadow-[4px_4px_0_#145c64]">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
+            <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
               ÖDENMİŞ & KAPATILMIŞ PAYLAR
             </span>
-            <span className="rounded bg-emerald-700 px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+            <span className="rounded bg-emerald-700 px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white">
               KAPATILDI
             </span>
           </div>
 
-          <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
+          <div className="mt-1.5 font-display text-2xl sm:text-4xl text-[#1d211c]">
             {totalSettledAmountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
 
           {/* Sub-currencies */}
-          <div className="mt-1 font-mono text-[11px] font-bold text-[#145c64] bg-white/80 px-2 py-1 rounded border border-[#145c64]/20">
+          <div className="mt-1 font-mono text-[10px] sm:text-[11px] font-bold text-[#145c64] bg-white/80 px-2 py-0.5 rounded border border-[#145c64]/20 break-words">
             {getEquivalents(totalSettledAmountTry).subline}
           </div>
 
-          <p className="mt-2 font-serif text-xs text-[#49534f]">
+          <p className="mt-1.5 font-serif text-[11px] sm:text-xs text-[#49534f]">
             Ekip üyelerinin cebinden ödeyip kendi aralarında kapattığı toplam tutar.
           </p>
 
-          <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-bold text-[#145c64] flex justify-between items-baseline">
+          <div className="mt-2.5 border-t border-[#145c64]/20 pt-1.5 font-mono text-[11px] sm:text-xs font-bold text-[#145c64] flex justify-between items-baseline">
             <span>Kişi Başı:</span>
             <span>{(totalSettledAmountTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
           </div>
         </div>
 
         {/* Card 2: Grand Total */}
-        <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 shadow-[4px_4px_0_#b54b38]">
+        <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-3.5 sm:p-5 shadow-[3px_3px_0_#b54b38] sm:shadow-[4px_4px_0_#b54b38]">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
+            <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
               TOPLAM TATİL BÜTÇESİ
             </span>
-            <span className="rounded bg-[#1d211c] px-2 py-0.5 font-mono text-[10px] font-bold text-white">
-              {expenses.length} HARCAMA KALEMİ
+            <span className="rounded bg-[#1d211c] px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white">
+              {expenses.length} KALEM
             </span>
           </div>
 
-          <div className="mt-2 font-display text-3xl sm:text-4xl text-[#b54b38]">
+          <div className="mt-1.5 font-display text-2xl sm:text-4xl text-[#b54b38]">
             {grandTotalTripTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
 
           {/* Sub-currencies */}
-          <div className="mt-1 font-mono text-[11px] font-bold text-[#b54b38] bg-[#fff5f2] px-2 py-1 rounded border border-[#b54b38]/20">
+          <div className="mt-1 font-mono text-[10px] sm:text-[11px] font-bold text-[#b54b38] bg-[#fff5f2] px-2 py-0.5 rounded border border-[#b54b38]/20 break-words">
             {getEquivalents(grandTotalTripTry).subline}
           </div>
 
-          <p className="mt-2 font-serif text-xs text-[#49534f]">
-            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + yol üstünde eklenen tüm harcamalar.
+          <p className="mt-1.5 font-serif text-[11px] sm:text-xs text-[#49534f]">
+            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + tüm saha harcamaları.
           </p>
 
-          <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs font-bold text-[#b54b38] flex justify-between items-baseline">
+          <div className="mt-2.5 border-t border-[#cac1ae] pt-1.5 font-mono text-[11px] sm:text-xs font-bold text-[#b54b38] flex justify-between items-baseline">
             <span>Kişi Başı:</span>
             <span>{(grandTotalTripTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺ (~{Math.round(convertCurrency(grandTotalTripTry / 4, "TRY", "EUR"))} €)</span>
           </div>
         </div>
 
         {/* Card 3: Remaining Unsettled */}
-        <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-5 shadow-[4px_4px_0_rgba(29,33,28,0.12)]">
+        <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-3.5 sm:p-5 shadow-[3px_3px_0_rgba(29,33,28,0.12)] sm:shadow-[4px_4px_0_rgba(29,33,28,0.12)]">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
+            <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
               BEKLEYEN / AÇIK PAYLAR
             </span>
-            <span className="rounded bg-[#ded5c2] px-2 py-0.5 font-mono text-[10px] font-bold text-[#29312e]">
+            <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-[#29312e]">
               ÖDENECEK
             </span>
           </div>
 
-          <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
+          <div className="mt-1.5 font-display text-2xl sm:text-4xl text-[#1d211c]">
             {totalRemainingUnsettledTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
 
           {/* Sub-currencies */}
-          <div className="mt-1 font-mono text-[11px] font-bold text-[#38413c] bg-white/80 px-2 py-1 rounded border border-[#cac1ae]">
+          <div className="mt-1 font-mono text-[10px] sm:text-[11px] font-bold text-[#38413c] bg-white/80 px-2 py-0.5 rounded border border-[#cac1ae] break-words">
             {getEquivalents(totalRemainingUnsettledTry).subline}
           </div>
 
-          <p className="mt-2 font-serif text-xs text-[#49534f]">
+          <p className="mt-1.5 font-serif text-[11px] sm:text-xs text-[#49534f]">
             Henüz ilgili üyelerce ödenmemiş veya onaylanmamış bekleyen bakiye.
           </p>
 
-          <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs font-bold text-[#145c64] flex justify-between items-baseline">
+          <div className="mt-2.5 border-t border-[#b54b38]/20 pt-1.5 font-mono text-[11px] sm:text-xs font-bold text-[#145c64] flex justify-between items-baseline">
             <span>Kişi Başı Kalan:</span>
             <span>{(totalRemainingUnsettledTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
           </div>
