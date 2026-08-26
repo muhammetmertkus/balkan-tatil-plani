@@ -50,15 +50,15 @@
 }
 
 @layer base {
-  * { border-color: var(--border); }
-  html { scroll-behavior: smooth; }
-  body { background-color: var(--background); color: var(--foreground); font-family: var(--font-body); }
+  * { border-color: var(--border); box-sizing: border-box; }
+  html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; max-width: 100vw; }
+  body { background-color: var(--background); color: var(--foreground); font-family: var(--font-body); overflow-x: hidden; width: 100%; max-width: 100vw; }
   button, a { -webkit-tap-highlight-color: transparent; }
   button:not(:disabled), a[href] { cursor: pointer; }
   ::selection { background: #b54b38; color: #fffaf0; }
 }
 
-.paper-site { background-color: #f5f0e5; background-image: radial-gradient(rgba(56, 51, 41, .095) .65px, transparent .65px), radial-gradient(rgba(56, 51, 41, .055) .65px, transparent .65px); background-position: 0 0, 5px 6px; background-size: 9px 9px, 13px 13px; }
+.paper-site { width: 100%; max-width: 100vw; overflow-x: hidden; background-color: #f5f0e5; background-image: radial-gradient(rgba(56, 51, 41, .095) .65px, transparent .65px), radial-gradient(rgba(56, 51, 41, .055) .65px, transparent .65px); background-position: 0 0, 5px 6px; background-size: 9px 9px, 13px 13px; }
 .paper-site::after { content: ""; pointer-events: none; position: fixed; z-index: 40; inset: 0; opacity: .065; mix-blend-mode: multiply; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E"); }
 
 .topbar { position: fixed; z-index: 30; top: 0; left: 0; right: 0; height: 78px; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; border-bottom: 1px solid transparent; transition: background-color 180ms cubic-bezier(.23,1,.32,1), border-color 180ms cubic-bezier(.23,1,.32,1), box-shadow 180ms cubic-bezier(.23,1,.32,1); }
@@ -432,13 +432,21 @@ h1 em, h2 em { color: #145c64; font-style: italic; }
   .shopping-card:nth-child(n) { margin-top: 0; }
   .shopping-card:nth-child(2),.shopping-card:nth-child(4) { margin-top: 1.25rem; }
   .electronics-note { margin-top: 2.5rem; }
-  .budget-main { margin-top: 3rem; }
+  .budget-main { margin-top: 2rem !important; }
   .budget-scenarios { grid-template-columns: 1fr; }
   .budget-scenarios__highlight { transform: rotate(.4deg); }
   .budget-assumptions > div { grid-template-columns: 1fr 1fr; }
   .check-grid { grid-template-columns: 1fr; margin-top: 2.5rem; }
   .check-item { min-height: 0; }
   .section-route-mark--team { bottom: 1.5rem; } 
+}
+
+.budget-section { display: grid; grid-template-columns: minmax(270px,.72fr) minmax(0,1.28fr); gap: 5vw; padding: 7.8rem 8vw; background: #ded5c3; width: 100%; max-width: 100vw; overflow-x: hidden; }
+.budget-main { width: 100%; max-width: 100%; min-width: 0; overflow-x: hidden; display: grid; gap: 2.2rem; }
+
+@media (max-width: 760px) { 
+  .budget-section { padding: 4rem 3.5vw !important; width: 100% !important; max-width: 100vw !important; overflow-x: hidden !important; }
+  .budget-main { margin-top: 2rem !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; overflow-x: hidden !important; }
 }
 @media (max-width: 760px) { .sources-section { display: block; padding: 5.4rem 6vw; }.sources-grid { margin-top: 2.1rem; }.sources-grid article:nth-child(2n) { transform: none; } }
 @media (max-width: 440px) { .team-grid--front { grid-template-columns: 1fr; }.team-grid--front .member-card:nth-child(n) { margin-top: 0; }.team-grid--front .member-card + .member-card { margin-top: 1.2rem; }.day-detail-grid > div { padding: .85rem; }.shopping-cards { grid-template-columns: 1fr; }.shopping-card:nth-child(n) { margin-top: 0; }.shopping-card + .shopping-card { margin-top: .9rem; }.budget-assumptions > div { grid-template-columns: 1fr; }.atlas-map-frame,.atlas-map { min-height: 380px; }.map-caption { max-width: 225px; } }

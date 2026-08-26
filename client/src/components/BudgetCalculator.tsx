@@ -707,18 +707,18 @@ export function BudgetCalculator() {
   };
 
   return (
-    <div className="budget-dossier space-y-8 font-serif text-[#1d211c]">
+    <div className="budget-dossier w-full max-w-full overflow-hidden space-y-6 sm:space-y-8 font-serif text-[#1d211c]">
       {/* Top Header with Sync Badge */}
-      <div className="flex flex-col gap-4 border-b-2 border-[#1d211c] pb-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 md:flex-row md:items-center md:justify-between w-full max-w-full overflow-hidden">
         <div>
-          <div className="flex flex-wrap items-center gap-3 font-mono text-xs">
-            <span className="flex items-center gap-1.5 font-bold uppercase tracking-widest text-[#145c64]">
-              <Sparkles size={15} />
-              Bâb-ı Âsafî · Defterdarlık & Masârifât Divanı
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 font-mono text-xs">
+            <span className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#145c64] break-words text-[11px] sm:text-xs">
+              <Sparkles size={14} className="shrink-0" />
+              Bâb-ı Âsafî · Defterdarlık Divanı
             </span>
 
             {/* Cloud Sync Status Badge */}
-            <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all ${
+            <div className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold transition-all shrink-0 ${
               syncStatus === "synced" 
                 ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                 : syncStatus === "connecting"
@@ -731,27 +731,27 @@ export function BudgetCalculator() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
-                  <Wifi size={12} />
-                  <span>Rûznâme Canlı Senkron</span>
+                  <Wifi size={11} />
+                  <span>Canlı Senkron</span>
                 </>
               ) : syncStatus === "connecting" ? (
                 <>
-                  <Wifi size={12} className="animate-spin" />
-                  <span>Hazineye Bağlanıyor...</span>
+                  <Wifi size={11} className="animate-spin" />
+                  <span>Bağlanıyor...</span>
                 </>
               ) : (
                 <>
-                  <WifiOff size={12} />
+                  <WifiOff size={11} />
                   <span>Kayıt Defteri (Çevrimdışı)</span>
                 </>
               )}
             </div>
           </div>
 
-          <h3 className="mt-1 font-display text-2xl sm:text-3xl md:text-4xl text-[#1d211c]">
-            Balkan Seferi <em>Defterdarlığı</em> & Masârifât-ı Âmire
+          <h3 className="mt-1 font-display text-xl sm:text-3xl md:text-4xl text-[#1d211c] break-words">
+            Balkan Seferi <em>Defterdarlığı</em>
           </h3>
-          <p className="mt-1 max-w-2xl font-serif text-xs sm:text-sm text-[#49534f]">
+          <p className="mt-0.5 max-w-2xl font-serif text-[11px] sm:text-sm text-[#49534f]">
             Tüm tutarlar birincil olarak büyük <b>Türk Lirası (₺)</b> cinsinden gösterilir, altlarında döviz ve yerel para karşılıkları yer alır.
           </p>
         </div>
@@ -760,24 +760,24 @@ export function BudgetCalculator() {
       {/* ======================================================= */}
       {/* 🏛️ LIVE EXCHANGE RATES & SOURCE TICKER BAR (SARRAFİYE MASASI) */}
       {/* ======================================================= */}
-      <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[3px_3px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] min-w-0 overflow-hidden">
-        <div className="flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between border-b border-[#145c64]/20 pb-3">
-          <div className="flex items-center gap-2">
+      <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3 sm:p-5 shadow-[2px_2px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] w-full max-w-full min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between border-b border-[#145c64]/20 pb-2.5">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded bg-[#145c64] text-white">
               <Coins size={15} />
             </div>
-            <div>
-              <h4 className="font-display text-sm sm:text-lg text-[#1d211c]">
+            <div className="min-w-0">
+              <h4 className="font-display text-sm sm:text-lg text-[#1d211c] truncate">
                 Canlı Döviz Kurları & Resmî Sarrafiye Pariteleri
               </h4>
-              <p className="font-mono text-[9px] sm:text-[10px] text-[#49534f]">
-                Tüm tutarlar bu anlık kurlarla Türk Lirası'na (₺) çevrilmektedir · Son Güncelleme: <span className="font-bold text-[#145c64]">{fxLastUpdate}</span>
+              <p className="font-mono text-[9px] sm:text-[10px] text-[#49534f] truncate">
+                Tüm tutarlar bu anlık kurlarla Türk Lirası'na (₺) çevrilmektedir · Son: <span className="font-bold text-[#145c64]">{fxLastUpdate}</span>
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
-            <div className="flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-semibold text-[#145c64] bg-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded border border-[#145c64]/30">
+          <div className="flex flex-wrap items-center gap-1.5 self-start md:self-auto">
+            <div className="flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-semibold text-[#145c64] bg-white px-2 py-0.5 rounded border border-[#145c64]/30">
               <Landmark size={11} className="shrink-0" />
               <span>Canlı API: ExchangeRate-API (TCMB)</span>
             </div>
@@ -786,22 +786,22 @@ export function BudgetCalculator() {
               onClick={fetchLiveRates}
               disabled={isFetchingFx}
               title="Kurları güncel API'den yeniden çek"
-              className="flex cursor-pointer items-center gap-1 rounded bg-white px-2.5 py-1 font-mono text-[10px] font-bold text-[#145c64] border border-[#145c64]/40 hover:bg-[#145c64] hover:text-white transition-all active:scale-95 disabled:opacity-50"
+              className="flex cursor-pointer items-center gap-1 rounded bg-white px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64] border border-[#145c64]/40 hover:bg-[#145c64] hover:text-white transition-all active:scale-95 disabled:opacity-50"
             >
-              <RefreshCw size={11} className={isFetchingFx ? "animate-spin" : ""} />
+              <RefreshCw size={10} className={isFetchingFx ? "animate-spin" : ""} />
               <span>{isFetchingFx ? "Çekiliyor..." : "Kurları Yenile"}</span>
             </button>
           </div>
         </div>
 
         {/* Live Dynamic FX Rate Cards */}
-        <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4 sm:gap-3 font-mono text-xs">
-          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+        <div className="mt-2.5 grid grid-cols-2 gap-1.5 sm:grid-cols-4 sm:gap-3 font-mono text-xs w-full max-w-full">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>💶 EURO (EUR)</span>
+              <span>💶 EURO</span>
               <span className="text-[9px] text-[#68716c]">1 €</span>
             </div>
-            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 font-display text-base sm:text-xl text-[#1d211c]">
               {fxRates.TRY.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
@@ -809,12 +809,12 @@ export function BudgetCalculator() {
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>💵 DOLAR (USD)</span>
+              <span>💵 DOLAR</span>
               <span className="text-[9px] text-[#68716c]">1 $</span>
             </div>
-            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 font-display text-base sm:text-xl text-[#1d211c]">
               {(fxRates.TRY / fxRates.USD).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
@@ -822,43 +822,43 @@ export function BudgetCalculator() {
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>🇲🇰 DİNAR (MKD)</span>
+              <span>🇲🇰 DİNAR</span>
               <span className="text-[9px] text-[#68716c]">100 MKD</span>
             </div>
-            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 font-display text-base sm:text-xl text-[#1d211c]">
               {((100 * fxRates.TRY) / fxRates.MKD).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
-              1 MKD ≈ {(fxRates.TRY / fxRates.MKD).toFixed(3)} ₺ (1 € ≈ {fxRates.MKD.toFixed(1)} MKD)
+              1 MKD ≈ {(fxRates.TRY / fxRates.MKD).toFixed(3)} ₺
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[10px] sm:text-[11px]">
-              <span>🇦🇱 LEK (ALL)</span>
+              <span>🇦🇱 LEK</span>
               <span className="text-[9px] text-[#68716c]">100 ALL</span>
             </div>
-            <div className="mt-0.5 sm:mt-1 font-display text-base sm:text-xl text-[#1d211c]">
+            <div className="mt-0.5 font-display text-base sm:text-xl text-[#1d211c]">
               {((100 * fxRates.TRY) / fxRates.ALL).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#68716c]">
-              1 ALL ≈ {(fxRates.TRY / fxRates.ALL).toFixed(3)} ₺ (1 € ≈ {fxRates.ALL.toFixed(1)} ALL)
+              1 ALL ≈ {(fxRates.TRY / fxRates.ALL).toFixed(3)} ₺
             </div>
           </div>
         </div>
       </div>
 
       {/* Top Banner: Big TL KPI Cards with Multi-Currency Equivalents Underneath */}
-      <div className="grid gap-3 sm:gap-6 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-6 md:grid-cols-3 w-full max-w-full min-w-0">
         {/* Card 1: Settled Paid */}
-        <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[3px_3px_0_#145c64] sm:shadow-[4px_4px_0_#145c64]">
+        <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3 sm:p-5 shadow-[2px_2px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] w-full max-w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
               ÖDENMİŞ & KAPATILMIŞ PAYLAR
             </span>
-            <span className="rounded bg-emerald-700 px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white">
+            <span className="rounded bg-emerald-700 px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white shrink-0">
               KAPATILDI
             </span>
           </div>
@@ -883,12 +883,12 @@ export function BudgetCalculator() {
         </div>
 
         {/* Card 2: Grand Total */}
-        <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-3.5 sm:p-5 shadow-[3px_3px_0_#b54b38] sm:shadow-[4px_4px_0_#b54b38]">
+        <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-3 sm:p-5 shadow-[2px_2px_0_#b54b38] sm:shadow-[4px_4px_0_#b54b38] w-full max-w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
               TOPLAM TATİL BÜTÇESİ
             </span>
-            <span className="rounded bg-[#1d211c] px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white">
+            <span className="rounded bg-[#1d211c] px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white shrink-0">
               {expenses.length} KALEM
             </span>
           </div>
@@ -908,17 +908,17 @@ export function BudgetCalculator() {
 
           <div className="mt-2.5 border-t border-[#cac1ae] pt-1.5 font-mono text-[11px] sm:text-xs font-bold text-[#b54b38] flex justify-between items-baseline">
             <span>Kişi Başı:</span>
-            <span>{(grandTotalTripTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺ (~{Math.round(convertCurrency(grandTotalTripTry / 4, "TRY", "EUR"))} €)</span>
+            <span>{(grandTotalTripTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
           </div>
         </div>
 
         {/* Card 3: Remaining Unsettled */}
-        <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-3.5 sm:p-5 shadow-[3px_3px_0_rgba(29,33,28,0.12)] sm:shadow-[4px_4px_0_rgba(29,33,28,0.12)]">
+        <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-3 sm:p-5 shadow-[2px_2px_0_rgba(29,33,28,0.12)] sm:shadow-[4px_4px_0_rgba(29,33,28,0.12)] w-full max-w-full min-w-0 overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
               BEKLEYEN / AÇIK PAYLAR
             </span>
-            <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-[#29312e]">
+            <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 sm:px-2 sm:py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-[#29312e] shrink-0">
               ÖDENECEK
             </span>
           </div>
@@ -946,32 +946,32 @@ export function BudgetCalculator() {
       {/* ======================================================= */}
       {/* ⚖️ MÎZÂN-I AHZ U İTÂ (BORÇ-ALACAK & HESAPLAŞMA) */}
       {/* ======================================================= */}
-      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[6px_8px_0_rgba(20,92,100,0.18)]">
-        <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
-              <ArrowRightLeft size={16} />
-              <span>Mîzân-ı Ahz u İtâ · Canlı Borç-Alacak Dengesi</span>
+      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-3 sm:p-7 shadow-[2px_2px_0_rgba(20,92,100,0.18)] sm:shadow-[6px_8px_0_rgba(20,92,100,0.18)] w-full max-w-full min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-3 sm:flex-row sm:items-center sm:justify-between w-full min-w-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#145c64]">
+              <ArrowRightLeft size={15} className="shrink-0" />
+              <span className="truncate">Mîzân-ı Ahz u İtâ · Canlı Borç-Alacak Dengesi</span>
             </div>
-            <h3 className="mt-1 font-display text-2xl sm:text-3xl text-[#1d211c]">
+            <h3 className="mt-0.5 font-display text-xl sm:text-3xl text-[#1d211c] break-words">
               Kim Kime Kaç Para Gönderecek?
             </h3>
-            <p className="mt-0.5 font-serif text-xs text-[#49534f]">
+            <p className="mt-0.5 font-serif text-[11px] sm:text-xs text-[#49534f]">
               Her neferin cebinden ödediği meblağ ile payına düşen borçlar anında tenzil edilir; IBAN havaleleri hesaplanır.
             </p>
           </div>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex cursor-pointer items-center gap-1.5 self-start sm:self-auto rounded bg-[#145c64] px-4 py-2.5 font-mono text-xs font-bold text-white shadow-[3px_3px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95"
+            className="flex cursor-pointer items-center gap-1.5 self-start sm:self-auto rounded bg-[#145c64] px-3.5 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 shrink-0"
           >
-            <Plus size={16} />
-            <span>+ Masraf-ı Seferiyye Ekle</span>
+            <Plus size={15} />
+            <span>Masraf Ekle</span>
           </button>
         </div>
 
         {/* 4 Member Net Balance Cards */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4 w-full max-w-full min-w-0">
           {MEMBERS.map((member) => {
             const net = splitwiseState.netBalanceTry[member.id];
             const isCreditor = net > 1;
@@ -984,69 +984,57 @@ export function BudgetCalculator() {
               <div
                 key={member.id}
                 onClick={() => setActiveTab(member.id)}
-                className={`cursor-pointer rounded border-2 p-4 transition-all hover:scale-[1.02] ${
+                className={`cursor-pointer rounded border-2 p-3 sm:p-3.5 transition-all w-full max-w-full min-w-0 overflow-hidden hover:scale-[1.01] ${
                   activeTab === member.id ? "ring-2 ring-[#145c64] ring-offset-2" : ""
                 } ${
                   isCreditor
-                    ? "border-emerald-600 bg-emerald-50/70 shadow-[3px_3px_0_#059669]"
+                    ? "border-emerald-600 bg-emerald-50/70 shadow-[2px_2px_0_#059669]"
                     : isDebtor
-                    ? "border-rose-600 bg-rose-50/70 shadow-[3px_3px_0_#e11d48]"
+                    ? "border-rose-600 bg-rose-50/70 shadow-[2px_2px_0_#e11d48]"
                     : "border-[#cac1ae] bg-[#fbf9f2]"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-full text-white font-bold text-xs ${member.bgClass}`}>
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <div className={`flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full text-white font-bold text-xs ${member.bgClass}`}>
                       {member.initial}
                     </div>
-                    <span className="font-display text-lg text-[#1d211c]">{member.name}</span>
+                    <span className="font-display text-base sm:text-lg text-[#1d211c] truncate">{member.name}</span>
                   </div>
 
-                  <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                  <span className={`rounded px-1.5 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold shrink-0 ${
                     isCreditor ? "bg-emerald-700 text-white" : isDebtor ? "bg-rose-700 text-white" : "bg-stone-200 text-stone-800"
                   }`}>
-                    {isCreditor ? "ALACAKLI 🟢 (Matlûb)" : isDebtor ? "BORÇLU 🔴 (Düyûn)" : "DENK ⚪"}
+                    {isCreditor ? "ALACAKLI 🟢" : isDebtor ? "BORÇLU 🔴" : "DENK ⚪"}
                   </span>
                 </div>
 
-                <div className="mt-1 font-mono text-[10px] text-[#8e9893]">{member.badge}</div>
+                <div className="mt-0.5 font-mono text-[9px] sm:text-[10px] text-[#8e9893] truncate">{member.badge}</div>
 
-                <div className="mt-3 space-y-1.5 border-t border-[#cac1ae]/40 pt-2 font-mono text-xs">
-                  <div>
-                    <div className="flex justify-between text-[#49534f]">
-                      <span>Cebinden Ödediği:</span>
-                      <span className="font-bold text-[#1d211c]">{paid.toLocaleString("tr-TR")} ₺</span>
-                    </div>
-                    <div className="text-[10px] text-[#8e9893] text-right">
-                      ≈ {Math.round(convertCurrency(paid, "TRY", "EUR"))} € · {Math.round(convertCurrency(paid, "TRY", "MKD"))} MKD
-                    </div>
+                <div className="mt-2.5 space-y-1 border-t border-[#cac1ae]/40 pt-2 font-mono text-xs w-full min-w-0">
+                  <div className="flex justify-between items-baseline gap-1 text-[#49534f]">
+                    <span className="text-[11px]">Cebinden:</span>
+                    <span className="font-bold text-[#1d211c] text-[11px] sm:text-xs">{paid.toLocaleString("tr-TR")} ₺</span>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-[#49534f]">
-                      <span>Toplam Payı:</span>
-                      <span>{obligation.toLocaleString("tr-TR")} ₺</span>
-                    </div>
-                    <div className="text-[10px] text-[#8e9893] text-right">
-                      ≈ {Math.round(convertCurrency(obligation, "TRY", "EUR"))} €
-                    </div>
+                  <div className="flex justify-between items-baseline gap-1 text-[#49534f]">
+                    <span className="text-[11px]">Toplam Pay:</span>
+                    <span className="text-[11px] sm:text-xs">{obligation.toLocaleString("tr-TR")} ₺</span>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-[#49534f]">
-                      <span>Kapattığı Pay:</span>
-                      <span className="text-emerald-700 font-semibold">{settled.toLocaleString("tr-TR")} ₺</span>
-                    </div>
+                  <div className="flex justify-between items-baseline gap-1 text-[#49534f]">
+                    <span className="text-[11px]">Kapattığı Pay:</span>
+                    <span className="text-emerald-700 font-semibold text-[11px] sm:text-xs">{settled.toLocaleString("tr-TR")} ₺</span>
                   </div>
 
-                  <div className="pt-1.5 border-t border-[#cac1ae]/40">
-                    <div className="flex justify-between font-bold text-sm">
+                  <div className="pt-1 border-t border-[#cac1ae]/40">
+                    <div className="flex justify-between items-baseline gap-1 font-bold text-xs sm:text-sm">
                       <span>Net Kalan:</span>
                       <span className={isCreditor ? "text-emerald-700 font-bold" : isDebtor ? "text-rose-700 font-bold" : "text-stone-700"}>
                         {isCreditor ? "+" : ""}{net.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                       </span>
                     </div>
-                    <div className="text-[10px] text-right font-bold text-[#49534f]">
+                    <div className="text-[9px] sm:text-[10px] text-right font-bold text-[#49534f] break-words">
                       {getEquivalents(Math.abs(net)).subline}
                     </div>
                   </div>
@@ -1057,24 +1045,24 @@ export function BudgetCalculator() {
         </div>
 
         {/* Clear Settlement Transfer Instructions */}
-        <div className="mt-6 rounded border border-[#145c64]/30 bg-[#f0f6f4] p-4 sm:p-5">
-          <div className="flex items-center justify-between">
-            <h4 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
-              <TrendingUp size={15} />
+        <div className="mt-5 rounded border border-[#145c64]/30 bg-[#f0f6f4] p-3 sm:p-5 w-full max-w-full min-w-0 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+            <h4 className="flex items-center gap-1.5 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#145c64]">
+              <TrendingUp size={14} className="shrink-0" />
               <span>İbân-ı Şerîf Havale Talimatı ({splitwiseState.simplifiedDebts.length} Açık Havale)</span>
             </h4>
-            <span className="font-mono text-[11px] text-[#49534f]">
+            <span className="font-mono text-[10px] sm:text-[11px] text-[#49534f]">
               (Tikler değiştikçe mizan anında yenilenir)
             </span>
           </div>
 
           {splitwiseState.simplifiedDebts.length === 0 ? (
-            <div className="mt-3 flex items-center gap-2 rounded bg-emerald-100 p-3 text-xs font-mono text-emerald-900 border border-emerald-300">
-              <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
-              <span>Harika! Şu an tüm ekibin borç-alacak hesapları kapalıdır. Kimsenin kimseye transfer göndermesi gerekmemektedir.</span>
+            <div className="mt-2.5 flex items-center gap-2 rounded bg-emerald-100 p-2.5 text-xs font-mono text-emerald-900 border border-emerald-300">
+              <CheckCircle2 size={15} className="text-emerald-700 shrink-0" />
+              <span>Harika! Şu an tüm ekibin borç-alacak hesapları kapalıdır. Kimsenin transfer göndermesi gerekmemektedir.</span>
             </div>
           ) : (
-            <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 w-full max-w-full min-w-0">
               {splitwiseState.simplifiedDebts.map((tx, idx) => {
                 const fromMember = MEMBERS.find((m) => m.id === tx.from);
                 const toMember = MEMBERS.find((m) => m.id === tx.to);
@@ -1083,27 +1071,27 @@ export function BudgetCalculator() {
                 return (
                   <div
                     key={idx}
-                    className="flex flex-col gap-1 rounded border border-[#145c64]/30 bg-white p-3 shadow-xs font-mono text-xs"
+                    className="flex flex-col gap-1 rounded border border-[#145c64]/30 bg-white p-2.5 sm:p-3 shadow-xs font-mono text-xs w-full min-w-0 overflow-hidden"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-rose-800 font-bold text-[11px]">
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-800 font-bold text-[10px] shrink-0">
                           {fromMember?.initial}
                         </div>
-                        <span className="font-bold text-[#1d211c]">{fromMember?.name}</span>
+                        <span className="font-bold text-[#1d211c] text-xs truncate">{fromMember?.shortName}</span>
                         <span className="text-[#8e9893]">➔</span>
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] shrink-0">
                           {toMember?.initial}
                         </div>
-                        <span className="font-bold text-[#1d211c]">{toMember?.name}</span>
+                        <span className="font-bold text-[#1d211c] text-xs truncate">{toMember?.shortName}</span>
                       </div>
 
-                      <span className="font-mono text-base font-bold text-[#b54b38]">
+                      <span className="font-mono text-sm sm:text-base font-bold text-[#b54b38] shrink-0">
                         {tx.amountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                       </span>
                     </div>
 
-                    <div className="text-right text-[10px] text-[#68716c] font-mono border-t border-stone-100 pt-1">
+                    <div className="text-right text-[9px] sm:text-[10px] text-[#68716c] font-mono border-t border-stone-100 pt-1 break-words">
                       {eq.subline}
                     </div>
                   </div>
@@ -1117,22 +1105,22 @@ export function BudgetCalculator() {
       {/* ======================================================= */}
       {/* 📋 UNIFIED "TATİL HARCAMA" TABLE (BIG TL + EQUIVALENTS) */}
       {/* ======================================================= */}
-      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[8px_10px_0_rgba(29,33,28,0.18)]">
-        <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#b54b38]">
-              <Receipt size={16} />
-              <span>Birleşik Kasa Kayıt Defteri</span>
+      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-3 sm:p-7 shadow-[2px_2px_0_rgba(29,33,28,0.18)] sm:shadow-[8px_10px_0_rgba(29,33,28,0.18)] w-full max-w-full min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-2.5 border-b-2 border-[#1d211c] pb-3 sm:flex-row sm:items-center sm:justify-between w-full min-w-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#b54b38]">
+              <Receipt size={15} className="shrink-0" />
+              <span className="truncate">Birleşik Kasa Kayıt Defteri</span>
             </div>
-            <h3 className="mt-1 font-display text-2xl sm:text-3xl text-[#1d211c] tracking-wide">
+            <h3 className="mt-0.5 font-display text-xl sm:text-3xl text-[#1d211c] tracking-wide break-words">
               TATİL HARCAMA
             </h3>
-            <p className="font-serif text-xs text-[#5b6560]">
+            <p className="font-serif text-[11px] sm:text-xs text-[#5b6560]">
               Tüm harcamalar büyük <b>TL (₺)</b> tutarında gösterilir; altlarında yabancı para karşılıkları mevcuttur.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setShowAddModal(true)}
               className="flex cursor-pointer items-center gap-1.5 rounded bg-[#145c64] px-3.5 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c] active:scale-95 transition-all"
@@ -1144,10 +1132,10 @@ export function BudgetCalculator() {
         </div>
 
         {/* Member Filter Tabs (Mobile Scrollable Pill Bar) */}
-        <div className="mt-4 flex items-center gap-1.5 overflow-x-auto border-b border-[#cac1ae] pb-2 text-xs no-scrollbar">
+        <div className="mt-3 flex items-center gap-1.5 overflow-x-auto border-b border-[#cac1ae] pb-2 text-xs no-scrollbar w-full max-w-full">
           <button
             onClick={() => setActiveTab("all")}
-            className={`shrink-0 cursor-pointer rounded-t px-3 py-1.5 font-mono text-xs font-bold transition-all ${
+            className={`shrink-0 cursor-pointer rounded-t px-2.5 py-1.5 font-mono text-[11px] sm:text-xs font-bold transition-all ${
               activeTab === "all"
                 ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] text-[#145c64] shadow-2xs"
                 : "text-[#5b6560] hover:bg-[#f0ece1]"
@@ -1163,17 +1151,17 @@ export function BudgetCalculator() {
               <button
                 key={m.id}
                 onClick={() => setActiveTab(m.id)}
-                className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-t px-2.5 py-1.5 font-mono text-xs transition-all ${
+                className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-t px-2 py-1.5 font-mono text-[11px] sm:text-xs transition-all ${
                   isSelected
                     ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] font-bold text-[#1d211c] shadow-2xs"
                     : "text-[#5b6560] hover:bg-[#f0ece1]"
                 }`}
               >
-                <span className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-white text-[9px] font-bold ${m.bgClass}`}>
+                <span className={`inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-white text-[8px] font-bold ${m.bgClass}`}>
                   {m.initial}
                 </span>
                 <span>{m.shortName}</span>
-                <span className="text-[10px] text-[#8e9893]">({count})</span>
+                <span className="text-[9px] text-[#8e9893]">({count})</span>
               </button>
             );
           })}
@@ -1181,24 +1169,24 @@ export function BudgetCalculator() {
 
         {/* Active Tab Explanation Banner */}
         {activeTab !== "all" && (
-          <div className="mt-3 flex items-center justify-between rounded border border-[#145c64]/30 bg-[#f0f6f4] p-2.5 font-mono text-xs text-[#145c64]">
-            <div className="flex items-center gap-2">
-              <UserCheck size={16} />
-              <span>
-                <b>{MEMBERS.find((m) => m.id === activeTab)?.name}</b> filtresi aktif. Aşağıdaki kutucukları işaretleyerek paylarınızı kapattığınızı onaylayabilirsiniz.
+          <div className="mt-2.5 flex items-center justify-between rounded border border-[#145c64]/30 bg-[#f0f6f4] p-2 font-mono text-[11px] sm:text-xs text-[#145c64]">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <UserCheck size={15} className="shrink-0" />
+              <span className="truncate">
+                <b>{MEMBERS.find((m) => m.id === activeTab)?.name}</b> filtresi aktif.
               </span>
             </div>
             <button
               onClick={() => setActiveTab("all")}
-              className="text-[11px] underline hover:text-[#b54b38] cursor-pointer"
+              className="text-[10px] sm:text-[11px] underline hover:text-[#b54b38] cursor-pointer shrink-0 ml-2"
             >
-              Tüm Listeye Dön
+              Tüm Liste
             </button>
           </div>
         )}
 
         {/* Expense List Items */}
-        <div className="mt-4 divide-y divide-[#cac1ae]/50 font-mono text-xs">
+        <div className="mt-3 divide-y divide-[#cac1ae]/50 font-mono text-xs w-full max-w-full min-w-0">
           {filteredExpenses.map((item) => {
             const payer = MEMBERS.find((m) => m.id === item.paidBy);
             const splitCount = item.splitBetween.length;
@@ -1206,56 +1194,55 @@ export function BudgetCalculator() {
             const perPersonShareTry = itemAmountTry / splitCount;
             const isAllSettled = item.splitBetween.every((m) => !!item.settledShares?.[m]);
             const eqTotal = getEquivalents(itemAmountTry);
-            const eqShare = getEquivalents(perPersonShareTry);
 
             return (
               <div
                 key={item.id}
-                className={`flex flex-col gap-2.5 py-3.5 px-2.5 rounded transition-colors ${
-                  isAllSettled ? "bg-[#f5f0e5]/40 opacity-80" : "hover:bg-[#fdfbf7]"
+                className={`flex flex-col gap-2 py-3 px-1.5 sm:px-2.5 rounded transition-colors w-full max-w-full min-w-0 overflow-hidden ${
+                  isAllSettled ? "bg-[#f5f0e5]/40 opacity-85" : "hover:bg-[#fdfbf7]"
                 }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 w-full min-w-0">
                   {/* Left: Title, Note & Category */}
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-serif text-sm sm:text-base font-bold text-[#1d211c]">
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-serif text-sm sm:text-base font-bold text-[#1d211c] break-words">
                         {item.title}
                       </span>
-                      <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 text-[10px] text-[#29312e] uppercase font-bold">
+                      <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 text-[9px] sm:text-[10px] text-[#29312e] uppercase font-bold shrink-0">
                         {item.category}
                       </span>
                       {isAllSettled && (
-                        <span className="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 text-[10px] font-bold">
-                          ✓ TAMAMI KAPATILDI
+                        <span className="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-bold shrink-0">
+                          ✓ KAPATILDI
                         </span>
                       )}
                     </div>
 
-                    <div className="text-[11px] text-[#68716c] font-serif">
-                      <span>Ödeyen (Kasa): <b>{payer?.name}</b></span>
+                    <div className="text-[10px] sm:text-[11px] text-[#68716c] font-serif break-words">
+                      <span>Ödeyen: <b>{payer?.name}</b></span>
                       {item.date && ` • ${item.date}`}
                       {item.note && ` • ${item.note}`}
-                      {item.currency !== "TRY" && ` • Orijinal: ${item.amount.toLocaleString("tr-TR")} ${CURRENCY_SYMBOLS[item.currency]}`}
+                      {item.currency !== "TRY" && ` • (${item.amount.toLocaleString("tr-TR")} ${CURRENCY_SYMBOLS[item.currency]})`}
                     </div>
                   </div>
 
                   {/* Right: Big TL Amount & Equivalents */}
-                  <div className="flex items-center justify-between sm:justify-end gap-3">
-                    <div className="text-right">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                    <div className="text-left sm:text-right">
                       {/* Big TL Display */}
-                      <div className="font-mono text-base sm:text-lg font-bold text-[#b54b38]">
+                      <div className="font-mono text-sm sm:text-lg font-bold text-[#b54b38]">
                         {itemAmountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                       </div>
 
                       {/* Foreign Currencies Line */}
-                      <div className="text-[10px] text-[#145c64] font-bold">
+                      <div className="text-[9px] sm:text-[10px] text-[#145c64] font-bold break-words">
                         {eqTotal.subline}
                       </div>
 
                       {/* Per Person Share */}
-                      <div className="text-[11px] text-[#5b6560] mt-0.5">
-                        (Kişi Başı: <b>{perPersonShareTry.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</b> / ~{Math.round(convertCurrency(perPersonShareTry, "TRY", "EUR"))} €)
+                      <div className="text-[10px] sm:text-[11px] text-[#5b6560] mt-0.5">
+                        (Kişi Başı: <b>{perPersonShareTry.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</b>)
                       </div>
                     </div>
 
@@ -1263,30 +1250,30 @@ export function BudgetCalculator() {
                       <button
                         onClick={() => handleDeleteExpense(item.id)}
                         title="Bu harcamayı sil"
-                        className="cursor-pointer rounded p-1 text-[#8e9893] hover:bg-rose-50 hover:text-rose-600"
+                        className="cursor-pointer rounded p-1 text-[#8e9893] hover:bg-rose-50 hover:text-rose-600 shrink-0"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     )}
                   </div>
                 </div>
 
                 {/* Bottom: Member Interactive Tick Bubbles */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#cac1ae]/40 pt-2 bg-[#fdfbf7] p-2 rounded">
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#49534f]">
-                    <Users size={14} className="text-[#145c64]" />
-                    <span>{activeTab === "all" ? "Pay Onayları (Tüm Ekip):" : "Kişisel Pay Onayı:"}</span>
+                <div className="flex flex-wrap items-center justify-between gap-1.5 border-t border-[#cac1ae]/40 pt-1.5 bg-[#fdfbf7] p-1.5 sm:p-2 rounded w-full min-w-0">
+                  <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-[#49534f] shrink-0">
+                    <Users size={13} className="text-[#145c64]" />
+                    <span>{activeTab === "all" ? "Pay Onayları:" : "Kişisel Pay Onayı:"}</span>
                   </div>
 
                   {/* Member Avatar / Tick Buttons */}
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {(activeTab === "all" ? MEMBERS : MEMBERS.filter((m) => m.id === activeTab)).map((m) => {
                       const isIncluded = item.splitBetween.includes(m.id);
                       if (!isIncluded) {
                         if (activeTab !== "all") {
                           return (
-                            <span key={m.id} className="text-[11px] text-stone-400 italic font-serif">
-                              (Bu harcamaya dahil değilsiniz)
+                            <span key={m.id} className="text-[10px] text-stone-400 italic font-serif">
+                              (Dahil değil)
                             </span>
                           );
                         }
@@ -1301,23 +1288,23 @@ export function BudgetCalculator() {
                           key={m.id}
                           type="button"
                           onClick={() => toggleMemberShare(item.id, m.id)}
-                          className={`flex cursor-pointer items-center gap-1.5 rounded border px-2.5 py-1 text-xs transition-all ${
+                          className={`flex cursor-pointer items-center gap-1 rounded border px-2 py-0.5 text-[10px] sm:text-xs transition-all ${
                             isSettled
                               ? "border-emerald-600 bg-emerald-50 text-emerald-900 font-bold shadow-xs"
                               : "border-rose-300 bg-rose-50/70 text-rose-800 opacity-90 hover:opacity-100 shadow-2xs"
                           }`}
-                          title={`${m.name}: ${isSettled ? "Ödendi / Kapatıldı (Tıkla ve Beklemeye Al)" : "Bekliyor / Borçlu (Tıkla ve Kapat)"}`}
+                          title={`${m.name}: ${isSettled ? "Ödendi / Kapatıldı" : "Bekliyor"}`}
                         >
-                          <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white text-[9px] font-bold ${
+                          <div className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-white text-[8px] font-bold ${
                             isSettled ? "bg-emerald-600" : "bg-rose-600"
                           }`}>
                             {isSettled ? "✓" : m.initial}
                           </div>
                           <span className="font-bold">{m.shortName}</span>
-                          <span className="text-[10px]">
+                          <span className="text-[9px] sm:text-[10px]">
                             {isSettled 
-                              ? (isPayer ? "Kendi Payı (Ödendi)" : "Payını Ödedi ✓") 
-                              : (isPayer ? "Kendi Payı Bekliyor" : "Payı Bekliyor ○")}
+                              ? (isPayer ? "Kendi Payı (Ödendi)" : "Ödedi ✓") 
+                              : (isPayer ? "Kendi Payı Bekliyor" : "Bekliyor ○")}
                           </span>
                         </button>
                       );
@@ -1330,18 +1317,18 @@ export function BudgetCalculator() {
         </div>
 
         {/* Total Summary Footer */}
-        <div className="mt-6 border-t-2 border-[#1d211c] bg-[#f5f0e5] p-4 rounded flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
-          <span className="text-xs uppercase tracking-widest text-[#1d211c] font-bold">
-            TOPLAM {filteredExpenses.length} HARCAMA TUTARI
+        <div className="mt-5 border-t-2 border-[#1d211c] bg-[#f5f0e5] p-3 sm:p-4 rounded flex flex-col sm:flex-row items-center justify-between gap-2 font-mono w-full min-w-0">
+          <span className="text-[11px] sm:text-xs uppercase tracking-widest text-[#1d211c] font-bold">
+            TOPLAM {filteredExpenses.length} HARCAMA
           </span>
-          <div className="text-right">
-            <div className="text-2xl sm:text-3xl font-bold text-[#b54b38]">
+          <div className="text-center sm:text-right">
+            <div className="text-xl sm:text-3xl font-bold text-[#b54b38]">
               {filteredExpenses
                 .reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0)
                 .toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
               ₺
             </div>
-            <div className="text-xs font-bold text-[#145c64]">
+            <div className="text-[10px] sm:text-xs font-bold text-[#145c64] break-words">
               {getEquivalents(
                 filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0)
               ).subline}
@@ -1353,43 +1340,43 @@ export function BudgetCalculator() {
       {/* ======================================================= */}
       {/* 💱 INTERACTIVE SARRAFİYE & DÖVİZ HESAP MAKİNESİ */}
       {/* ======================================================= */}
-      <div className="rounded border border-[#29312e]/20 bg-[#fffcf3] p-4 sm:p-6 shadow-[4px_6px_0_rgba(29,33,28,0.12)]">
-        <div className="flex flex-col gap-2 border-b border-[#29312e]/15 pb-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-[#145c64] text-white">
-              <Calculator size={18} />
+      <div className="rounded border border-[#29312e]/20 bg-[#fffcf3] p-3 sm:p-6 shadow-[2px_2px_0_rgba(29,33,28,0.12)] sm:shadow-[4px_6px_0_rgba(29,33,28,0.12)] w-full max-w-full min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-2 border-b border-[#29312e]/15 pb-3 md:flex-row md:items-center md:justify-between w-full min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-[#145c64] text-white">
+              <Calculator size={16} />
             </div>
-            <div>
-              <h4 className="font-display text-lg sm:text-xl text-[#1d211c]">Sarrafiye & Sikke-i Hümâyûn Ta'şîr Cetveli</h4>
-              <p className="font-mono text-[11px] sm:text-xs text-[#68716c]">
+            <div className="min-w-0">
+              <h4 className="font-display text-base sm:text-xl text-[#1d211c] truncate">Sarrafiye Cetveli</h4>
+              <p className="font-mono text-[10px] sm:text-xs text-[#68716c] truncate">
                 Herhangi bir masrafı girin; 5 ecnebi sikkesindeki karşılığını ve nefer başı hisseyi hesaplayın!
               </p>
             </div>
           </div>
-          <span className="font-mono text-xs font-semibold text-[#b54b38] bg-[#fff0ed] px-2.5 py-1 rounded border border-[#b54b38]/20">
+          <span className="font-mono text-[10px] sm:text-xs font-semibold text-[#b54b38] bg-[#fff0ed] px-2 py-0.5 rounded border border-[#b54b38]/20 self-start md:self-auto">
             “Sikke-i osmanîde yarım akçe dahi zayi edilmez!”
           </span>
         </div>
 
         {/* Input Controls */}
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid gap-2.5 sm:grid-cols-3 w-full min-w-0">
           <div>
-            <label className="block font-mono text-xs font-semibold text-[#29312e]">Harcama Tutarı</label>
+            <label className="block font-mono text-[11px] sm:text-xs font-semibold text-[#29312e]">Harcama Tutarı</label>
             <input
               type="number"
               min="1"
               value={calcAmount}
               onChange={(e) => setCalcAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2.5 font-mono text-base sm:text-lg font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
+              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2 font-mono text-base sm:text-lg font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block font-mono text-xs font-semibold text-[#29312e]">Ödenen Para Birimi</label>
+            <label className="block font-mono text-[11px] sm:text-xs font-semibold text-[#29312e]">Ödenen Para Birimi</label>
             <select
               value={calcCurrency}
               onChange={(e) => setCalcCurrency(e.target.value as any)}
-              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2.5 font-mono text-xs sm:text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
+              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2 font-mono text-xs sm:text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
             >
               <option value="TRY">Türk Lirası (₺)</option>
               <option value="EUR">Euro (€)</option>
@@ -1400,13 +1387,13 @@ export function BudgetCalculator() {
           </div>
 
           <div>
-            <label className="block font-mono text-xs font-semibold text-[#29312e]">Bölünecek Kişi Sayısı</label>
+            <label className="block font-mono text-[11px] sm:text-xs font-semibold text-[#29312e]">Bölünecek Kişi Sayısı</label>
             <div className="mt-1 flex items-center gap-1">
               {[2, 3, 4].map((num) => (
                 <button
                   key={num}
                   onClick={() => setSplitCount(num)}
-                  className={`flex-1 cursor-pointer rounded py-2 font-mono text-xs sm:text-sm font-bold transition-all ${
+                  className={`flex-1 cursor-pointer rounded py-1.5 font-mono text-xs sm:text-sm font-bold transition-all ${
                     splitCount === num
                       ? "bg-[#145c64] text-white shadow-[2px_2px_0_#b54b38]"
                       : "border border-[#cac1ae] bg-[#f5f0e5] text-[#29312e] hover:bg-[#ded5c2]"
@@ -1420,44 +1407,44 @@ export function BudgetCalculator() {
         </div>
 
         {/* 5-Currency Result Cards (Responsive Layout) */}
-        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
+        <div className="mt-4 grid grid-cols-2 gap-1.5 sm:grid-cols-5 sm:gap-3 w-full max-w-full min-w-0">
           {/* Main Primary Card (TL) */}
-          <div className="col-span-2 rounded border-2 border-[#145c64] bg-[#f0f6f4] p-3 text-center shadow-xs sm:col-span-1">
+          <div className="col-span-2 rounded border-2 border-[#145c64] bg-[#f0f6f4] p-2.5 text-center shadow-xs sm:col-span-1 min-w-0">
             <span className="font-mono text-[9px] font-bold text-[#145c64] uppercase tracking-wider">TÜRK LİRASI (₺)</span>
-            <div className="mt-0.5 font-display text-lg sm:text-xl font-bold text-[#1d211c]">{quickConverted.TRY} ₺</div>
+            <div className="mt-0.5 font-display text-base sm:text-xl font-bold text-[#1d211c]">{quickConverted.TRY} ₺</div>
             <div className="mt-1 border-t border-[#145c64]/30 pt-1 font-mono text-[10px] sm:text-[11px] font-bold text-[#145c64]">
               Kişi Başı: {quickPerPerson.TRY} ₺
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
             <span className="font-mono text-[9px] text-[#68716c] font-semibold">EURO (€)</span>
-            <div className="mt-0.5 font-display text-base sm:text-lg text-[#145c64] font-bold">{quickConverted.EUR} €</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#b54b38]">
+            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#145c64] font-bold">{quickConverted.EUR} €</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#b54b38]">
               Kişi: {quickPerPerson.EUR} €
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
             <span className="font-mono text-[9px] text-[#68716c] font-semibold">DOLAR ($)</span>
-            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">{quickConverted.USD} $</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
+            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#1d211c] font-bold">{quickConverted.USD} $</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.USD} $
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
             <span className="font-mono text-[9px] text-[#68716c] font-semibold">MAKEDON DİNARI</span>
-            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">{quickConverted.MKD.toLocaleString()} MKD</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
+            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#1d211c] font-bold">{quickConverted.MKD.toLocaleString()} MKD</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.MKD.toLocaleString()} MKD
             </div>
           </div>
 
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2.5 text-center">
+          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
             <span className="font-mono text-[9px] text-[#68716c] font-semibold">ARNAVUTLUK LEKİ</span>
-            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">{quickConverted.ALL.toLocaleString()} ALL</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[10px] font-bold text-[#145c64]">
+            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#1d211c] font-bold">{quickConverted.ALL.toLocaleString()} ALL</div>
+            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64]">
               Kişi: {quickPerPerson.ALL.toLocaleString()} ALL
             </div>
           </div>
