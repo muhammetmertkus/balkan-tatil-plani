@@ -164,9 +164,9 @@ export default function Home() {
 
               <button
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-[#fffdf5] border-2 border-[#b54b38] text-[#b54b38] font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0_rgba(181,75,56,0.2)] hover:bg-[#b54b38] hover:text-white transition-all cursor-pointer"
-                onClick={() => scrollToId("ekip")}
+                onClick={() => scrollToId("butce")}
               >
-                <span>Kadro Sicilleri</span>
+                <span>Defterdarlık & Hazine</span>
                 <ArrowUpRight size={17} />
               </button>
             </div>
@@ -768,11 +768,11 @@ export default function Home() {
             </div>
             <h2>
               Bütçe<br />
-              <em>kavga değil,</em><br />
+              <em>intizam ve</em><br />
               kayıt meselesi.
             </h2>
             <p>
-              Uçak + seyahat sağlık sigortası için yapılan ön ödeme sabittir. Yerinde harcamalarda iki senaryo ve kişi bazlı yedek pay birlikte hesaplanır.
+              Tüm ön rezervasyonlar, canlı döviz kurları ve yol üstü harcamalar tek bir merkezî defterde toplanır; anlık borç-alacak dengesiyle hesaplanır.
             </p>
           </div>
 
