@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { masterChecklistTemplate } from "@/data";
 import { 
   CheckSquare, 
@@ -17,9 +17,16 @@ import {
   WifiOff, 
   Trash2, 
   Users, 
-  User,
-  FolderPlus,
-  Tag
+  User, 
+  FolderPlus, 
+  Tag, 
+  Code2, 
+  Copy, 
+  Check, 
+  Download, 
+  Upload, 
+  FileEdit, 
+  AlertCircle 
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { db } from "@/lib/firebase";
@@ -47,6 +54,28 @@ interface CustomItem {
 interface CustomCategory {
   id: string;
   label: string;
+}
+
+interface ExportableItem {
+  id: string;
+  category: string;
+  categoryLabel: string;
+  text: string;
+  desc: string;
+  checkedBy: {
+    mert: boolean;
+    ikra: boolean;
+    fatih: boolean;
+    eyup: boolean;
+  };
+  isCommon: boolean;
+  assignedMember?: MemberKey;
+}
+
+interface PackingJsonExport {
+  _rules: string[];
+  categories: { id: string; label: string }[];
+  items: ExportableItem[];
 }
 
 const memberProfiles: { id: MemberKey; name: string; title: string; badge: string; weapon: string }[] = [
@@ -80,17 +109,16 @@ const memberProfiles: { id: MemberKey; name: string; title: string; badge: strin
   },
 ];
 
-const DEFAULT_CATEGORIES: { id: string; label: string; icon: any }[] = [
-  { id: "all", label: "Tüm Valiz", icon: Backpack },
-  { id: "docs", label: "🛂 Evraklar & Rezervasyon", icon: ShieldCheck },
-  { id: "money", label: "💶 Para & Kartlar", icon: CreditCard },
-  { id: "clothing", label: "🎒 Giyim & Plaj", icon: Shirt },
-  { id: "health", label: "🩹 Sağlık & Koruma", icon: HeartPulse },
-  { id: "electronics", label: "🔌 Elektronik & Şarj", icon: Zap },
-  { id: "custom", label: "🚗 Yol & Araç İçi", icon: Car },
-];
-
 const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "packing_state_v2" };
+
+const DEFAULT_CATEGORIES: { id: string; label: string }[] = [
+  { id: "docs", label: "🛂 Evraklar & Rezervasyon" },
+  { id: "money", label: "💶 Para & Kartlar" },
+  { id: "clothing", label: "🎒 Giyim & Plaj" },
+  { id: "health", label: "🩹 Sağlık & Koruma" },
+  { id: "electronics", label: "🔌 Elektronik & Şarj" },
+  { id: "custom", label: "🚗 Yol & Araç İçi" },
+];
 
 export function PackingChecklist() {
   const [activeMember, setActiveMember] = useState<MemberKey>("mert");
@@ -134,6 +162,15 @@ export function PackingChecklist() {
     return [];
   });
 
+  // Overridden / edited items from JSON
+  const [itemOverrides, setItemOverrides] = useState<Record<string, { text?: string; desc?: string; category?: string; categoryLabel?: string }>>(() => {
+    try {
+      const saved = localStorage.getItem("balkan_packing_overrides_2026");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
+
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNewCatInput, setShowNewCatInput] = useState(false);
@@ -141,6 +178,12 @@ export function PackingChecklist() {
   const [newText, setNewText] = useState("");
   const [newCategory, setNewCategory] = useState<string>("docs");
   const [addScope, setAddScope] = useState<"individual" | "all">("individual");
+  
+  // JSON Editor Modal States
+  const [showJsonModal, setShowJsonModal] = useState(false);
+  const [jsonText, setJsonText] = useState("");
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [copiedToast, setCopiedToast] = useState(false);
   const hasMergedLocalRef = useRef(false);
 
   // Realtime Firestore Listener with intelligent local merge
@@ -169,12 +212,13 @@ export function PackingChecklist() {
             };
 
             let mergedCustomCats: CustomCategory[] = [...(data.customCategories || [])];
+            let mergedOverrides = { ...(data.itemOverrides || {}) };
 
             if (!hasMergedLocalRef.current) {
               hasMergedLocalRef.current = true;
               let hasLocalDifferences = false;
 
-              // Merge local member check states (if any checked locally)
+              // Merge local member check states
               (["mert", "ikra", "fatih", "eyup"] as MemberKey[]).forEach((m) => {
                 const localChecks = memberStates[m] || {};
                 Object.keys(localChecks).forEach((key) => {
@@ -210,6 +254,7 @@ export function PackingChecklist() {
                     memberStates: mergedMemberStates,
                     customItems: mergedCustomItems,
                     customCategories: mergedCustomCats,
+                    itemOverrides: mergedOverrides,
                     lastUpdated: new Date().toISOString(),
                   },
                   { merge: true }
@@ -220,11 +265,13 @@ export function PackingChecklist() {
             setMemberStates(mergedMemberStates);
             setCustomItems(mergedCustomItems);
             setCustomCategories(mergedCustomCats);
+            setItemOverrides(mergedOverrides);
 
             try {
               localStorage.setItem("balkan_packing_per_member_2026", JSON.stringify(mergedMemberStates));
               localStorage.setItem("balkan_packing_custom_items_2026", JSON.stringify(mergedCustomItems));
               localStorage.setItem("balkan_packing_custom_categories_2026", JSON.stringify(mergedCustomCats));
+              localStorage.setItem("balkan_packing_overrides_2026", JSON.stringify(mergedOverrides));
             } catch {}
 
             setSyncStatus("synced");
@@ -234,6 +281,7 @@ export function PackingChecklist() {
               memberStates,
               customItems,
               customCategories,
+              itemOverrides,
               createdAt: new Date().toISOString(),
               lastUpdated: new Date().toISOString(),
             }).catch((err) => console.error("Initial Firestore push error:", err));
@@ -257,16 +305,19 @@ export function PackingChecklist() {
   const persistChanges = async (
     newMemberStates: MemberPackingState,
     newCustomItems: Record<MemberKey, CustomItem[]>,
-    newCustomCategories: CustomCategory[] = customCategories
+    newCustomCategories: CustomCategory[] = customCategories,
+    newOverrides: Record<string, { text?: string; desc?: string; category?: string; categoryLabel?: string }> = itemOverrides
   ) => {
     setMemberStates(newMemberStates);
     setCustomItems(newCustomItems);
     setCustomCategories(newCustomCategories);
+    setItemOverrides(newOverrides);
 
     try {
       localStorage.setItem("balkan_packing_per_member_2026", JSON.stringify(newMemberStates));
       localStorage.setItem("balkan_packing_custom_items_2026", JSON.stringify(newCustomItems));
       localStorage.setItem("balkan_packing_custom_categories_2026", JSON.stringify(newCustomCategories));
+      localStorage.setItem("balkan_packing_overrides_2026", JSON.stringify(newOverrides));
     } catch (e) {}
 
     try {
@@ -277,6 +328,7 @@ export function PackingChecklist() {
           memberStates: newMemberStates,
           customItems: newCustomItems,
           customCategories: newCustomCategories,
+          itemOverrides: newOverrides,
           lastUpdated: new Date().toISOString(),
         },
         { merge: true }
@@ -288,6 +340,21 @@ export function PackingChecklist() {
     }
   };
 
+  // Build the effective master items list with overrides applied
+  const effectiveMasterItems = useMemo(() => {
+    return masterChecklistTemplate.map((item) => {
+      const override = itemOverrides[item.id];
+      if (!override) return item;
+      return {
+        ...item,
+        text: override.text || item.text,
+        desc: override.desc !== undefined ? override.desc : item.desc,
+        category: override.category || item.category,
+        categoryLabel: override.categoryLabel || item.categoryLabel,
+      };
+    });
+  }, [itemOverrides]);
+
   // Toggle check for current active member
   const toggleCheck = (itemId: string) => {
     const currentMemberState = memberStates[activeMember] || {};
@@ -296,7 +363,7 @@ export function PackingChecklist() {
     const updatedAll = { ...memberStates, [activeMember]: updatedMember };
 
     // Calculate total checked for active member for celebration
-    const allItems = [...masterChecklistTemplate, ...(customItems[activeMember] || [])];
+    const allItems = [...effectiveMasterItems, ...(customItems[activeMember] || [])];
     const doneCount = allItems.filter((item) => updatedMember[item.id]).length;
 
     if (doneCount === allItems.length && allItems.length > 0 && newChecked) {
@@ -308,7 +375,7 @@ export function PackingChecklist() {
       });
     }
 
-    persistChanges(updatedAll, customItems, customCategories);
+    persistChanges(updatedAll, customItems, customCategories, itemOverrides);
   };
 
   const handleResetMember = () => {
@@ -318,18 +385,13 @@ export function PackingChecklist() {
         ...memberStates,
         [activeMember]: {},
       };
-      persistChanges(updatedAll, customItems, customCategories);
+      persistChanges(updatedAll, customItems, customCategories, itemOverrides);
     }
   };
 
   // All available categories combined
   const allCategoryOptions = [
-    { id: "docs", label: "🛂 Evraklar & Rezervasyon" },
-    { id: "money", label: "💶 Para & Kartlar" },
-    { id: "clothing", label: "🎒 Giyim & Plaj" },
-    { id: "health", label: "🩹 Sağlık & Koruma" },
-    { id: "electronics", label: "🔌 Elektronik & Şarj" },
-    { id: "custom", label: "🚗 Yol & Araç İçi" },
+    ...DEFAULT_CATEGORIES,
     ...customCategories,
   ];
 
@@ -385,7 +447,7 @@ export function PackingChecklist() {
       };
     }
 
-    persistChanges(memberStates, updatedCustom, updatedCats);
+    persistChanges(memberStates, updatedCustom, updatedCats, itemOverrides);
     setNewText("");
     setNewCatName("");
     setShowNewCatInput(false);
@@ -415,12 +477,213 @@ export function PackingChecklist() {
     delete updatedMemberStates.fatih[itemId];
     delete updatedMemberStates.eyup[itemId];
 
-    persistChanges(updatedMemberStates, updatedCustom, customCategories);
+    persistChanges(updatedMemberStates, updatedCustom, customCategories, itemOverrides);
+  };
+
+  // ----------------------------------------------------
+  // JSON EXPORT & IMPORT GENERATOR
+  // ----------------------------------------------------
+  const generateExportJson = (): PackingJsonExport => {
+    const exportRules = [
+      "📌 BALKAN YOL EKİBİ - VALİZ & EKİPMAN JSON KURALLARI (AI & MANUEL DÜZENLEME)",
+      "1. 'id': Her eşyanın benzersiz kimliğidir (Örn: 'doc_1', 'wear_5', 'money_8', 'custom_1724'). Asla mükerrer olmamalıdır.",
+      "2. 'category': Kategori kodu (Örn: 'docs', 'money', 'clothing', 'health', 'electronics', 'custom' veya 'cat_xxx').",
+      "3. 'categoryLabel': Sayfada görünecek kategori başlığı ve emojisi (Örn: '🛂 Evraklar & Rezervasyon').",
+      "4. 'text': Eşyanın adı. İsmini değiştirebilirsiniz (Örn: 'müzik' -> 'müzikler').",
+      "5. 'desc': İsteğe bağlı açıklama veya uyarı metni.",
+      "6. 'checkedBy': Hangi ekip üyesinin onayladığı (mert, ikra, fatih, eyup). true/false olarak saklanır; ismi değiştirseniz dahi tikler korunur.",
+      "7. 'isCommon': true ise tüm 4 üyenin ortak listesinde görünür, false ise yalnızca 'assignedMember' kişisinde görünür.",
+      "8. 'categories' listesine yeni kategori ekleyebilirsiniz. id ve label verilmesi yeterlidir.",
+    ];
+
+    const exportCategories = [
+      ...DEFAULT_CATEGORIES,
+      ...customCategories,
+    ];
+
+    // Build unified items list
+    const exportedItems: ExportableItem[] = [];
+    const processedIds = new Set<string>();
+
+    // 1. Master Items
+    effectiveMasterItems.forEach((item) => {
+      processedIds.add(item.id);
+      exportedItems.push({
+        id: item.id,
+        category: item.category,
+        categoryLabel: item.categoryLabel,
+        text: item.text,
+        desc: item.desc || "",
+        checkedBy: {
+          mert: !!memberStates.mert[item.id],
+          ikra: !!memberStates.ikra[item.id],
+          fatih: !!memberStates.fatih[item.id],
+          eyup: !!memberStates.eyup[item.id],
+        },
+        isCommon: true,
+      });
+    });
+
+    // 2. Custom Items
+    (["mert", "ikra", "fatih", "eyup"] as MemberKey[]).forEach((mKey) => {
+      (customItems[mKey] || []).forEach((cItem) => {
+        if (!processedIds.has(cItem.id)) {
+          processedIds.add(cItem.id);
+          exportedItems.push({
+            id: cItem.id,
+            category: cItem.category,
+            categoryLabel: cItem.categoryLabel,
+            text: cItem.text,
+            desc: cItem.desc || "",
+            checkedBy: {
+              mert: !!memberStates.mert[cItem.id],
+              ikra: !!memberStates.ikra[cItem.id],
+              fatih: !!memberStates.fatih[cItem.id],
+              eyup: !!memberStates.eyup[cItem.id],
+            },
+            isCommon: !!cItem.isCommon,
+            assignedMember: cItem.isCommon ? undefined : mKey,
+          });
+        }
+      });
+    });
+
+    return {
+      _rules: exportRules,
+      categories: exportCategories,
+      items: exportedItems,
+    };
+  };
+
+  const handleOpenJsonModal = () => {
+    const fullJson = generateExportJson();
+    setJsonText(JSON.stringify(fullJson, null, 2));
+    setJsonError(null);
+    setShowJsonModal(true);
+  };
+
+  const handleCopyJson = async () => {
+    try {
+      await navigator.clipboard.writeText(jsonText);
+      setCopiedToast(true);
+      setTimeout(() => setCopiedToast(false), 2500);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDownloadJson = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonText);
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `balkan_valiz_db_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      fileReader.readAsText(e.target.files[0], "UTF-8");
+      fileReader.onload = (event) => {
+        if (event.target?.result) {
+          setJsonText(event.target.result as string);
+          setJsonError(null);
+        }
+      };
+    }
+  };
+
+  const handleApplyJsonImport = () => {
+    try {
+      setJsonError(null);
+      const parsed = JSON.parse(jsonText);
+
+      if (!parsed.items || !Array.isArray(parsed.items)) {
+        throw new Error("JSON dosyasında 'items' adında bir dizi (array) bulunamadı.");
+      }
+
+      const newMemberStates: MemberPackingState = {
+        mert: {},
+        ikra: {},
+        fatih: {},
+        eyup: {},
+      };
+
+      const newCustomItems: Record<MemberKey, CustomItem[]> = {
+        mert: [],
+        ikra: [],
+        fatih: [],
+        eyup: [],
+      };
+
+      const newOverrides: Record<string, { text?: string; desc?: string; category?: string; categoryLabel?: string }> = {};
+
+      const masterIds = new Set(masterChecklistTemplate.map((i) => i.id));
+
+      parsed.items.forEach((item: any, idx: number) => {
+        if (!item.id || !item.text) {
+          throw new Error(`Madde #${idx + 1} için 'id' veya 'text' eksik.`);
+        }
+
+        // Apply checkedBy
+        if (item.checkedBy) {
+          if (item.checkedBy.mert) newMemberStates.mert[item.id] = true;
+          if (item.checkedBy.ikra) newMemberStates.ikra[item.id] = true;
+          if (item.checkedBy.fatih) newMemberStates.fatih[item.id] = true;
+          if (item.checkedBy.eyup) newMemberStates.eyup[item.id] = true;
+        }
+
+        if (masterIds.has(item.id)) {
+          // It's an override on master item
+          newOverrides[item.id] = {
+            text: item.text,
+            desc: item.desc,
+            category: item.category,
+            categoryLabel: item.categoryLabel,
+          };
+        } else {
+          // It's a custom item
+          const customObj: CustomItem = {
+            id: item.id,
+            category: item.category || "custom",
+            categoryLabel: item.categoryLabel || "Ekstra Ekipman",
+            text: item.text,
+            desc: item.desc || "",
+            isCommon: item.isCommon !== undefined ? item.isCommon : true,
+          };
+
+          if (item.isCommon || !item.assignedMember) {
+            newCustomItems.mert.push(customObj);
+            newCustomItems.ikra.push(customObj);
+            newCustomItems.fatih.push(customObj);
+            newCustomItems.eyup.push(customObj);
+          } else if (item.assignedMember && newCustomItems[item.assignedMember as MemberKey]) {
+            newCustomItems[item.assignedMember as MemberKey].push(customObj);
+          }
+        }
+      });
+
+      // Categories import
+      let newCustomCats: CustomCategory[] = [];
+      if (parsed.categories && Array.isArray(parsed.categories)) {
+        const defaultCatIds = new Set(DEFAULT_CATEGORIES.map((c) => c.id));
+        newCustomCats = parsed.categories.filter((c: any) => c.id && !defaultCatIds.has(c.id));
+      }
+
+      persistChanges(newMemberStates, newCustomItems, newCustomCats, newOverrides);
+      setShowJsonModal(false);
+      alert("✅ JSON başarıyla doğrulandı ve tüm ekibin Firestore veritabanına uygulandı!");
+    } catch (err: any) {
+      console.error("JSON parse error:", err);
+      setJsonError(err.message || "Geçersiz JSON formatı. Lütfen JSON sözdizimini kontrol edin.");
+    }
   };
 
   const currentProfile = memberProfiles.find((m) => m.id === activeMember) || memberProfiles[0];
   const currentMemberChecks = memberStates[activeMember] || {};
-  const currentMemberAllItems = [...masterChecklistTemplate, ...(customItems[activeMember] || [])];
+  const currentMemberAllItems = [...effectiveMasterItems, ...(customItems[activeMember] || [])];
 
   // Category Filter
   const filteredList = currentMemberAllItems.filter((item) => {
@@ -536,8 +799,8 @@ export function PackingChecklist() {
           {memberProfiles.map((profile) => {
             const isSelected = activeMember === profile.id;
             const profileChecks = memberStates[profile.id] || {};
-            const pTotal = masterChecklistTemplate.length + (customItems[profile.id]?.length || 0);
-            const pDone = masterChecklistTemplate.filter((i) => profileChecks[i.id]).length + (customItems[profile.id]?.filter((i) => profileChecks[i.id]).length || 0);
+            const pTotal = effectiveMasterItems.length + (customItems[profile.id]?.length || 0);
+            const pDone = effectiveMasterItems.filter((i) => profileChecks[i.id]).length + (customItems[profile.id]?.filter((i) => profileChecks[i.id]).length || 0);
             const pPct = pTotal > 0 ? Math.round((pDone / pTotal) * 100) : 0;
 
             return (
@@ -752,6 +1015,29 @@ export function PackingChecklist() {
         </button>
       </div>
 
+      {/* Developer & AI JSON Manager Panel */}
+      <div className="mt-8 rounded border-2 border-dashed border-[#145c64]/40 bg-[#f4f8f7] p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase text-[#145c64]">
+              <Code2 size={16} />
+              <span>Geliştirici & AI JSON Veritabanı Modülü</span>
+            </div>
+            <p className="mt-1 font-serif text-xs text-[#49534f]">
+              Tüm valiz maddelerini, kategorileri ve onay (tik) durumlarını tek bir JSON olarak görebilir, AI'a toplu düzenletip anında DB'ye geri yapıştırabilirsiniz.
+            </p>
+          </div>
+
+          <button
+            onClick={handleOpenJsonModal}
+            className="flex shrink-0 cursor-pointer items-center gap-2 rounded bg-[#1d211c] px-4 py-2.5 font-mono text-xs font-semibold text-[#fffcf3] shadow-[3px_3px_0_#145c64] transition-all hover:bg-[#38413c] active:scale-95"
+          >
+            <FileEdit size={15} className="text-[#f3bc86]" />
+            <span>JSON'u Görüntüle / AI ile Düzenle</span>
+          </button>
+        </div>
+      </div>
+
       {/* Add Custom Item / Category Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs">
@@ -871,6 +1157,109 @@ export function PackingChecklist() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* JSON VIEW & AI EDIT MODAL */}
+      {showJsonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-sm">
+          <div className="flex h-[90vh] w-full max-w-4xl flex-col border-2 border-[#1d211c] bg-[#fffcf3] shadow-[12px_14px_0_rgba(29,33,28,0.35)]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b-2 border-[#1d211c] bg-[#f5f0e5] p-4">
+              <div className="flex items-center gap-2">
+                <Code2 size={20} className="text-[#145c64]" />
+                <div>
+                  <h4 className="font-display text-xl sm:text-2xl text-[#1d211c]">
+                    Valiz JSON Veritabanı & AI Düzenleyici
+                  </h4>
+                  <p className="font-mono text-[11px] text-[#5b6560]">
+                    Kopyalayıp ChatGPT/Claude/Gemini'a düzenletebilir veya doğrudan buradan düzenleyip kaydedebilirsiniz.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowJsonModal(false)}
+                className="rounded border border-[#cac1ae] bg-white px-3 py-1 font-mono text-xs font-bold text-[#1d211c] hover:bg-[#e9e2d1]"
+              >
+                Kapat (ESC)
+              </button>
+            </div>
+
+            {/* Modal Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#cac1ae] bg-[#fffdf5] px-4 py-2 font-mono text-xs">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyJson}
+                  className="flex items-center gap-1.5 rounded border border-[#145c64] bg-[#145c64] px-3 py-1.5 text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c]"
+                >
+                  {copiedToast ? <Check size={14} className="text-emerald-300" /> : <Copy size={14} />}
+                  <span>{copiedToast ? "Panoya Kopyalandı!" : "JSON'u Kopyala"}</span>
+                </button>
+
+                <button
+                  onClick={handleDownloadJson}
+                  className="flex items-center gap-1.5 rounded border border-[#cac1ae] bg-white px-3 py-1.5 text-[#29312e] hover:bg-[#f0ece1]"
+                >
+                  <Download size={14} />
+                  <span>İndir (.json)</span>
+                </button>
+
+                <label className="flex cursor-pointer items-center gap-1.5 rounded border border-[#cac1ae] bg-white px-3 py-1.5 text-[#29312e] hover:bg-[#f0ece1]">
+                  <Upload size={14} />
+                  <span>Dosyadan Yükle</span>
+                  <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
+                </label>
+              </div>
+
+              <span className="text-[11px] text-[#68716c]">
+                En üstteki <b>_rules</b> alanı kuralları açıklar.
+              </span>
+            </div>
+
+            {/* Error Banner if any */}
+            {jsonError && (
+              <div className="flex items-start gap-2 bg-rose-100 p-3 font-mono text-xs text-rose-900 border-b border-rose-300">
+                <AlertCircle size={16} className="shrink-0 mt-0.5 text-rose-600" />
+                <div>
+                  <strong>JSON Hatası:</strong> {jsonError}
+                </div>
+              </div>
+            )}
+
+            {/* JSON Code Textarea */}
+            <div className="flex-1 overflow-hidden p-3 bg-[#1e1e1e]">
+              <textarea
+                value={jsonText}
+                onChange={(e) => setJsonText(e.target.value)}
+                spellCheck={false}
+                className="h-full w-full resize-none bg-transparent font-mono text-xs leading-relaxed text-[#d4d4d4] focus:outline-none"
+                placeholder="JSON buraya gelecek..."
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#1d211c] bg-[#f5f0e5] p-3 sm:p-4">
+              <div className="font-mono text-xs text-[#5b6560]">
+                ⚠️ "Kaydet & DB'ye Senkronize Et" butonuna bastığınızda tüm ekibin ekranı anında güncellenir.
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowJsonModal(false)}
+                  className="cursor-pointer border border-[#cac1ae] bg-[#e9e2d1] px-4 py-2 font-mono text-xs text-[#29312e]"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleApplyJsonImport}
+                  className="cursor-pointer bg-[#145c64] px-5 py-2 font-mono text-xs font-bold text-white shadow-[3px_3px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95"
+                >
+                  Kaydet & DB'ye Senkronize Et 🚀
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
