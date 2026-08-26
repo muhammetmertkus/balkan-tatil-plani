@@ -407,7 +407,7 @@ export function PackingChecklist() {
     if (showNewCatInput && newCatName.trim()) {
       const cleanName = newCatName.trim();
       targetCategoryId = `cat_${Date.now()}`;
-      targetCategoryLabel = cleanName.startsWith("🏷️") || cleanName.match(/\p{Extended_Pictographic}/u) ? cleanName : `🏷️ ${cleanName}`;
+      targetCategoryLabel = cleanName.startsWith("🏷️") ? cleanName : `🏷️ ${cleanName}`;
       
       const newCatObj: CustomCategory = {
         id: targetCategoryId,
@@ -706,7 +706,7 @@ export function PackingChecklist() {
     { id: "custom", label: "Yol & Araç", icon: Car },
     ...customCategories.map((c) => ({
       id: c.id,
-      label: c.label.replace(/^[\p{Extended_Pictographic}\uFE0F\s]+/u, "") || c.label,
+      label: c.label.replace(/^🏷️\s*/, "") || c.label,
       icon: Tag,
     })),
   ];
