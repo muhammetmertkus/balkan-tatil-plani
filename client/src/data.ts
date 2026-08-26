@@ -1492,6 +1492,7 @@ export const flightArcs = {
 export const stayMatrix = [
   {
     city: "Üsküp (1. Gece)",
+    nights: "1 Gece (29–30 Ağu)",
     dates: "29–30 Ağustos (1 Gece)",
     price: "3.019 ₺",
     area: "Merkez / Debar Maalo",
@@ -1501,6 +1502,7 @@ export const stayMatrix = [
   },
   {
     city: "Ohri",
+    nights: "1 Gece (30–31 Ağu)",
     dates: "30–31 Ağustos (1 Gece)",
     price: "4.594 ₺",
     area: "Old Town / Göl Kıyısı",
@@ -1510,6 +1512,7 @@ export const stayMatrix = [
   },
   {
     city: "Sarandë",
+    nights: "3 Gece (31 Ağu–3 Eyl)",
     dates: "31 Ağustos – 3 Eylül (3 Gece Kesintisiz)",
     price: "33.210 ₺ (3 Gece Toplam)",
     area: "Kordon / Rruga Butrinti",
@@ -1519,6 +1522,7 @@ export const stayMatrix = [
   },
   {
     city: "Durrës (Dıraç)",
+    nights: "1 Gece (3–4 Eyl)",
     dates: "3–4 Eylül (1 Gece)",
     price: "5.512 ₺",
     area: "Vollga Sahil Kordonu / Merkez",
@@ -1528,6 +1532,7 @@ export const stayMatrix = [
   },
   {
     city: "Tiran",
+    nights: "1 Gece (4–5 Eyl)",
     dates: "4–5 Eylül (1 Gece)",
     price: "3.812 ₺",
     area: "Blloku / Şehir Merkezi",
@@ -1537,6 +1542,7 @@ export const stayMatrix = [
   },
   {
     city: "Üsküp (Dönüş Gecesi)",
+    nights: "1 Gece (5–6 Eyl)",
     dates: "5–6 Eylül (1 Gece)",
     price: "4.429 ₺",
     area: "Aerodrom / Şehir Merkezi",
