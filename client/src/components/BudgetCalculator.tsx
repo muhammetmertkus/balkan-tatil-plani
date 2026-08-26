@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Calculator, 
   CheckCircle2, 
@@ -30,7 +30,10 @@ import {
   AlertCircle,
   TrendingUp,
   ArrowDownRight,
-  ArrowUpRight
+  ArrowUpRight,
+  Filter,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
@@ -41,15 +44,18 @@ type CurrencyKey = "TRY" | "EUR" | "USD" | "ALL" | "MKD";
 interface MemberProfile {
   id: MemberKey;
   name: string;
+  shortName: string;
+  initial: string;
   badge: string;
   avatarColor: string;
+  bgClass: string;
 }
 
 const MEMBERS: MemberProfile[] = [
-  { id: "mert", name: "Mert Kuş", badge: "🏆 Catan Şampiyonu", avatarColor: "#145c64" },
-  { id: "ikra", name: "İkra Gürdal", badge: "👑 Balkan Prensesi", avatarColor: "#b54b38" },
-  { id: "fatih", name: "Fatih Berat Gürdal", badge: "💶 CFO & Kasa", avatarColor: "#d78255" },
-  { id: "eyup", name: "Eyüpcan Aldemir", badge: "🚀 Kültür Bakanı", avatarColor: "#38413c" },
+  { id: "mert", name: "Mert Kuş", shortName: "Mert", initial: "M", badge: "🏆 Catan Şampiyonu", avatarColor: "#145c64", bgClass: "bg-[#145c64]" },
+  { id: "ikra", name: "İkra Gürdal", shortName: "İkra", initial: "İ", badge: "👑 Balkan Prensesi", avatarColor: "#b54b38", bgClass: "bg-[#b54b38]" },
+  { id: "fatih", name: "Fatih Berat Gürdal", shortName: "Fatih", initial: "F", badge: "💶 CFO & Kasa", avatarColor: "#d78255", bgClass: "bg-[#d78255]" },
+  { id: "eyup", name: "Eyüpcan Aldemir", shortName: "Eyüp", initial: "E", badge: "🚀 Kültür Bakanı", avatarColor: "#38413c", bgClass: "bg-[#38413c]" },
 ];
 
 // FX Rates (Base: 1 EUR)
@@ -69,67 +75,173 @@ const CURRENCY_SYMBOLS: Record<CurrencyKey, string> = {
   MKD: "MKD",
 };
 
-interface PredefinedExpenseItem {
-  id: string;
-  label: string;
-  category: "flight" | "insurance" | "tax" | "stay";
-  amountTry: number;
-  isPaid: boolean;
-  paidBy?: MemberKey;
-  note?: string;
-  date?: string;
-}
-
-interface CustomExpenseItem {
+export interface ExpenseItem {
   id: string;
   title: string;
   amount: number;
   currency: CurrencyKey;
-  paidBy: MemberKey;
-  splitBetween: MemberKey[];
-  category: "food" | "fuel" | "activity" | "market" | "stay" | "other";
-  date: string;
+  paidBy: MemberKey; // The person who paid upfront (Cebinden veren)
+  splitBetween: MemberKey[]; // Members sharing this expense
+  settledShares: Record<MemberKey, boolean>; // True if member has paid their share to payer
+  category: "flight" | "stay" | "food" | "fuel" | "activity" | "tax" | "market" | "other";
+  date?: string;
   note?: string;
+  isInitialFixed?: boolean;
 }
 
-interface SettlementTransaction {
+interface SettlementDebt {
   from: MemberKey;
   to: MemberKey;
   amountTry: number;
 }
 
-const INITIAL_PREDEFINED: PredefinedExpenseItem[] = [
-  { id: "e1", label: "GİDİŞ UÇAK (İstanbul ✈️ Üsküp)", category: "flight", amountTry: 17200, isPaid: true, paidBy: "fatih", note: "4 kişilik gidiş uçuş biletleri ödendi" },
-  { id: "e2", label: "DÖNÜŞ UÇAK (Üsküp ✈️ İstanbul)", category: "flight", amountTry: 16876, isPaid: true, paidBy: "fatih", note: "4 kişilik dönüş uçuş biletleri ödendi" },
-  { id: "e3", label: "SİGORTA (Seyahat Sağlık)", category: "insurance", amountTry: 1853, isPaid: true, paidBy: "fatih", note: "4 kişilik seyahat poliçesi kapatıldı" },
-  { id: "e4", label: "Y.D ÇIKIŞ HARÇ (4 Kişi)", category: "tax", amountTry: 5000, isPaid: false, note: "Kişi başı 1.250 ₺ havalimanı çıkış harcı" },
-  { id: "e5", label: "29-30 ÜSKÜP AIRBNB (1. Gece)", category: "stay", amountTry: 3019, isPaid: false, date: "29–30 Ağustos", note: "Üsküp Merkez / Debar Maalo 2 yatak odalı daire" },
-  { id: "e6", label: "30-31 OHRİD AIRBNB (2. Gece)", category: "stay", amountTry: 4594, isPaid: false, date: "30–31 Ağustos", note: "Ohri Old Town / Göl Kıyısı daire" },
-  { id: "e7", label: "31-3 SARANDE OTEL (3 Gece)", category: "stay", amountTry: 33210, isPaid: false, date: "31 Ağustos – 3 Eylül", note: "İyon kıyısı 3 gece kesintisiz sabit konaklama" },
-  { id: "e8", label: "3-4 DURES AIRBNB (6. Gece)", category: "stay", amountTry: 5512, isPaid: false, date: "3–4 Eylül", note: "Durrës Vollga sahil kordonu apart" },
-  { id: "e9", label: "4-5 TİRAN AIRBNB (7. Gece)", category: "stay", amountTry: 3812, isPaid: false, date: "4–5 Eylül", note: "Tiran Blloku / Merkez daire" },
-  { id: "e10", label: "5-6 ÜSKÜP AIRBNB (8. Gece)", category: "stay", amountTry: 4429, isPaid: false, date: "5–6 Eylül", note: "Dönüş öncesi Üsküp Aerodrom / Merkez apart" },
+// Initial Trip Expenses (Flights, Insurance, Tax, 7-Night Accommodations)
+const INITIAL_EXPENSES: ExpenseItem[] = [
+  {
+    id: "exp_flight_1",
+    title: "GİDİŞ UÇAK (İstanbul ✈️ Üsküp)",
+    amount: 17200,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: true, ikra: true, fatih: true, eyup: true },
+    category: "flight",
+    date: "29 Ağustos",
+    note: "4 kişilik gidiş uçuş biletleri ödendi",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_flight_2",
+    title: "DÖNÜŞ UÇAK (Üsküp ✈️ İstanbul)",
+    amount: 16876,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: true, ikra: true, fatih: true, eyup: true },
+    category: "flight",
+    date: "6 Eylül",
+    note: "4 kişilik dönüş uçuş biletleri ödendi",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_insurance",
+    title: "SİGORTA (Seyahat Sağlık Sigortası)",
+    amount: 1853,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: true, ikra: true, fatih: true, eyup: true },
+    category: "tax",
+    date: "Ağustos",
+    note: "4 kişilik seyahat poliçesi kapatıldı",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_tax",
+    title: "Y.D ÇIKIŞ HARÇ (4 Kişi)",
+    amount: 5000,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "tax",
+    date: "29 Ağustos",
+    note: "Kişi başı 1.250 ₺ havalimanı çıkış harcı",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_stay_1",
+    title: "29-30 ÜSKÜP AIRBNB (1. Gece)",
+    amount: 3019,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "stay",
+    date: "29–30 Ağustos",
+    note: "Üsküp Merkez / Debar Maalo 2 yatak odalı daire",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_stay_2",
+    title: "30-31 OHRİD AIRBNB (2. Gece)",
+    amount: 4594,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "stay",
+    date: "30–31 Ağustos",
+    note: "Ohri Old Town / Göl Kıyısı daire",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_stay_3",
+    title: "31-3 SARANDË OTEL (3 Gece Kesintisiz)",
+    amount: 33210,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "stay",
+    date: "31 Ağustos – 3 Eylül",
+    note: "İyon kıyısı 3 gece kesintisiz sabit konaklama",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_stay_4",
+    title: "3-4 DÜRRËS AIRBNB (6. Gece)",
+    amount: 5512,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "stay",
+    date: "3–4 Eylül",
+    note: "Durrës Vollga sahil kordonu apart",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_stay_5",
+    title: "4-5 TİRAN AIRBNB (7. Gece)",
+    amount: 3812,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "stay",
+    date: "4–5 Eylül",
+    note: "Tiran Blloku / Merkez daire",
+    isInitialFixed: true,
+  },
+  {
+    id: "exp_stay_6",
+    title: "5-6 ÜSKÜP AIRBNB (8. Gece)",
+    amount: 4429,
+    currency: "TRY",
+    paidBy: "fatih",
+    splitBetween: ["mert", "ikra", "fatih", "eyup"],
+    settledShares: { mert: false, ikra: false, fatih: true, eyup: false },
+    category: "stay",
+    date: "5–6 Eylül",
+    note: "Dönüş öncesi Üsküp Aerodrom / Merkez apart",
+    isInitialFixed: true,
+  },
 ];
 
-const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "budget_splitwise_v1" };
+const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "budget_splitwise_v2" };
 
 export function BudgetCalculator() {
   const [syncStatus, setSyncStatus] = useState<"connecting" | "synced" | "offline">("connecting");
   const [displayCurrency, setDisplayCurrency] = useState<CurrencyKey>("TRY");
-  const [predefinedExpenses, setPredefinedExpenses] = useState<PredefinedExpenseItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("balkan_budget_predefined_2026");
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return INITIAL_PREDEFINED;
-  });
+  const [activeTab, setActiveTab] = useState<"all" | MemberKey>("all");
 
-  const [customExpenses, setCustomExpenses] = useState<CustomExpenseItem[]>(() => {
+  const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
     try {
-      const saved = localStorage.getItem("balkan_budget_custom_2026");
+      const saved = localStorage.getItem("balkan_unified_expenses_2026");
       if (saved) return JSON.parse(saved);
     } catch {}
-    return [];
+    return INITIAL_EXPENSES;
   });
 
   // Modal States
@@ -139,7 +251,7 @@ export function BudgetCalculator() {
   const [newCurrency, setNewCurrency] = useState<CurrencyKey>("EUR");
   const [newPaidBy, setNewPaidBy] = useState<MemberKey>("fatih");
   const [newSplitBetween, setNewSplitBetween] = useState<MemberKey[]>(["mert", "ikra", "fatih", "eyup"]);
-  const [newCategory, setNewCategory] = useState<CustomExpenseItem["category"]>("food");
+  const [newCategory, setNewCategory] = useState<ExpenseItem["category"]>("food");
   const [newNote, setNewNote] = useState("");
 
   // Quick FX Calculator Tool State
@@ -152,7 +264,6 @@ export function BudgetCalculator() {
   const [jsonText, setJsonText] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [copiedToast, setCopiedToast] = useState(false);
-  const hasMergedRef = useRef(false);
 
   // -----------------------------------------------------------
   // FIRESTORE REALTIME SYNC
@@ -165,28 +276,17 @@ export function BudgetCalculator() {
         (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-
-            let mergedPredefined = INITIAL_PREDEFINED.map((initItem) => {
-              const fromDb = (data.predefinedExpenses || []).find((dbItem: PredefinedExpenseItem) => dbItem.id === initItem.id);
-              return fromDb ? { ...initItem, ...fromDb } : initItem;
-            });
-
-            let mergedCustom: CustomExpenseItem[] = data.customExpenses || [];
-
-            setPredefinedExpenses(mergedPredefined);
-            setCustomExpenses(mergedCustom);
-
-            try {
-              localStorage.setItem("balkan_budget_predefined_2026", JSON.stringify(mergedPredefined));
-              localStorage.setItem("balkan_budget_custom_2026", JSON.stringify(mergedCustom));
-            } catch {}
-
+            if (data.expenses && Array.isArray(data.expenses)) {
+              setExpenses(data.expenses);
+              try {
+                localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(data.expenses));
+              } catch {}
+            }
             setSyncStatus("synced");
           } else {
-            // First time init in Firestore
+            // First time init
             setDoc(docRef, {
-              predefinedExpenses: INITIAL_PREDEFINED,
-              customExpenses: [],
+              expenses: INITIAL_EXPENSES,
               createdAt: new Date().toISOString(),
               lastUpdated: new Date().toISOString(),
             }).catch((err) => console.error("Initial budget push error:", err));
@@ -206,16 +306,10 @@ export function BudgetCalculator() {
     }
   }, []);
 
-  const persistBudget = async (
-    newPredefined: PredefinedExpenseItem[],
-    newCustom: CustomExpenseItem[]
-  ) => {
-    setPredefinedExpenses(newPredefined);
-    setCustomExpenses(newCustom);
-
+  const persistExpenses = async (newExpenses: ExpenseItem[]) => {
+    setExpenses(newExpenses);
     try {
-      localStorage.setItem("balkan_budget_predefined_2026", JSON.stringify(newPredefined));
-      localStorage.setItem("balkan_budget_custom_2026", JSON.stringify(newCustom));
+      localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(newExpenses));
     } catch {}
 
     try {
@@ -223,8 +317,7 @@ export function BudgetCalculator() {
       await setDoc(
         docRef,
         {
-          predefinedExpenses: newPredefined,
-          customExpenses: newCustom,
+          expenses: newExpenses,
           lastUpdated: new Date().toISOString(),
         },
         { merge: true }
@@ -250,19 +343,27 @@ export function BudgetCalculator() {
     return `${rounded} ${symbol}`;
   };
 
-  // Toggle paid status for predefined item
-  const togglePredefinedPaid = (id: string) => {
-    const updated = predefinedExpenses.map((item) => {
-      if (item.id === id) {
-        return { ...item, isPaid: !item.isPaid };
+  // Toggle individual member tick for an expense
+  const toggleMemberShare = (expenseId: string, memberId: MemberKey) => {
+    const updated = expenses.map((item) => {
+      if (item.id === expenseId) {
+        const currentSettled = item.settledShares || {};
+        const isSettled = !!currentSettled[memberId];
+        return {
+          ...item,
+          settledShares: {
+            ...currentSettled,
+            [memberId]: !isSettled,
+          },
+        };
       }
       return item;
     });
-    persistBudget(updated, customExpenses);
+    persistExpenses(updated);
   };
 
-  // Add custom expense
-  const handleAddCustomExpense = (e: React.FormEvent) => {
+  // Add custom road expense
+  const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newAmount || Number(newAmount) <= 0) return;
     if (newSplitBetween.length === 0) {
@@ -270,20 +371,30 @@ export function BudgetCalculator() {
       return;
     }
 
-    const newItem: CustomExpenseItem = {
+    const initialSettled: Record<MemberKey, boolean> = {
+      mert: false,
+      ikra: false,
+      fatih: false,
+      eyup: false,
+    };
+    // The payer has inherently paid their own share
+    initialSettled[newPaidBy] = true;
+
+    const newItem: ExpenseItem = {
       id: `exp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       title: newTitle.trim(),
       amount: Number(newAmount),
       currency: newCurrency,
       paidBy: newPaidBy,
       splitBetween: newSplitBetween,
+      settledShares: initialSettled,
       category: newCategory,
-      date: new Date().toISOString().slice(0, 10),
+      date: new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long" }),
       note: newNote.trim() || undefined,
     };
 
-    const updatedCustom = [newItem, ...customExpenses];
-    persistBudget(predefinedExpenses, updatedCustom);
+    const updated = [newItem, ...expenses];
+    persistExpenses(updated);
 
     setNewTitle("");
     setNewAmount("");
@@ -291,108 +402,130 @@ export function BudgetCalculator() {
     setShowAddModal(false);
   };
 
-  const handleDeleteCustomExpense = (id: string) => {
+  const handleDeleteExpense = (id: string) => {
     if (!window.confirm("Bu harcamayı silmek istediğinize emin misiniz?")) return;
-    const updatedCustom = customExpenses.filter((item) => item.id !== id);
-    persistBudget(predefinedExpenses, updatedCustom);
+    const updated = expenses.filter((item) => item.id !== id);
+    persistExpenses(updated);
   };
 
   // -----------------------------------------------------------
-  // SPLITWISE CALCULATION ENGINE
+  // DYNAMIC SPLITWISE CALCULATION ENGINE BASED ON TICKS
   // -----------------------------------------------------------
-  const splitwiseBalances = useMemo(() => {
-    const memberPaidTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
-    const memberShareTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
+  const splitwiseState = useMemo(() => {
+    // Total spent out of pocket by each person
+    const totalPaidTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
+    
+    // Total legitimate obligation assigned to each person
+    const totalObligationTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
 
-    // 1. Predefined Expenses
-    predefinedExpenses.forEach((item) => {
-      const amountTry = item.amountTry;
-      const sharePerPerson = amountTry / 4;
+    // Total debt settled (paid to payer) by each person
+    const totalSettledPaidTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
 
-      // Everyone shares equally
-      (["mert", "ikra", "fatih", "eyup"] as MemberKey[]).forEach((m) => {
-        memberShareTry[m] += sharePerPerson;
-      });
+    // Direct pairwise outstanding debts: debtMatrix[from][to] = amount in TRY
+    const debtMatrix: Record<MemberKey, Record<MemberKey, number>> = {
+      mert: { mert: 0, ikra: 0, fatih: 0, eyup: 0 },
+      ikra: { mert: 0, ikra: 0, fatih: 0, eyup: 0 },
+      fatih: { mert: 0, ikra: 0, fatih: 0, eyup: 0 },
+      eyup: { mert: 0, ikra: 0, fatih: 0, eyup: 0 },
+    };
 
-      // If paid, attribute to payer (defaults to Fatih as CFO)
-      if (item.isPaid) {
-        const payer = item.paidBy || "fatih";
-        memberPaidTry[payer] += amountTry;
-      }
-    });
-
-    // 2. Custom Road Expenses
-    customExpenses.forEach((item) => {
-      const amountTry = convertCurrency(item.amount, item.currency, "TRY");
-      memberPaidTry[item.paidBy] += amountTry;
-
+    expenses.forEach((item) => {
+      const itemAmountTry = convertCurrency(item.amount, item.currency, "TRY");
+      const payer = item.paidBy;
       const splitCount = item.splitBetween.length;
-      if (splitCount > 0) {
-        const sharePerPerson = amountTry / splitCount;
-        item.splitBetween.forEach((m) => {
-          memberShareTry[m] += sharePerPerson;
-        });
-      }
+      if (splitCount === 0) return;
+
+      const shareAmountTry = itemAmountTry / splitCount;
+
+      totalPaidTry[payer] += itemAmountTry;
+
+      item.splitBetween.forEach((member) => {
+        totalObligationTry[member] += shareAmountTry;
+
+        const isSettled = !!item.settledShares?.[member];
+        if (isSettled) {
+          totalSettledPaidTry[member] += shareAmountTry;
+        } else {
+          // Unsettled debt: member owes payer
+          if (member !== payer) {
+            debtMatrix[member][payer] += shareAmountTry;
+          }
+        }
+      });
     });
 
-    // Calculate Net Balance for each member (Positive = Owed money, Negative = Debtor)
-    const netBalancesTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
-    (["mert", "ikra", "fatih", "eyup"] as MemberKey[]).forEach((m) => {
-      netBalancesTry[m] = memberPaidTry[m] - memberShareTry[m];
-    });
+    // Net Pairwise Simplification (e.g. if Mert owes Fatih 100 and Fatih owes Mert 40 => Mert owes Fatih 60)
+    const members: MemberKey[] = ["mert", "ikra", "fatih", "eyup"];
+    const simplifiedDebts: SettlementDebt[] = [];
 
-    // Calculate Optimal Settlements (Kim Kime Ne Kadar Gönderecek)
-    const settlements: SettlementTransaction[] = [];
-    const debtors: { member: MemberKey; amount: number }[] = [];
-    const creditors: { member: MemberKey; amount: number }[] = [];
+    for (let i = 0; i < members.length; i++) {
+      for (let j = i + 1; j < members.length; j++) {
+        const m1 = members[i];
+        const m2 = members[j];
+        const diff = debtMatrix[m1][m2] - debtMatrix[m2][m1];
 
-    (["mert", "ikra", "fatih", "eyup"] as MemberKey[]).forEach((m) => {
-      const balance = netBalancesTry[m];
-      if (balance < -1) {
-        debtors.push({ member: m, amount: -balance });
-      } else if (balance > 1) {
-        creditors.push({ member: m, amount: balance });
+        if (diff > 1) {
+          simplifiedDebts.push({ from: m1, to: m2, amountTry: diff });
+        } else if (diff < -1) {
+          simplifiedDebts.push({ from: m2, to: m1, amountTry: -diff });
+        }
       }
-    });
-
-    // Match debtors with creditors
-    let dIdx = 0;
-    let cIdx = 0;
-    while (dIdx < debtors.length && cIdx < creditors.length) {
-      const debtor = debtors[dIdx];
-      const creditor = creditors[cIdx];
-      const settlementAmount = Math.min(debtor.amount, creditor.amount);
-
-      if (settlementAmount > 1) {
-        settlements.push({
-          from: debtor.member,
-          to: creditor.member,
-          amountTry: settlementAmount,
-        });
-      }
-
-      debtor.amount -= settlementAmount;
-      creditor.amount -= settlementAmount;
-
-      if (debtor.amount < 1) dIdx++;
-      if (creditor.amount < 1) cIdx++;
     }
 
+    // Net Balance per member (Receivable > 0, Payable < 0)
+    const netBalanceTry: Record<MemberKey, number> = { mert: 0, ikra: 0, fatih: 0, eyup: 0 };
+    members.forEach((m) => {
+      let receivable = 0;
+      let payable = 0;
+      simplifiedDebts.forEach((debt) => {
+        if (debt.to === m) receivable += debt.amountTry;
+        if (debt.from === m) payable += debt.amountTry;
+      });
+      netBalanceTry[m] = receivable - payable;
+    });
+
     return {
-      memberPaidTry,
-      memberShareTry,
-      netBalancesTry,
-      settlements,
+      totalPaidTry,
+      totalObligationTry,
+      totalSettledPaidTry,
+      simplifiedDebts,
+      netBalanceTry,
     };
-  }, [predefinedExpenses, customExpenses]);
+  }, [expenses]);
 
   // Overall totals
-  const totalPredefinedTry = predefinedExpenses.reduce((sum, i) => sum + i.amountTry, 0);
-  const totalPaidPredefinedTry = predefinedExpenses.filter((i) => i.isPaid).reduce((sum, i) => sum + i.amountTry, 0);
-  const totalCustomTry = customExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0);
-  const grandTotalTripTry = totalPredefinedTry + totalCustomTry;
+  const grandTotalTripTry = useMemo(() => {
+    return expenses.reduce((sum, item) => sum + convertCurrency(item.amount, item.currency, "TRY"), 0);
+  }, [expenses]);
 
-  // Convert for Quick FX converter
+  // Total fully settled / closed across all items
+  const totalSettledAmountTry = useMemo(() => {
+    let sum = 0;
+    expenses.forEach((item) => {
+      const itemAmountTry = convertCurrency(item.amount, item.currency, "TRY");
+      const splitCount = item.splitBetween.length;
+      if (splitCount === 0) return;
+      const share = itemAmountTry / splitCount;
+      item.splitBetween.forEach((m) => {
+        if (item.settledShares?.[m]) {
+          sum += share;
+        }
+      });
+    });
+    return sum;
+  }, [expenses]);
+
+  const totalRemainingUnsettledTry = grandTotalTripTry - totalSettledAmountTry;
+
+  // Filtered expenses based on active tab
+  const filteredExpenses = useMemo(() => {
+    if (activeTab === "all") return expenses;
+    return expenses.filter(
+      (item) => item.paidBy === activeTab || item.splitBetween.includes(activeTab)
+    );
+  }, [expenses, activeTab]);
+
+  // Quick FX converter
   const quickBaseEur = calcAmount / (FX_RATES[calcCurrency] || 1);
   const quickConverted = {
     EUR: (quickBaseEur * FX_RATES.EUR).toFixed(2),
@@ -415,17 +548,15 @@ export function BudgetCalculator() {
   const handleOpenJsonModal = () => {
     const exportData = {
       _rules: [
-        "📌 BALKAN YOL EKİBİ - BÜTÇE & SPLITWISE JSON KURALLARI",
-        "1. predefinedExpenses: Uçak, sigorta, çıkış harcı ve Airbnb rezervasyonları.",
-        "2. isPaid: true ise ödenmiş kabul edilir, false ise ödenecek kabul edilir.",
-        "3. customExpenses: Seyahat sırasında yapılan ekstra harcamalar (yemek, benzin, aktivite).",
-        "4. currency: 'TRY', 'EUR', 'USD', 'ALL', 'MKD' para birimlerinden biri olmalıdır.",
-        "5. paidBy: Harcamayı ödeyen üye ('mert', 'ikra', 'fatih', 'eyup').",
-        "6. splitBetween: Harcamanın bölüşüleceği üyeler dizisi (['mert', 'ikra', 'fatih', 'eyup']).",
+        "📌 BALKAN YOL EKİBİ - BÜTÇE & SPLITWISE BİRLEŞİK JSON",
+        "1. expenses: Hem ön rezervasyonlar (uçak, otel, harç) hem de saha harcamaları bu listede yer alır.",
+        "2. paidBy: Harcamayı ödeyen üye ('mert', 'ikra', 'fatih', 'eyup').",
+        "3. splitBetween: Harcamanın bölüşüleceği üyeler dizisi.",
+        "4. settledShares: Her üyenin kendi payını ödeyip ödemediği (true/false).",
+        "5. currency: 'TRY', 'EUR', 'USD', 'ALL', 'MKD' para birimlerinden biri olmalıdır.",
       ],
       fxRates: FX_RATES,
-      predefinedExpenses,
-      customExpenses,
+      expenses,
     };
     setJsonText(JSON.stringify(exportData, null, 2));
     setJsonError(null);
@@ -444,7 +575,7 @@ export function BudgetCalculator() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonText);
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `balkan_butce_splitwise_${new Date().toISOString().slice(0, 10)}.json`);
+    downloadAnchor.setAttribute("download", `balkan_tatil_harcamalari_${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -468,16 +599,13 @@ export function BudgetCalculator() {
       setJsonError(null);
       const parsed = JSON.parse(jsonText);
 
-      if (!parsed.predefinedExpenses || !Array.isArray(parsed.predefinedExpenses)) {
-        throw new Error("JSON formatında 'predefinedExpenses' listesi bulunamadı.");
+      if (!parsed.expenses || !Array.isArray(parsed.expenses)) {
+        throw new Error("JSON formatında 'expenses' listesi bulunamadı.");
       }
 
-      const newPredefined: PredefinedExpenseItem[] = parsed.predefinedExpenses;
-      const newCustom: CustomExpenseItem[] = parsed.customExpenses || [];
-
-      persistBudget(newPredefined, newCustom);
+      persistExpenses(parsed.expenses);
       setShowJsonModal(false);
-      alert("✅ Bütçe ve Splitwise verileri Firestore veritabanına başarıyla senkronize edildi!");
+      alert("✅ Tüm harcamalar ve kişi tikleri Firestore veritabanına başarıyla senkronize edildi!");
     } catch (err: any) {
       console.error(err);
       setJsonError(err.message || "Geçersiz JSON formatı.");
@@ -485,7 +613,7 @@ export function BudgetCalculator() {
   };
 
   return (
-    <div className="budget-dossier space-y-8">
+    <div className="budget-dossier space-y-8 font-serif text-[#1d211c]">
       {/* Top Header with Sync Badge & Global Currency Switcher */}
       <div className="flex flex-col gap-4 border-b-2 border-[#1d211c] pb-5 md:flex-row md:items-center md:justify-between">
         <div>
@@ -530,14 +658,14 @@ export function BudgetCalculator() {
             Fatih'in Kasa & <em>Splitwise Defteri</em>
           </h3>
           <p className="mt-1 max-w-2xl font-serif text-xs sm:text-sm text-[#49534f]">
-            Tüm ön ödemeler, anlık saha harcamaları, çoklu para birimi çevirileri ve "Kim kime kaç para borçlu?" hesaplamaları anlık senkronizedir.
+            Tüm tatil harcamaları tek listede toplanmıştır. Üyeler kendi sekmelerinden veya genel listeden kendi paylarına tik attıkça <b>"Kim Kime Kaç Para Gönderecek?"</b> tablosu canlı güncellenir.
           </p>
         </div>
 
         {/* Currency Switcher Tabs */}
         <div className="flex flex-col items-end gap-1.5">
           <span className="font-mono text-[11px] font-bold text-[#38413c] uppercase">Görünüm Para Birimi:</span>
-          <div className="flex items-center gap-1 rounded border border-[#cac1ae] bg-[#f5f0e5] p-1 font-mono text-xs">
+          <div className="flex items-center gap-1 rounded border border-[#cac1ae] bg-[#f5f0e5] p-1 font-mono text-xs shadow-xs">
             {(["TRY", "EUR", "USD", "MKD", "ALL"] as CurrencyKey[]).map((cur) => (
               <button
                 key={cur}
@@ -560,37 +688,37 @@ export function BudgetCalculator() {
         <div className="rounded border-2 border-[#145c64] bg-[#f0f6f4] p-5 shadow-[4px_4px_0_#145c64]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
-              ÖDENMİŞ SABİT KAYIT
+              ÖDENMİŞ & KAPATILMIŞ PAYLAR
             </span>
-            <span className="rounded bg-emerald-600 px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+            <span className="rounded bg-emerald-700 px-2 py-0.5 font-mono text-[10px] font-bold text-white">
               KAPATILDI
             </span>
           </div>
           <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
-            {formatMoney(convertCurrency(totalPaidPredefinedTry, "TRY", displayCurrency))}
+            {formatMoney(convertCurrency(totalSettledAmountTry, "TRY", displayCurrency))}
           </div>
           <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Gidiş-dönüş uçak biletleri + 4 kişilik Seyahat Sağlık Sigortası ödendi.
+            Ekip üyelerinin cebinden ödeyip kendi aralarında kapattığı / onayladığı toplam tutar.
           </p>
           <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-bold text-[#145c64]">
-            Kişi Başı: {formatMoney(convertCurrency(totalPaidPredefinedTry / 4, "TRY", displayCurrency))}
+            Kişi Başı Ortalama: {formatMoney(convertCurrency(totalSettledAmountTry / 4, "TRY", displayCurrency))}
           </div>
         </div>
 
         <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 shadow-[4px_4px_0_#b54b38]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
-              TOPLAM PLANLANAN BÜTÇE
+              TOPLAM TATİL BÜTÇESİ
             </span>
             <span className="rounded bg-[#1d211c] px-2 py-0.5 font-mono text-[10px] font-bold text-white">
-              {predefinedExpenses.length + customExpenses.length} KALEM
+              {expenses.length} HARCAMA KALEMİ
             </span>
           </div>
           <div className="mt-2 font-display text-3xl sm:text-4xl text-[#b54b38]">
             {formatMoney(convertCurrency(grandTotalTripTry, "TRY", displayCurrency))}
           </div>
           <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + {customExpenses.length} ekstra saha harcaması.
+            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + yol üstünde eklenen tüm saha harcamaları.
           </p>
           <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs font-bold text-[#b54b38]">
             Kişi Başı: {formatMoney(convertCurrency(grandTotalTripTry / 4, "TRY", displayCurrency))}
@@ -600,20 +728,20 @@ export function BudgetCalculator() {
         <div className="rounded border-2 border-[#cac1ae] bg-[#fff8f5] p-5 shadow-[4px_4px_0_rgba(29,33,28,0.12)]">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
-              REZERVASYON / KALAN PAY
+              BEKLEYEN / AÇIK PAYLAR
             </span>
             <span className="rounded bg-[#ded5c2] px-2 py-0.5 font-mono text-[10px] font-bold text-[#29312e]">
               ÖDENECEK
             </span>
           </div>
           <div className="mt-2 font-display text-3xl sm:text-4xl text-[#1d211c]">
-            {formatMoney(convertCurrency(grandTotalTripTry - totalPaidPredefinedTry, "TRY", displayCurrency))}
+            {formatMoney(convertCurrency(totalRemainingUnsettledTry, "TRY", displayCurrency))}
           </div>
           <p className="mt-1 font-serif text-xs text-[#49534f]">
-            Airbnb / Otel ödemeleri ve havalimanı harçları için ayrılması gereken bütçe.
+            Henüz ilgili üyelerce ödenmemiş veya onaylanmamış bekleyen toplam bakiye.
           </p>
           <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs font-bold text-[#145c64]">
-            Kişi Başı: {formatMoney(convertCurrency((grandTotalTripTry - totalPaidPredefinedTry) / 4, "TRY", displayCurrency))}
+            Kişi Başı Kalan: {formatMoney(convertCurrency(totalRemainingUnsettledTry / 4, "TRY", displayCurrency))}
           </div>
         </div>
       </div>
@@ -621,7 +749,7 @@ export function BudgetCalculator() {
       {/* ======================================================= */}
       {/* ⚖️ SPLITWISE LIVE DEBT SETTLEMENT MATRIX */}
       {/* ======================================================= */}
-      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[8px_10px_0_rgba(20,92,100,0.2)]">
+      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[6px_8px_0_rgba(20,92,100,0.18)]">
         <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
@@ -632,7 +760,7 @@ export function BudgetCalculator() {
               Kim Kime Kaç Para Gönderecek?
             </h3>
             <p className="mt-0.5 font-serif text-xs text-[#49534f]">
-              Her üyenin cebinden ödediği toplam harcamalar ile payına düşen paylar anlık hesaplanır.
+              Her üyenin cebinden ödediği toplam harcamalar ile henüz kapatmadığı payları otomatik dengelenir.
             </p>
           </div>
 
@@ -641,34 +769,44 @@ export function BudgetCalculator() {
             className="flex cursor-pointer items-center gap-1.5 self-start sm:self-auto rounded bg-[#145c64] px-4 py-2.5 font-mono text-xs font-bold text-white shadow-[3px_3px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95"
           >
             <Plus size={16} />
-            <span>Yeni Saha Harcaması Ekle</span>
+            <span>Yeni Harcama Ekle</span>
           </button>
         </div>
 
         {/* 4 Member Net Balance Cards */}
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {MEMBERS.map((member) => {
-            const paid = splitwiseBalances.memberPaidTry[member.id];
-            const share = splitwiseBalances.memberShareTry[member.id];
-            const net = splitwiseBalances.netBalancesTry[member.id];
+            const net = splitwiseState.netBalanceTry[member.id];
             const isCreditor = net > 1;
             const isDebtor = net < -1;
+            const paid = splitwiseState.totalPaidTry[member.id];
+            const obligation = splitwiseState.totalObligationTry[member.id];
+            const settled = splitwiseState.totalSettledPaidTry[member.id];
 
             return (
               <div
                 key={member.id}
-                className={`rounded border-2 p-4 transition-all ${
+                onClick={() => setActiveTab(member.id)}
+                className={`cursor-pointer rounded border-2 p-4 transition-all hover:scale-[1.02] ${
+                  activeTab === member.id ? "ring-2 ring-[#145c64] ring-offset-2" : ""
+                } ${
                   isCreditor
-                    ? "border-emerald-600 bg-emerald-50/60 shadow-[3px_3px_0_#059669]"
+                    ? "border-emerald-600 bg-emerald-50/70 shadow-[3px_3px_0_#059669]"
                     : isDebtor
-                    ? "border-rose-600 bg-rose-50/60 shadow-[3px_3px_0_#e11d48]"
-                    : "border-[#cac1ae] bg-[#fdfbf7]"
+                    ? "border-rose-600 bg-rose-50/70 shadow-[3px_3px_0_#e11d48]"
+                    : "border-[#cac1ae] bg-[#fbf9f2]"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-display text-lg text-[#1d211c]">{member.name}</span>
+                  <div className="flex items-center gap-2">
+                    <div className={`flex h-7 w-7 items-center justify-center rounded-full text-white font-bold text-xs ${member.bgClass}`}>
+                      {member.initial}
+                    </div>
+                    <span className="font-display text-lg text-[#1d211c]">{member.name}</span>
+                  </div>
+
                   <span className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-bold ${
-                    isCreditor ? "bg-emerald-600 text-white" : isDebtor ? "bg-rose-600 text-white" : "bg-stone-200 text-stone-800"
+                    isCreditor ? "bg-emerald-700 text-white" : isDebtor ? "bg-rose-700 text-white" : "bg-stone-200 text-stone-800"
                   }`}>
                     {isCreditor ? "ALACAKLI 🟢" : isDebtor ? "BORÇLU 🔴" : "DENK ⚪"}
                   </span>
@@ -678,15 +816,19 @@ export function BudgetCalculator() {
 
                 <div className="mt-3 space-y-1 border-t border-[#cac1ae]/40 pt-2 font-mono text-xs">
                   <div className="flex justify-between text-[#49534f]">
-                    <span>Ödediği:</span>
+                    <span>Cebinden Ödediği:</span>
                     <span className="font-bold">{formatMoney(convertCurrency(paid, "TRY", displayCurrency))}</span>
                   </div>
                   <div className="flex justify-between text-[#49534f]">
-                    <span>Payı:</span>
-                    <span>{formatMoney(convertCurrency(share, "TRY", displayCurrency))}</span>
+                    <span>Toplam Payı:</span>
+                    <span>{formatMoney(convertCurrency(obligation, "TRY", displayCurrency))}</span>
+                  </div>
+                  <div className="flex justify-between text-[#49534f]">
+                    <span>Kapattığı Pay:</span>
+                    <span className="text-emerald-700 font-semibold">{formatMoney(convertCurrency(settled, "TRY", displayCurrency))}</span>
                   </div>
                   <div className="flex justify-between pt-1 border-t border-[#cac1ae]/30 font-bold text-sm">
-                    <span>Net Durum:</span>
+                    <span>Net Kalan:</span>
                     <span className={isCreditor ? "text-emerald-700 font-bold" : isDebtor ? "text-rose-700 font-bold" : "text-stone-700"}>
                       {isCreditor ? "+" : ""}{formatMoney(convertCurrency(net, "TRY", displayCurrency))}
                     </span>
@@ -699,18 +841,24 @@ export function BudgetCalculator() {
 
         {/* Clear Settlement Transfer Instructions */}
         <div className="mt-6 rounded border border-[#145c64]/30 bg-[#f0f6f4] p-4 sm:p-5">
-          <h4 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
-            <TrendingUp size={15} />
-            <span>Optimum Transfer / IBAN Çözümü ({splitwiseBalances.settlements.length} Transfer)</span>
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
+              <TrendingUp size={15} />
+              <span>Optimum Transfer / IBAN Çözümü ({splitwiseState.simplifiedDebts.length} Açık Transfer)</span>
+            </h4>
+            <span className="font-mono text-[11px] text-[#49534f]">
+              (Tikler değiştikçe anında güncellenir)
+            </span>
+          </div>
 
-          {splitwiseBalances.settlements.length === 0 ? (
-            <p className="mt-2 font-serif text-xs text-[#49534f]">
-              Şu an tüm ekibin harcama ve ödemeleri denk durumdadır. Herhangi bir IBAN transferi gerekmemektedir.
-            </p>
+          {splitwiseState.simplifiedDebts.length === 0 ? (
+            <div className="mt-3 flex items-center gap-2 rounded bg-emerald-100 p-3 text-xs font-mono text-emerald-900 border border-emerald-300">
+              <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
+              <span>Harika! Şu an tüm ekibin borç-alacak hesapları kapalıdır. Kimsenin kimseye transfer göndermesi gerekmemektedir.</span>
+            </div>
           ) : (
             <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-              {splitwiseBalances.settlements.map((tx, idx) => {
+              {splitwiseState.simplifiedDebts.map((tx, idx) => {
                 const fromMember = MEMBERS.find((m) => m.id === tx.from);
                 const toMember = MEMBERS.find((m) => m.id === tx.to);
 
@@ -721,12 +869,12 @@ export function BudgetCalculator() {
                   >
                     <div className="flex items-center gap-2">
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-rose-800 font-bold text-[11px]">
-                        {fromMember?.name.charAt(0)}
+                        {fromMember?.initial}
                       </div>
                       <span className="font-bold text-[#1d211c]">{fromMember?.name}</span>
                       <span className="text-[#8e9893]">➔</span>
                       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 font-bold text-[11px]">
-                        {toMember?.name.charAt(0)}
+                        {toMember?.initial}
                       </div>
                       <span className="font-bold text-[#1d211c]">{toMember?.name}</span>
                     </div>
@@ -745,146 +893,131 @@ export function BudgetCalculator() {
       </div>
 
       {/* ======================================================= */}
-      {/* 📋 DETAILED "TATİL HARCAMA" CHECKLIST CARD */}
+      {/* 📋 UNIFIED "TATİL HARCAMA" TABLE (LIGHT / VINTAGE THEME) */}
       {/* ======================================================= */}
-      <div className="rounded border-2 border-[#1d211c] bg-[#111311] p-5 sm:p-7 text-white shadow-[8px_10px_0_rgba(29,33,28,0.25)]">
-        <div className="flex flex-col gap-2 border-b border-stone-800 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[8px_10px_0_rgba(29,33,28,0.18)]">
+        <div className="flex flex-col gap-3 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#f3bc86]">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#b54b38]">
               <Receipt size={16} />
-              <span>Resmî Ön Ödeme & Rezervasyon Tablosu</span>
+              <span>Birleşik Kasa Kayıt Defteri</span>
             </div>
-            <h3 className="mt-1 font-display text-2xl sm:text-3xl text-white tracking-wide">
-              TATİL HARCAMA (Ön Rezervasyonlar)
+            <h3 className="mt-1 font-display text-2xl sm:text-3xl text-[#1d211c] tracking-wide">
+              TATİL HARCAMA
             </h3>
-            <p className="font-serif text-xs text-stone-400">
-              Onay kutularına tıklayarak ödeme durumunu anında canlı DB üzerinde güncelleyebilirsiniz.
+            <p className="font-serif text-xs text-[#5b6560]">
+              Tüm ön ödemeler ve seyahat harcamaları buradadır. Her üye kendi avatarına/kutusuna tıklayarak payını kapattığını onaylayabilir.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 font-mono text-xs text-amber-400">
-              <CheckCircle2 size={16} className="text-amber-400 fill-amber-400/20" />
-              <span>Ödendi ({predefinedExpenses.filter((i) => i.isPaid).length})</span>
-            </div>
-            <div className="flex items-center gap-1.5 font-mono text-xs text-stone-400">
-              <Circle size={16} className="text-stone-500" />
-              <span>Beklemede ({predefinedExpenses.filter((i) => !i.isPaid).length})</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Predefined Expense List Items */}
-        <div className="mt-5 divide-y divide-stone-800/80 font-mono text-sm">
-          {predefinedExpenses.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => togglePredefinedPaid(item.id)}
-              className="flex cursor-pointer flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-stone-900/80 px-2.5 rounded"
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex cursor-pointer items-center gap-1.5 rounded bg-[#145c64] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c]"
             >
-              <div className="flex items-center gap-3">
-                {item.isPaid ? (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500 text-black font-bold text-xs shadow-[0_0_10px_rgba(245,158,11,0.5)]">
-                    ✓
-                  </div>
-                ) : (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-stone-600 text-transparent">
-                    ○
-                  </div>
-                )}
-                <div>
-                  <span className={`font-bold tracking-wider ${item.isPaid ? "text-amber-200" : "text-stone-300"}`}>
-                    {item.label}
-                  </span>
-                  {item.note && (
-                    <span className="block font-serif text-xs text-stone-400">
-                      {item.note} {item.date && `• ${item.date}`}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-baseline justify-between sm:justify-end gap-3 pl-9 sm:pl-0">
-                <span className="font-mono text-base sm:text-lg font-bold text-amber-400">
-                  : {formatMoney(convertCurrency(item.amountTry, "TRY", displayCurrency))}
-                </span>
-                <span className="font-mono text-[11px] text-stone-400">
-                  (Kişi: {formatMoney(convertCurrency(item.amountTry / 4, "TRY", displayCurrency))})
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Total Summary Footer */}
-        <div className="mt-6 border-t-2 border-amber-500/40 bg-stone-900/90 p-4 rounded flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
-          <span className="text-xs uppercase tracking-widest text-stone-300 font-bold">
-            TOPLAM ÖN ÖDEMELİ REZERVASYONLAR
-          </span>
-          <div className="flex items-baseline gap-3">
-            <span className="text-2xl sm:text-3xl font-bold text-amber-400">
-              {formatMoney(convertCurrency(totalPredefinedTry, "TRY", displayCurrency))}
-            </span>
-            <span className="text-xs text-stone-400">
-              (Kişi Başı: <b>{formatMoney(convertCurrency(totalPredefinedTry / 4, "TRY", displayCurrency))}</b>)
-            </span>
+              <Plus size={15} />
+              <span>+ Yeni Harcama Ekle</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* ======================================================= */}
-      {/* 🚗 CUSTOM SAHA HARCAMALARI LİSTESİ */}
-      {/* ======================================================= */}
-      <div className="rounded border-2 border-[#1d211c] bg-[#fffcf3] p-5 sm:p-7 shadow-[8px_10px_0_rgba(29,33,28,0.18)]">
-        <div className="flex flex-col gap-2 border-b-2 border-[#1d211c] pb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-[#145c64]">
-              <Wallet size={16} />
-              <span>Yol Üstü Anlık Saha Harcamaları</span>
-            </div>
-            <h3 className="mt-1 font-display text-2xl text-[#1d211c]">
-              Ekstra Harcama Kayıtları ({customExpenses.length})
-            </h3>
-          </div>
-
+        {/* Member Filter Tabs */}
+        <div className="mt-5 flex flex-wrap items-center gap-1.5 border-b border-[#cac1ae] pb-3">
           <button
-            onClick={() => setShowAddModal(true)}
-            className="flex cursor-pointer items-center gap-1.5 self-start sm:self-auto rounded bg-[#145c64] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c]"
+            onClick={() => setActiveTab("all")}
+            className={`cursor-pointer rounded-t px-3.5 py-1.5 font-mono text-xs font-bold transition-all ${
+              activeTab === "all"
+                ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] text-[#145c64] shadow-xs"
+                : "text-[#5b6560] hover:bg-[#f0ece1]"
+            }`}
           >
-            <Plus size={15} />
-            <span>+ Harcama Ekle</span>
+            🌟 Tüm Ekip ({expenses.length})
           </button>
+
+          {MEMBERS.map((m) => {
+            const count = expenses.filter((e) => e.paidBy === m.id || e.splitBetween.includes(m.id)).length;
+            const isSelected = activeTab === m.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => setActiveTab(m.id)}
+                className={`flex cursor-pointer items-center gap-1.5 rounded-t px-3 py-1.5 font-mono text-xs transition-all ${
+                  isSelected
+                    ? "border-2 border-b-0 border-[#1d211c] bg-[#f5f0e5] font-bold text-[#1d211c] shadow-xs"
+                    : "text-[#5b6560] hover:bg-[#f0ece1]"
+                }`}
+              >
+                <span className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-white text-[9px] font-bold ${m.bgClass}`}>
+                  {m.initial}
+                </span>
+                <span>{m.shortName}</span>
+                <span className="text-[10px] text-[#8e9893]">({count})</span>
+              </button>
+            );
+          })}
         </div>
 
-        {customExpenses.length === 0 ? (
-          <div className="my-8 text-center font-mono text-xs text-[#68716c]">
-            Henüz seyahat esnasında eklenmiş bir saha harcaması bulunmuyor.<br />
-            Restoran, yakıt veya otopark harcamalarını yukarıdaki <b>"+ Harcama Ekle"</b> butonundan anında ekleyebilirsiniz.
+        {/* Active Tab Explanation Banner */}
+        {activeTab !== "all" && (
+          <div className="mt-3 flex items-center justify-between rounded border border-[#145c64]/30 bg-[#f0f6f4] p-2.5 font-mono text-xs text-[#145c64]">
+            <div className="flex items-center gap-2">
+              <UserCheck size={16} />
+              <span>
+                <b>{MEMBERS.find((m) => m.id === activeTab)?.name}</b> filtresi aktif. Aşağıdaki kutucukları işaretleyerek paylarınızı kapattığınızı onaylayabilirsiniz.
+              </span>
+            </div>
+            <button
+              onClick={() => setActiveTab("all")}
+              className="text-[11px] underline hover:text-[#b54b38] cursor-pointer"
+            >
+              Tüm Listeye Dön
+            </button>
           </div>
-        ) : (
-          <div className="mt-4 divide-y divide-[#cac1ae]/40 font-mono text-xs">
-            {customExpenses.map((item) => {
-              const payer = MEMBERS.find((m) => m.id === item.paidBy);
-              const splitNames = item.splitBetween.map((id) => MEMBERS.find((m) => m.id === id)?.name.split(" ")[0]).join(", ");
+        )}
 
-              return (
-                <div key={item.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between hover:bg-[#f5f0e5]/50 px-2 rounded">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-serif font-bold text-sm text-[#1d211c]">{item.title}</span>
-                      <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 text-[10px] text-[#29312e] uppercase">
+        {/* Expense List Items */}
+        <div className="mt-4 divide-y divide-[#cac1ae]/50 font-mono text-xs">
+          {filteredExpenses.map((item) => {
+            const payer = MEMBERS.find((m) => m.id === item.paidBy);
+            const splitCount = item.splitBetween.length;
+            const perPersonShareTry = convertCurrency(item.amount, item.currency, "TRY") / splitCount;
+            const isAllSettled = item.splitBetween.every((m) => !!item.settledShares?.[m]);
+
+            return (
+              <div
+                key={item.id}
+                className={`flex flex-col gap-2.5 py-3.5 px-2.5 rounded transition-colors ${
+                  isAllSettled ? "bg-[#f5f0e5]/40 opacity-80" : "hover:bg-[#fdfbf7]"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  {/* Left: Title, Note & Category */}
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-serif text-sm sm:text-base font-bold text-[#1d211c]">
+                        {item.title}
+                      </span>
+                      <span className="rounded bg-[#ded5c2] px-1.5 py-0.2 text-[10px] text-[#29312e] uppercase font-bold">
                         {item.category}
                       </span>
+                      {isAllSettled && (
+                        <span className="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.2 text-[10px] font-bold">
+                          ✓ TAMAMI KAPATILDI
+                        </span>
+                      )}
                     </div>
-                    <div className="mt-0.5 text-[11px] text-[#68716c]">
-                      <span>Ödeyen: <b>{payer?.name}</b></span> • <span>Bölüşenler: <b>{splitNames}</b></span>
-                      {item.note && ` • Not: ${item.note}`}
+
+                    <div className="text-[11px] text-[#68716c] font-serif">
+                      <span>Ödeyen (Kasa): <b>{payer?.name}</b></span>
+                      {item.date && ` • ${item.date}`}
+                      {item.note && ` • ${item.note}`}
                     </div>
                   </div>
 
+                  {/* Right: Total Amount & Delete Button */}
                   <div className="flex items-center justify-between sm:justify-end gap-3">
                     <div className="text-right">
-                      <span className="font-bold text-sm text-[#145c64]">
+                      <span className="font-mono text-base sm:text-lg font-bold text-[#b54b38]">
                         {item.amount.toLocaleString("tr-TR")} {CURRENCY_SYMBOLS[item.currency]}
                       </span>
                       {item.currency !== displayCurrency && (
@@ -892,25 +1025,94 @@ export function BudgetCalculator() {
                           ≈ {formatMoney(convertCurrency(item.amount, item.currency, displayCurrency))}
                         </div>
                       )}
+                      <div className="text-[11px] text-[#5b6560]">
+                        (Kişi: {formatMoney(convertCurrency(perPersonShareTry, "TRY", displayCurrency))})
+                      </div>
                     </div>
 
-                    <button
-                      onClick={() => handleDeleteCustomExpense(item.id)}
-                      title="Sil"
-                      className="cursor-pointer rounded p-1 text-[#8e9893] hover:bg-rose-50 hover:text-rose-600"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {!item.isInitialFixed && (
+                      <button
+                        onClick={() => handleDeleteExpense(item.id)}
+                        title="Bu harcamayı sil"
+                        className="cursor-pointer rounded p-1 text-[#8e9893] hover:bg-rose-50 hover:text-rose-600"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    )}
                   </div>
                 </div>
-              );
-            })}
+
+                {/* Bottom: Member Interactive Tick Bubbles & Checkboxes */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#cac1ae]/40 pt-2 bg-[#fdfbf7] p-2 rounded">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#49534f]">
+                    <Users size={14} className="text-[#145c64]" />
+                    <span>Pay Onayları:</span>
+                  </div>
+
+                  {/* Member Avatar / Tick Buttons */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {MEMBERS.map((m) => {
+                      const isIncluded = item.splitBetween.includes(m.id);
+                      if (!isIncluded) return null;
+
+                      const isSettled = !!item.settledShares?.[m.id];
+                      const isPayer = item.paidBy === m.id;
+
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => toggleMemberShare(item.id, m.id)}
+                          className={`flex cursor-pointer items-center gap-1.5 rounded border px-2 py-1 text-xs transition-all ${
+                            isSettled
+                              ? "border-emerald-600 bg-emerald-50 text-emerald-900 font-bold shadow-2xs"
+                              : "border-rose-300 bg-rose-50/60 text-rose-800 opacity-75 hover:opacity-100"
+                          } ${activeTab === m.id ? "ring-2 ring-[#145c64]" : ""}`}
+                          title={`${m.name}: ${isSettled ? "Ödendi / Kapatıldı (Tıkla ve Beklemeye Al)" : "Bekliyor / Borçlu (Tıkla ve Kapat)"}`}
+                        >
+                          <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white text-[9px] font-bold ${
+                            isSettled ? "bg-emerald-600" : "bg-rose-600"
+                          }`}>
+                            {isSettled ? "✓" : m.initial}
+                          </div>
+                          <span>{m.shortName}</span>
+                          <span className="text-[10px]">
+                            {isSettled ? (isPayer ? "(Kendi Payı)" : "Ödedi") : "Bekliyor"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Total Summary Footer */}
+        <div className="mt-6 border-t-2 border-[#1d211c] bg-[#f5f0e5] p-4 rounded flex flex-col sm:flex-row items-center justify-between gap-3 font-mono">
+          <span className="text-xs uppercase tracking-widest text-[#1d211c] font-bold">
+            TOPLAM {filteredExpenses.length} HARCAMA TUTARI
+          </span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-2xl sm:text-3xl font-bold text-[#b54b38]">
+              {formatMoney(
+                convertCurrency(
+                  filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0),
+                  "TRY",
+                  displayCurrency
+                )
+              )}
+            </span>
+            <span className="text-xs text-[#5b6560]">
+              (Kişi Başı: <b>{formatMoney(convertCurrency(grandTotalTripTry / 4, "TRY", displayCurrency))}</b>)
+            </span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* ======================================================= */}
-      {/* 💱 INTERACTIVE 5-CURRENCY CONVERTER & ARBITRAGE TOOL */}
+      {/* 💱 INTERACTIVE 5-CURRENCY CONVERTER TOOL */}
       {/* ======================================================= */}
       <div className="rounded border border-[#29312e]/20 bg-[#fffcf3] p-4 sm:p-6 shadow-[4px_6px_0_rgba(29,33,28,0.12)]">
         <div className="flex flex-col gap-2 border-b border-[#29312e]/15 pb-4 md:flex-row md:items-center md:justify-between">
@@ -1031,7 +1233,7 @@ export function BudgetCalculator() {
               <span>Geliştirici & AI Bütçe JSON Modülü</span>
             </div>
             <p className="mt-1 font-serif text-xs text-[#49534f]">
-              Tüm bütçe kalemlerini, rezervasyon tutarlarını ve harcama kayıtlarını JSON formatında görüntüleyebilir, AI'a toplu düzenletip anında DB'ye geri yapıştırabilirsiniz.
+              Tüm bütçe ve harcama kalemlerini JSON formatında görüntüleyebilir, AI'a toplu düzenletip anında DB'ye geri yapıştırabilirsiniz.
             </p>
           </div>
 
@@ -1046,7 +1248,7 @@ export function BudgetCalculator() {
       </div>
 
       {/* ======================================================= */}
-      {/* ➕ ADD CUSTOM EXPENSE MODAL */}
+      {/* ➕ ADD ROAD EXPENSE MODAL */}
       {/* ======================================================= */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs">
@@ -1058,7 +1260,7 @@ export function BudgetCalculator() {
               Eklenen harcama anında Firebase veritabanına yazılır ve Splitwise borç-alacak dengesini günceller.
             </p>
 
-            <form onSubmit={handleAddCustomExpense} className="mt-4 space-y-3.5 font-mono text-xs">
+            <form onSubmit={handleAddExpense} className="mt-4 space-y-3.5 font-mono text-xs">
               {/* Title */}
               <div>
                 <label className="block font-semibold text-[#29312e]">Harcama Başlığı / Açıklama</label>
@@ -1119,7 +1321,7 @@ export function BudgetCalculator() {
                           : "border-[#cac1ae] bg-white text-[#29312e]"
                       }`}
                     >
-                      {m.name.split(" ")[0]}
+                      {m.shortName}
                     </button>
                   ))}
                 </div>
@@ -1150,7 +1352,7 @@ export function BudgetCalculator() {
                             : "border-[#cac1ae] bg-stone-100 text-stone-500 opacity-60"
                         }`}
                       >
-                        {isChecked ? "✓ " : ""}{m.name.split(" ")[0]}
+                        {isChecked ? "✓ " : ""}{m.shortName}
                       </button>
                     );
                   })}
