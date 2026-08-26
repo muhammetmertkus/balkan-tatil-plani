@@ -247,7 +247,7 @@ export function BudgetCalculator() {
   });
   const [isFetchingFx, setIsFetchingFx] = useState<boolean>(false);
 
-  // Live Exchange Rate Fetcher
+  // Live Exchange Rate Fetcher (Auto-updates Firestore DB)
   const fetchLiveRates = async () => {
     setIsFetchingFx(true);
     try {
@@ -269,6 +269,18 @@ export function BudgetCalculator() {
         setFxLastUpdate(updateDate);
         localStorage.setItem("balkan_live_fx_rates_v1", JSON.stringify(newRates));
         localStorage.setItem("balkan_live_fx_date_v1", updateDate);
+
+        // Sync fresh live FX rates directly to Firebase Firestore
+        try {
+          const docRef = doc(db, FIRESTORE_DOC_PATH.collection, FIRESTORE_DOC_PATH.id);
+          await setDoc(docRef, {
+            fxRates: newRates,
+            fxLastUpdate: updateDate,
+            lastUpdated: new Date().toISOString(),
+          }, { merge: true });
+        } catch (dbErr) {
+          console.warn("Firestore FX sync error:", dbErr);
+        }
       }
     } catch (err) {
       console.warn("Could not fetch live rates, keeping current rates:", err);
@@ -334,7 +346,7 @@ export function BudgetCalculator() {
   const [copiedToast, setCopiedToast] = useState(false);
 
   // -----------------------------------------------------------
-  // FIRESTORE REALTIME SYNC
+  // FIRESTORE REALTIME SYNC (EXPENSES + FX RATES + SETTLEMENTS)
   // -----------------------------------------------------------
   useEffect(() => {
     try {
@@ -350,11 +362,19 @@ export function BudgetCalculator() {
                 localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(data.expenses));
               } catch {}
             }
+            if (data.fxRates) {
+              setFxRates(data.fxRates);
+            }
+            if (data.fxLastUpdate) {
+              setFxLastUpdate(data.fxLastUpdate);
+            }
             setSyncStatus("synced");
           } else {
-            // First time init
+            // First time init in Firestore
             setDoc(docRef, {
               expenses: INITIAL_EXPENSES,
+              fxRates: DEFAULT_FX_RATES,
+              fxLastUpdate: new Date().toLocaleDateString("tr-TR"),
               createdAt: new Date().toISOString(),
               lastUpdated: new Date().toISOString(),
             }).catch((err) => console.error("Initial budget push error:", err));
@@ -571,13 +591,13 @@ export function BudgetCalculator() {
   }, [expenses, activeTab]);
 
   // Quick FX converter
-  const quickBaseEur = calcAmount / (FX_RATES[calcCurrency] || 1);
+  const quickBaseEur = calcAmount / (fxRates[calcCurrency] || 1);
   const quickConverted = {
-    TRY: (quickBaseEur * FX_RATES.TRY).toFixed(2),
-    EUR: (quickBaseEur * FX_RATES.EUR).toFixed(2),
-    USD: (quickBaseEur * FX_RATES.USD).toFixed(2),
-    MKD: Math.round(quickBaseEur * FX_RATES.MKD),
-    ALL: Math.round(quickBaseEur * FX_RATES.ALL),
+    TRY: (quickBaseEur * fxRates.TRY).toFixed(2),
+    EUR: (quickBaseEur * fxRates.EUR).toFixed(2),
+    USD: (quickBaseEur * fxRates.USD).toFixed(2),
+    MKD: Math.round(quickBaseEur * fxRates.MKD),
+    ALL: Math.round(quickBaseEur * fxRates.ALL),
   };
   const quickPerPerson = {
     TRY: (parseFloat(quickConverted.TRY) / splitCount).toFixed(2),
@@ -600,7 +620,7 @@ export function BudgetCalculator() {
         "4. settledShares: Her üyenin kendi payını ödeyip ödemediği (true/false).",
         "5. currency: 'TRY', 'EUR', 'USD', 'ALL', 'MKD' para birimlerinden biri olmalıdır.",
       ],
-      fxRates: FX_RATES,
+      fxRates: fxRates,
       expenses,
     };
     setJsonText(JSON.stringify(exportData, null, 2));
