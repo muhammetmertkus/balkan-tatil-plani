@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { 
   Calculator, 
   CheckCircle2, 
@@ -236,6 +236,7 @@ const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "budget_splitwise_v2
 export function BudgetCalculator() {
   const [syncStatus, setSyncStatus] = useState<"connecting" | "synced" | "offline">("connecting");
   const [activeTab, setActiveTab] = useState<"all" | MemberKey>("all");
+  const hasMergedLocalRef = useRef(false);
 
   // Dynamic Live FX Rates State
   const [fxRates, setFxRates] = useState<Record<CurrencyKey, number>>(() => {
@@ -397,23 +398,59 @@ export function BudgetCalculator() {
         (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-            if (data.expenses && Array.isArray(data.expenses)) {
-              setExpenses(data.expenses);
+            let remoteExpenses = (data.expenses && Array.isArray(data.expenses)) ? data.expenses : [];
+
+            if (!hasMergedLocalRef.current) {
+              hasMergedLocalRef.current = true;
               try {
-                localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(data.expenses));
+                const localSaved = localStorage.getItem("balkan_unified_expenses_2026");
+                if (localSaved) {
+                  const parsedLocal: ExpenseItem[] = JSON.parse(localSaved);
+                  if (Array.isArray(parsedLocal) && parsedLocal.length > 0) {
+                    const remoteIds = new Set(remoteExpenses.map((e: ExpenseItem) => e.id));
+                    const missingFromRemote = parsedLocal.filter((l) => !remoteIds.has(l.id));
+                    if (missingFromRemote.length > 0) {
+                      remoteExpenses = [...missingFromRemote, ...remoteExpenses];
+                      setDoc(
+                        docRef,
+                        {
+                          expenses: JSON.parse(JSON.stringify(remoteExpenses)),
+                          lastUpdated: new Date().toISOString(),
+                        },
+                        { merge: true }
+                      ).catch((err) => console.warn("Firestore budget merge error:", err));
+                    }
+                  }
+                }
+              } catch (mergeErr) {
+                console.warn("Local budget merge error:", mergeErr);
+              }
+            }
+
+            if (remoteExpenses.length > 0) {
+              setExpenses(remoteExpenses);
+              try {
+                localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(remoteExpenses));
               } catch {}
             }
             if (data.fxRates) {
               setFxRates(data.fxRates);
+              try {
+                localStorage.setItem("balkan_live_fx_rates_v1", JSON.stringify(data.fxRates));
+              } catch {}
             }
             if (data.fxLastUpdate) {
               setFxLastUpdate(data.fxLastUpdate);
+              try {
+                localStorage.setItem("balkan_live_fx_date_v1", data.fxLastUpdate);
+              } catch {}
             }
             setSyncStatus("synced");
           } else {
             // First time init in Firestore
+            const initialClean = JSON.parse(JSON.stringify(INITIAL_EXPENSES));
             setDoc(docRef, {
-              expenses: INITIAL_EXPENSES,
+              expenses: initialClean,
               fxRates: DEFAULT_FX_RATES,
               fxLastUpdate: new Date().toLocaleDateString("tr-TR"),
               createdAt: new Date().toISOString(),
@@ -435,22 +472,24 @@ export function BudgetCalculator() {
     }
   }, []);
 
-  const persistExpenses = async (newExpenses: ExpenseItem[]) => {
-    setExpenses(newExpenses);
+  const persistExpenses = async (newExpenses: ExpenseItem[], newRates?: Record<CurrencyKey, number>) => {
+    // Deep clean data to guarantee no undefined fields in Firestore
+    const cleanExpenses: ExpenseItem[] = JSON.parse(JSON.stringify(newExpenses));
+    setExpenses(cleanExpenses);
     try {
-      localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(newExpenses));
+      localStorage.setItem("balkan_unified_expenses_2026", JSON.stringify(cleanExpenses));
     } catch {}
 
     try {
       const docRef = doc(db, FIRESTORE_DOC_PATH.collection, FIRESTORE_DOC_PATH.id);
-      await setDoc(
-        docRef,
-        {
-          expenses: newExpenses,
-          lastUpdated: new Date().toISOString(),
-        },
-        { merge: true }
-      );
+      const payload: any = {
+        expenses: cleanExpenses,
+        lastUpdated: new Date().toISOString(),
+      };
+      if (newRates) {
+        payload.fxRates = newRates;
+      }
+      await setDoc(docRef, payload, { merge: true });
       setSyncStatus("synced");
     } catch (err) {
       console.error("Error saving budget to Firestore:", err);
@@ -505,7 +544,8 @@ export function BudgetCalculator() {
       settledShares: initialSettled,
       category: newCategory,
       date: new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long" }),
-      note: newNote.trim() || undefined,
+      note: newNote.trim() || "",
+      isInitialFixed: false,
     };
 
     const updated = [newItem, ...expenses];
@@ -518,7 +558,9 @@ export function BudgetCalculator() {
   };
 
   const handleDeleteExpense = (id: string) => {
-    if (!window.confirm("Bu harcamayı silmek istediğinize emin misiniz?")) return;
+    const toDelete = expenses.find((e) => e.id === id);
+    const title = toDelete?.title || "Bu harcama";
+    if (!window.confirm(`"${title}" kalemini silmek istediğinize emin misiniz?`)) return;
     const updated = expenses.filter((item) => item.id !== id);
     persistExpenses(updated);
     if (editingExpense && editingExpense.id === id) {
@@ -566,8 +608,8 @@ export function BudgetCalculator() {
           splitBetween: editSplitBetween,
           settledShares: newSettled,
           category: editCategory,
-          date: editDate.trim() || item.date,
-          note: editNote.trim() || undefined,
+          date: editDate.trim() || item.date || new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long" }),
+          note: editNote.trim() || "",
         };
       }
       return item;
@@ -652,12 +694,12 @@ export function BudgetCalculator() {
       simplifiedDebts,
       netBalanceTry,
     };
-  }, [expenses]);
+  }, [expenses, fxRates]);
 
   // Overall totals in TRY
   const grandTotalTripTry = useMemo(() => {
     return expenses.reduce((sum, item) => sum + convertCurrency(item.amount, item.currency, "TRY"), 0);
-  }, [expenses]);
+  }, [expenses, fxRates]);
 
   const totalSettledAmountTry = useMemo(() => {
     let sum = 0;
@@ -673,7 +715,7 @@ export function BudgetCalculator() {
       });
     });
     return sum;
-  }, [expenses]);
+  }, [expenses, fxRates]);
 
   const totalRemainingUnsettledTry = grandTotalTripTry - totalSettledAmountTry;
 
@@ -754,7 +796,7 @@ export function BudgetCalculator() {
     }
   };
 
-  const handleApplyJsonImport = () => {
+  const handleApplyJsonImport = async () => {
     try {
       setJsonError(null);
       const parsed = JSON.parse(jsonText);
@@ -763,14 +805,22 @@ export function BudgetCalculator() {
         throw new Error("JSON formatında 'expenses' listesi bulunamadı.");
       }
 
-      persistExpenses(parsed.expenses);
+      const cleanExpenses: ExpenseItem[] = JSON.parse(JSON.stringify(parsed.expenses));
+      let newRates = fxRates;
+      if (parsed.fxRates && typeof parsed.fxRates === "object") {
+        newRates = { ...DEFAULT_FX_RATES, ...parsed.fxRates };
+        setFxRates(newRates);
+      }
+
+      await persistExpenses(cleanExpenses, newRates);
       setShowJsonModal(false);
-      alert("✅ Tüm harcamalar ve kişi tikleri Firestore veritabanına başarıyla senkronize edildi!");
+      alert("✅ Tüm harcamalar, kurlar ve kişi onayları Firebase veritabanına başarıyla senkronize edildi!");
     } catch (err: any) {
       console.error(err);
       setJsonError(err.message || "Geçersiz JSON formatı.");
     }
   };
+
 
   return (
     <div className="budget-dossier w-full max-w-full overflow-hidden space-y-5 sm:space-y-7 font-serif text-[#1d211c]">
