@@ -347,7 +347,7 @@ export function BudgetCalculator() {
     };
   };
 
-  // Render multi-currency equivalent pills with distinct, vibrant colors
+  // Render multi-currency equivalent pills with distinct, vibrant colors (single line on all screens)
   const renderCurrencyPills = (amountTry: number, size: "sm" | "xs" = "xs") => {
     const validAmount = isNaN(amountTry) ? 0 : amountTry;
     const eur = convertCurrency(validAmount, "TRY", "EUR");
@@ -356,31 +356,31 @@ export function BudgetCalculator() {
     const all = convertCurrency(validAmount, "TRY", "ALL");
 
     const pillStyle = size === "sm"
-      ? "px-2.5 py-1 text-[10px] sm:text-xs rounded-full font-mono font-bold border shadow-2xs inline-flex items-center gap-1 shrink-0"
-      : "px-2 py-0.5 text-[9px] sm:text-[10px] rounded-full font-mono font-bold border shadow-2xs inline-flex items-center gap-1 shrink-0";
+      ? "px-1.5 py-0.5 text-[8.5px] sm:text-[10px] rounded-full font-mono font-bold border shadow-2xs inline-flex items-center gap-0.5 shrink-0 whitespace-nowrap"
+      : "px-1 py-0.2 text-[7.5px] sm:text-[9px] rounded-full font-mono font-bold border shadow-2xs inline-flex items-center gap-0.5 shrink-0 whitespace-nowrap";
 
     return (
-      <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 mt-1">
+      <div className="flex flex-nowrap items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar py-0.5">
         {/* EURO - Sky Blue Pill */}
-        <span className={`${pillStyle} bg-[#e0f2fe] text-[#0369a1] border-[#7dd3fc] hover:bg-[#bae6fd] transition-colors`}>
+        <span className={`${pillStyle} bg-[#e0f2fe] text-[#0369a1] border-[#7dd3fc]`}>
           <span>💶</span>
           <span>{Math.round(eur).toLocaleString("tr-TR")} €</span>
         </span>
 
         {/* DOLAR - Emerald Green Pill */}
-        <span className={`${pillStyle} bg-[#dcfce7] text-[#15803d] border-[#86efac] hover:bg-[#bbf7d0] transition-colors`}>
+        <span className={`${pillStyle} bg-[#dcfce7] text-[#15803d] border-[#86efac]`}>
           <span>💵</span>
           <span>{Math.round(usd).toLocaleString("tr-TR")} $</span>
         </span>
 
         {/* MAKEDON DİNARI - Amber Orange Pill */}
-        <span className={`${pillStyle} bg-[#fef3c7] text-[#b45309] border-[#fde68a] hover:bg-[#fde047] transition-colors`}>
+        <span className={`${pillStyle} bg-[#fef3c7] text-[#b45309] border-[#fde68a]`}>
           <span>🇲🇰</span>
           <span>{Math.round(mkd).toLocaleString("tr-TR")} MKD</span>
         </span>
 
         {/* ARNAVUTLUK LEKİ - Rose Red Pill */}
-        <span className={`${pillStyle} bg-[#ffe4e6] text-[#be123c] border-[#fecdd3] hover:bg-[#fecdd3] transition-colors`}>
+        <span className={`${pillStyle} bg-[#ffe4e6] text-[#be123c] border-[#fecdd3]`}>
           <span>🇦🇱</span>
           <span>{Math.round(all).toLocaleString("tr-TR")} ALL</span>
         </span>
@@ -925,10 +925,10 @@ export function BudgetCalculator() {
               <Coins size={16} />
             </div>
             <div className="min-w-0">
-              <h4 className="font-display text-sm sm:text-base text-[#1d211c] font-bold leading-tight truncate">
+              <h4 className="font-display text-xs sm:text-base text-[#1d211c] font-bold leading-tight truncate">
                 Canlı Döviz Kurları & Sarrafiye Cetveli
               </h4>
-              <p className="font-mono text-[10px] sm:text-xs text-[#b54b38] font-semibold truncate">
+              <p className="font-mono text-[8px] sm:text-xs text-[#b54b38] font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
                 “Sikke-i osmanîde yarım akçe dahi zayi edilmez!”
               </p>
             </div>
@@ -1233,8 +1233,8 @@ export function BudgetCalculator() {
                         {isCreditor ? "+" : ""}{net.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                       </span>
                     </div>
-                    <div className="text-[9px] sm:text-[10px] text-right font-bold text-[#49534f] break-words mt-0.5">
-                      {getEquivalents(Math.abs(net)).subline}
+                    <div className="flex justify-end mt-0.5">
+                      {renderCurrencyPills(Math.abs(net), "xs")}
                     </div>
                   </div>
                 </div>
@@ -1290,8 +1290,8 @@ export function BudgetCalculator() {
                       </span>
                     </div>
 
-                    <div className="text-right text-[9px] sm:text-[10px] text-[#68716c] font-mono border-t border-stone-100 pt-1 break-words">
-                      {eq.subline}
+                    <div className="flex justify-end border-t border-stone-100 pt-1">
+                      {renderCurrencyPills(tx.amountTry, "xs")}
                     </div>
                   </div>
                 );
