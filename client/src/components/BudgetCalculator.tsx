@@ -33,7 +33,11 @@ import {
   Landmark,
   Scale,
   RefreshCw,
-  Info
+  Info,
+  Mic,
+  MicOff,
+  Volume2,
+  Wand2
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
@@ -231,6 +235,149 @@ const INITIAL_EXPENSES: ExpenseItem[] = [
   },
 ];
 
+// Turkish number word map for speech recognition
+const TR_NUMBERS: Record<string, number> = {
+  "sıfır": 0, "bir": 1, "iki": 2, "üç": 3, "dört": 4, "beş": 5, "altı": 6, "yedi": 7, "sekiz": 8, "dokuz": 9,
+  "on": 10, "yirmi": 20, "otuz": 30, "kırk": 40, "elli": 50, "altmış": 60, "yetmiş": 70, "seksen": 80, "doksan": 90,
+  "yüz": 100, "bin": 1000, "milyon": 1000000,
+};
+
+function parseTurkishSpokenNumber(text: string): number | null {
+  // Direct digits match (e.g. "1500", "1.500", "25,50")
+  const digitMatch = text.match(/(\d+(?:[.,]\d+)?)/);
+  if (digitMatch) {
+    const raw = digitMatch[1].replace(",", ".");
+    const val = parseFloat(raw);
+    if (!isNaN(val) && val > 0) return val;
+  }
+
+  // Word-by-word turkish numbers: e.g. "bin beş yüz" or "yüz elli"
+  const words = text.toLowerCase().split(/\s+/);
+  let total = 0;
+  let current = 0;
+  let found = false;
+
+  for (const w of words) {
+    if (TR_NUMBERS[w] !== undefined) {
+      found = true;
+      const n = TR_NUMBERS[w];
+      if (n === 1000) {
+        current = current === 0 ? 1000 : current * 1000;
+        total += current;
+        current = 0;
+      } else if (n === 100) {
+        current = current === 0 ? 100 : current * 100;
+      } else {
+        current += n;
+      }
+    }
+  }
+  total += current;
+  return found && total > 0 ? total : null;
+}
+
+interface ParsedVoiceExpense {
+  title: string;
+  amount: number;
+  currency: CurrencyKey;
+  paidBy: MemberKey;
+  splitBetween: MemberKey[];
+  category: ExpenseItem["category"];
+  note: string;
+  date: string;
+}
+
+function parseTurkishVoiceExpense(rawText: string): ParsedVoiceExpense {
+  const text = rawText.toLowerCase().trim();
+  const today = new Date().toISOString().split("T")[0];
+
+  // 1. Currency detection
+  let currency: CurrencyKey = "TRY";
+  if (/euro|avro|eur|€/i.test(text)) currency = "EUR";
+  else if (/dolar|usd|\$/i.test(text)) currency = "USD";
+  else if (/dinar|denar|mkd/i.test(text)) currency = "MKD";
+  else if (/lek|all/i.test(text)) currency = "ALL";
+  else if (/tl|lira|türk lirası|₺/i.test(text)) currency = "TRY";
+
+  // 2. Amount detection
+  const amount = parseTurkishSpokenNumber(text) || 0;
+
+  // 3. Payer detection
+  let paidBy: MemberKey = "fatih";
+  if (/mert/i.test(text)) paidBy = "mert";
+  else if (/ikra/i.test(text)) paidBy = "ikra";
+  else if (/fatih/i.test(text)) paidBy = "fatih";
+  else if (/eyüp|eyup/i.test(text)) paidBy = "eyup";
+
+  // 4. Split Between detection
+  let splitBetween: MemberKey[] = ["mert", "ikra", "fatih", "eyup"];
+  const mentionsMert = /mert/i.test(text);
+  const mentionsIkra = /ikra/i.test(text);
+  const mentionsFatih = /fatih/i.test(text);
+  const mentionsEyup = /eyüp|eyup/i.test(text);
+
+  if (/sadece|yalnızca|ikimiz|üçümüz|aralarında|paylaşsın/i.test(text)) {
+    const included: MemberKey[] = [];
+    if (mentionsMert) included.push("mert");
+    if (mentionsIkra) included.push("ikra");
+    if (mentionsFatih) included.push("fatih");
+    if (mentionsEyup) included.push("eyup");
+    if (included.length > 0) splitBetween = included;
+  }
+
+  // 5. Category detection
+  let category: ExpenseItem["category"] = "food";
+  if (/köfte|yemek|kebap|restoran|restaurant|kahve|tatlı|fırın|börek|pide|su|öğle|akşam|kahvaltı|dondurma|lokanta|hamburger|bira|şarap|içecek|pizza|makarna/i.test(text)) {
+    category = "food";
+  } else if (/benzin|mazot|yakıt|otoban|vignette|vinyet|otopark|taksi|otobüs|bilet|araç|araba|uçak|köprü/i.test(text)) {
+    category = "fuel";
+  } else if (/otel|apart|airbnb|pansiyon|konaklama|oda|booking|villa/i.test(text)) {
+    category = "stay";
+  } else if (/müze|kale|ören|plaj|tekne|tur|teleferik|giriş|bilet|gezi|etkinlik/i.test(text)) {
+    category = "activity";
+  } else if (/market|sim|kart|avm|hediye|magnet|su|alışveriş|sigara|marketten/i.test(text)) {
+    category = "market";
+  } else if (/vergi|harç|sigorta|çıkış harcı/i.test(text)) {
+    category = "tax";
+  } else {
+    category = "other";
+  }
+
+  // 6. Title generation
+  let cleanedTitle = rawText
+    .replace(/\b(ödedi|verdi|aldık|harcadı|ödedim|verdim|herkese|bölünsün|türk lirası|lira|tl|euro|avro|dolar|dinar|lek|için|kadar|tutarında|masrafı|ücreti|sadece)\b/gi, "")
+    .replace(/\b(mert|ikra|fatih|eyüp|eyup)\b/gi, "")
+    .replace(/\d+(?:[.,]\d+)?/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (cleanedTitle.length < 3) {
+    const categoryDefaults: Record<string, string> = {
+      food: "Yeme & İçme",
+      fuel: "Yakıt & Otopark",
+      stay: "Konaklama Payı",
+      activity: "Aktivite & Giriş",
+      market: "Market Alışverişi",
+      tax: "Harç & Vergi",
+      other: "Ortak Masraf",
+    };
+    cleanedTitle = categoryDefaults[category] || "Ortak Masraf";
+  } else {
+    cleanedTitle = cleanedTitle.charAt(0).toUpperCase() + cleanedTitle.slice(1);
+  }
+
+  return {
+    title: cleanedTitle,
+    amount: amount || 0,
+    currency,
+    paidBy,
+    splitBetween,
+    category,
+    note: rawText.length > 5 ? `🎙️ "${rawText}"` : "🎙️ Sesli asistan ile eklendi",
+    date: today,
+  };
+}
+
 const FIRESTORE_DOC_PATH = { collection: "balkan_trip", id: "budget_splitwise_v2" };
 
 export function BudgetCalculator() {
@@ -427,6 +574,134 @@ export function BudgetCalculator() {
   const [jsonText, setJsonText] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [copiedToast, setCopiedToast] = useState(false);
+
+  // Voice Expense Modal & Speech Recognition States
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  const parsedVoiceData = useMemo(() => {
+    return parseTurkishVoiceExpense(voiceTranscript);
+  }, [voiceTranscript]);
+
+  const startVoiceRecognition = () => {
+    setVoiceError(null);
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setVoiceError("Tarayıcınız mikrofon ses tanımayı desteklemiyor. Aşağıdaki metin kutusuna konuşur gibi yazıp anında ekleyebilirsiniz!");
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = "tr-TR";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setVoiceError(null);
+      };
+
+      recognition.onresult = (event: any) => {
+        let currentTranscript = "";
+        for (let i = 0; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript + " ";
+        }
+        setVoiceTranscript(currentTranscript.trim());
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+        if (event.error === "not-allowed") {
+          setVoiceError("Mikrofon izni verilmedi. Lütfen tarayıcınızdan mikrofona izin verin veya metin kutusuna yazın.");
+        } else if (event.error !== "no-speech") {
+          setVoiceError(`Ses algılama uyarısı: ${event.error}`);
+        }
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (e: any) {
+      console.warn("Speech init error:", e);
+      setVoiceError("Mikrofon başlatılamadı. Aşağıdaki kutuya yazabilirsiniz.");
+      setIsListening(false);
+    }
+  };
+
+  const stopVoiceRecognition = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+    }
+    setIsListening(false);
+  };
+
+  const handleSaveVoiceExpense = (parsed: ParsedVoiceExpense) => {
+    if (!parsed.title.trim() || parsed.amount <= 0) {
+      alert("Lütfen geçerli bir tutar ve harcama başlığı belirtin (Örn: 'Fatih köfte için 1200 dinar ödedi').");
+      return;
+    }
+
+    const initialSettled: Record<MemberKey, boolean> = {
+      mert: false,
+      ikra: false,
+      fatih: false,
+      eyup: false,
+    };
+    initialSettled[parsed.paidBy] = true;
+
+    const newItem: ExpenseItem = {
+      id: "road-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
+      title: parsed.title.trim(),
+      amount: parsed.amount,
+      currency: parsed.currency,
+      paidBy: parsed.paidBy,
+      splitBetween: parsed.splitBetween.length > 0 ? parsed.splitBetween : ["mert", "ikra", "fatih", "eyup"],
+      category: parsed.category,
+      date: parsed.date || new Date().toISOString().split("T")[0],
+      note: parsed.note || "🎙️ Sesli Asistan ile eklendi",
+      settledShares: initialSettled,
+    };
+
+    const updated = [newItem, ...expenses];
+    persistExpenses(updated);
+    setShowVoiceModal(false);
+    setVoiceTranscript("");
+    if (isListening) {
+      stopVoiceRecognition();
+    }
+  };
+
+  const handleTransferVoiceToForm = (parsed: ParsedVoiceExpense) => {
+    setNewTitle(parsed.title);
+    setNewAmount(parsed.amount > 0 ? parsed.amount : "");
+    setNewCurrency(parsed.currency);
+    setNewPaidBy(parsed.paidBy);
+    setNewSplitBetween(parsed.splitBetween);
+    setNewCategory(parsed.category);
+    setNewNote(parsed.note || "🎙️ Sesli komutla oluşturuldu");
+    setShowVoiceModal(false);
+    if (isListening) {
+      stopVoiceRecognition();
+    }
+    setShowAddModal(true);
+  };
 
   // -----------------------------------------------------------
   // FIRESTORE REALTIME SYNC (EXPENSES + FX RATES + SETTLEMENTS)
@@ -1160,13 +1435,27 @@ export function BudgetCalculator() {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex cursor-pointer items-center gap-1.5 self-start sm:self-auto rounded bg-[#145c64] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 shrink-0"
-          >
-            <Plus size={15} />
-            <span>Harcama Ekle</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+            <button
+              onClick={() => {
+                setShowVoiceModal(true);
+                startVoiceRecognition();
+              }}
+              className="flex cursor-pointer items-center gap-1.5 rounded-md bg-[#b54b38] px-3.5 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#1d211c] hover:bg-[#9c3d2c] active:scale-95 transition-all shrink-0"
+              title="Sesli komutla anında harcama ekle"
+            >
+              <Mic size={14} className="animate-pulse" />
+              <span>Sesle Ekle</span>
+            </button>
+
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex cursor-pointer items-center gap-1.5 rounded bg-[#145c64] px-4 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 active:scale-95 shrink-0"
+            >
+              <Plus size={15} />
+              <span>Harcama Ekle</span>
+            </button>
+          </div>
         </div>
 
         {/* 4 Member Net Balance Cards */}
@@ -1320,6 +1609,18 @@ export function BudgetCalculator() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                setShowVoiceModal(true);
+                startVoiceRecognition();
+              }}
+              className="flex cursor-pointer items-center gap-1.5 rounded-md bg-[#b54b38] px-3 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#1d211c] hover:bg-[#9c3d2c] active:scale-95 transition-all"
+              title="Sesli komutla anında harcama ekle"
+            >
+              <Mic size={14} className="animate-pulse" />
+              <span>Sesle Ekle</span>
+            </button>
+
             <button
               onClick={() => setShowAddModal(true)}
               className="flex cursor-pointer items-center gap-1.5 rounded bg-[#145c64] px-3.5 py-2 font-mono text-xs font-bold text-white shadow-[2px_2px_0_#b54b38] hover:bg-[#0f464c] active:scale-95 transition-all"
@@ -1627,6 +1928,28 @@ export function BudgetCalculator() {
             <p className="mt-1 font-serif text-xs text-[#68716c]">
               Eklenen harcama anında Firebase veritabanına yazılır ve borç-alacak dengesini günceller.
             </p>
+
+            {/* Quick Voice Banner inside Add Modal */}
+            <div className="mt-3 flex items-center justify-between rounded-lg border border-[#b54b38]/30 bg-[#fff0ed] p-2 sm:p-2.5">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-[#b54b38] shrink-0" />
+                <span className="font-mono text-[11px] sm:text-xs font-bold text-[#b54b38]">
+                  Vakit kaybetmeyin, sesinizle ekleyin!
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddModal(false);
+                  setShowVoiceModal(true);
+                  startVoiceRecognition();
+                }}
+                className="flex items-center gap-1 rounded bg-[#b54b38] px-2.5 py-1 font-mono text-[11px] font-bold text-white hover:bg-[#9c3d2c] cursor-pointer shrink-0 shadow-2xs"
+              >
+                <Mic size={12} className="animate-pulse" />
+                <span>Sesle Doldur</span>
+              </button>
+            </div>
 
             <form onSubmit={handleAddExpense} className="mt-4 space-y-3.5 font-mono text-xs">
               {/* Title */}
@@ -1972,6 +2295,232 @@ export function BudgetCalculator() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================= */}
+      {/* 🎙️ VOICE EXPENSE ASSISTANT MODAL (SESLİ HARCAMA EKLEME) */}
+      {/* ======================================================= */}
+      {showVoiceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-xl border-2 border-[#b54b38] bg-[#fffcf3] p-4 sm:p-6 shadow-[10px_14px_0_rgba(181,75,56,0.35)] space-y-4">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#b54b38]/20 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-[#b54b38] text-white shadow-xs">
+                  <Mic size={18} className={isListening ? "animate-pulse" : ""} />
+                </div>
+                <div>
+                  <h4 className="font-display text-lg sm:text-xl text-[#1d211c] font-bold">
+                    Sesle Harcama Asistanı
+                  </h4>
+                  <p className="font-mono text-[10px] sm:text-xs text-[#b54b38]">
+                    Konuşun; tutar, para birimi, ödeyen ve kategori otomatik algılansın!
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  stopVoiceRecognition();
+                  setShowVoiceModal(false);
+                }}
+                className="rounded p-1 text-stone-400 hover:text-stone-700 text-lg font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Listening Wave & Mic Action Hero */}
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#b54b38]/40 bg-[#fff5f2] p-4 sm:p-5 text-center relative overflow-hidden">
+              {/* Pulsing ring when listening */}
+              <div className="relative mb-3">
+                {isListening && (
+                  <div className="absolute inset-0 rounded-full bg-[#b54b38]/30 animate-ping" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isListening) stopVoiceRecognition();
+                    else startVoiceRecognition();
+                  }}
+                  className={`relative flex h-16 w-16 sm:h-18 sm:w-18 cursor-pointer items-center justify-center rounded-full text-white shadow-[4px_6px_0_#1d211c] transition-transform active:scale-95 ${
+                    isListening ? "bg-[#b54b38] ring-4 ring-[#b54b38]/40" : "bg-[#145c64] hover:bg-[#0f464c]"
+                  }`}
+                >
+                  {isListening ? (
+                    <Mic size={28} className="animate-pulse" />
+                  ) : (
+                    <Mic size={28} />
+                  )}
+                </button>
+              </div>
+
+              <div className="font-mono text-xs sm:text-sm font-bold text-[#1d211c]">
+                {isListening ? (
+                  <span className="text-[#b54b38] flex items-center gap-1.5 justify-center">
+                    <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#b54b38] animate-ping" />
+                    Sizi Dinliyorum... Konuşun!
+                  </span>
+                ) : (
+                  <span>Mikrofona Dokunun ve Harcamayı Söyleyin</span>
+                )}
+              </div>
+
+              {/* Sample helper speech chips */}
+              <div className="mt-3 flex flex-wrap justify-center gap-1.5 font-mono text-[9.5px] sm:text-[10.5px]">
+                <span className="text-stone-500 w-full mb-0.5">Denemek için dokunabilirsiniz:</span>
+                {[
+                  "Fatih Üsküp köftecisi için 1500 dinar ödedi",
+                  "Mert benzin aldık 60 euro verdi",
+                  "İkra akşam yemeği 4000 lek ödedi",
+                  "Eyüp otele 2500 TL ödedi",
+                ].map((sample, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setVoiceTranscript(sample);
+                      if (isListening) stopVoiceRecognition();
+                    }}
+                    className="cursor-pointer rounded-full border border-[#cac1ae] bg-white px-2.5 py-1 text-[#29312e] hover:bg-[#ede6d6] transition-colors"
+                  >
+                    💬 "{sample}"
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Error Message if any */}
+            {voiceError && (
+              <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-2.5 font-mono text-xs text-amber-900 border border-amber-300">
+                <AlertCircle size={15} className="shrink-0 text-amber-600 mt-0.5" />
+                <div>{voiceError}</div>
+              </div>
+            )}
+
+            {/* Live Transcript / Manual Input Box */}
+            <div>
+              <label className="block font-mono text-xs font-semibold text-[#29312e] mb-1">
+                Algılanan / Yazılan Cümle:
+              </label>
+              <textarea
+                value={voiceTranscript}
+                onChange={(e) => setVoiceTranscript(e.target.value)}
+                placeholder="Örn: Fatih Üsküp köftecisi için 1500 dinar ödedi..."
+                rows={2}
+                className="w-full rounded-lg border border-[#cac1ae] bg-white p-2.5 font-mono text-xs sm:text-sm text-[#1d211c] focus:border-[#b54b38] focus:outline-none shadow-2xs"
+              />
+            </div>
+
+            {/* Live Detected Extraction Preview Card */}
+            {voiceTranscript.trim() && (
+              <div className="rounded-lg border-2 border-[#145c64] bg-[#f0f6f4] p-3 space-y-2">
+                <div className="flex items-center justify-between border-b border-[#145c64]/20 pb-1.5">
+                  <span className="font-mono text-xs font-bold text-[#145c64] flex items-center gap-1">
+                    <Sparkles size={14} />
+                    <span>Otomatik Algılanan Bilgiler:</span>
+                  </span>
+                  <span className="font-mono text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-bold">
+                    ✓ Ayrıştırıldı
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                  {/* Title */}
+                  <div className="col-span-2 bg-white p-2 rounded border border-[#cac1ae]/60">
+                    <span className="text-[10px] text-[#68716c] block font-semibold">Harcama Başlığı:</span>
+                    <span className="text-sm font-bold text-[#1d211c]">{parsedVoiceData.title}</span>
+                  </div>
+
+                  {/* Amount & Currency */}
+                  <div className="bg-white p-2 rounded border border-[#cac1ae]/60">
+                    <span className="text-[10px] text-[#68716c] block font-semibold">Tutar & Para Birimi:</span>
+                    <span className="text-sm font-bold text-[#b54b38]">
+                      {parsedVoiceData.amount.toLocaleString("tr-TR")} {CURRENCY_SYMBOLS[parsedVoiceData.currency]}
+                    </span>
+                    {parsedVoiceData.currency !== "TRY" && (
+                      <span className="text-[10px] text-[#145c64] block font-semibold">
+                        ≈ {convertCurrency(parsedVoiceData.amount, parsedVoiceData.currency, "TRY").toLocaleString("tr-TR", { maximumFractionDigits: 2 })} ₺
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Who Paid */}
+                  <div className="bg-white p-2 rounded border border-[#cac1ae]/60">
+                    <span className="text-[10px] text-[#68716c] block font-semibold">Ödeyen (Cebinden):</span>
+                    <div className="flex items-center gap-1 font-bold text-[#145c64] mt-0.5">
+                      <span className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-white text-[9px] font-bold ${
+                        MEMBERS.find((m) => m.id === parsedVoiceData.paidBy)?.bgClass || "bg-[#145c64]"
+                      }`}>
+                        {MEMBERS.find((m) => m.id === parsedVoiceData.paidBy)?.initial}
+                      </span>
+                      <span>{MEMBERS.find((m) => m.id === parsedVoiceData.paidBy)?.name}</span>
+                    </div>
+                  </div>
+
+                  {/* Category */}
+                  <div className="bg-white p-2 rounded border border-[#cac1ae]/60">
+                    <span className="text-[10px] text-[#68716c] block font-semibold">Kategori:</span>
+                    <span className="font-bold text-[#29312e] capitalize">
+                      {parsedVoiceData.category === "food" && "🍽️ Yeme & İçme"}
+                      {parsedVoiceData.category === "fuel" && "🚗 Yakıt & Otopark"}
+                      {parsedVoiceData.category === "stay" && "🏠 Konaklama"}
+                      {parsedVoiceData.category === "activity" && "🏛️ Aktivite"}
+                      {parsedVoiceData.category === "market" && "🛒 Market"}
+                      {parsedVoiceData.category === "tax" && "🛂 Harç & Vergi"}
+                      {parsedVoiceData.category === "other" && "⚡ Diğer"}
+                    </span>
+                  </div>
+
+                  {/* Split Between */}
+                  <div className="bg-white p-2 rounded border border-[#cac1ae]/60">
+                    <span className="text-[10px] text-[#68716c] block font-semibold">Bölüşülecek Kişiler:</span>
+                    <span className="font-bold text-[#145c64]">
+                      {parsedVoiceData.splitBetween.length === 4
+                        ? "4 Kişi (Tüm Ekip)"
+                        : parsedVoiceData.splitBetween.map((id) => MEMBERS.find((m) => m.id === id)?.shortName).join(", ")}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-2 border-t border-[#cac1ae]/40">
+              <button
+                type="button"
+                onClick={() => {
+                  stopVoiceRecognition();
+                  setShowVoiceModal(false);
+                }}
+                className="w-full sm:w-auto cursor-pointer rounded border border-[#cac1ae] bg-[#e9e2d1] px-4 py-2 font-mono text-xs text-[#29312e]"
+              >
+                Kapat
+              </button>
+
+              <button
+                type="button"
+                disabled={!voiceTranscript.trim() || parsedVoiceData.amount <= 0}
+                onClick={() => handleTransferVoiceToForm(parsedVoiceData)}
+                className="w-full sm:w-auto flex items-center justify-center gap-1.5 cursor-pointer rounded border border-[#145c64] bg-white px-4 py-2 font-mono text-xs font-bold text-[#145c64] hover:bg-[#f0f6f4] disabled:opacity-40 transition-colors"
+              >
+                <Pencil size={14} />
+                <span>Formda İncele & Düzenle</span>
+              </button>
+
+              <button
+                type="button"
+                disabled={!voiceTranscript.trim() || parsedVoiceData.amount <= 0}
+                onClick={() => handleSaveVoiceExpense(parsedVoiceData)}
+                className="w-full sm:w-auto flex items-center justify-center gap-1.5 cursor-pointer rounded bg-[#b54b38] px-5 py-2 font-mono text-xs font-bold text-white shadow-[3px_3px_0_#1d211c] hover:bg-[#9c3d2c] disabled:opacity-40 transition-all active:scale-95"
+              >
+                <CheckCircle2 size={15} />
+                <span>✅ Doğrudan Kaydet & DB'ye Ekle</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
