@@ -123,7 +123,7 @@ export default function Home() {
         </button>
 
         {menuOpen && (
-          <div className="mobile-nav flex flex-col gap-2 p-4 bg-[#fffcf3] border border-[#29312e] shadow-xl absolute top-[78px] left-0 right-0 z-50">
+          <div className="absolute top-full left-3 right-3 mt-1.5 p-3.5 bg-[#fffcf3] border-2 border-[#29312e] shadow-2xl rounded-lg z-50 flex flex-col gap-2">
             {/* Quick Standalone Tabs for mobile */}
             <div className="p-2 bg-[#ede6d6] rounded border border-[#cac1ae] space-y-1.5 mb-1">
               <span className="font-mono text-[10px] text-[#68716c] uppercase font-bold block">
@@ -132,14 +132,16 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-1.5">
                 <a
                   href="#/kasa"
-                  className="flex items-center justify-center gap-1 p-2 bg-[#145c64] text-white font-mono text-xs font-bold rounded text-center no-underline"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-1 p-2 bg-[#145c64] text-white font-mono text-xs font-bold rounded text-center no-underline shadow-xs"
                 >
                   <Banknote size={14} />
                   <span>💳 Kasa Sekmesi</span>
                 </a>
                 <a
                   href="#/valiz"
-                  className="flex items-center justify-center gap-1 p-2 bg-[#38413c] text-white font-mono text-xs font-bold rounded text-center no-underline"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-1 p-2 bg-[#38413c] text-white font-mono text-xs font-bold rounded text-center no-underline shadow-xs"
                 >
                   <Backpack size={14} />
                   <span>🧳 Valiz Sekmesi</span>
@@ -147,26 +149,28 @@ export default function Home() {
               </div>
             </div>
 
-            {[
-              ["Kadro Dosyası", "ekip"],
-              ["Yol Atlası & Harita", "atlas"],
-              ["9 Günlük Saha Planı", "plan"],
-              ["Hazırlık & Valiz", "valiz"],
-              ["Konaklama & Gastronomi", "kal"],
-              ["Defterdarlık & Hazine", "butce"],
-              ["10 Altın Kural", "kurallar"],
-            ].map(([label, id]) => (
-              <button
-                key={id}
-                className="py-2 text-left font-mono text-xs uppercase font-semibold text-[#145c64] hover:text-[#b54b38]"
-                onClick={() => {
-                  setMenuOpen(false);
-                  scrollToId(id);
-                }}
-              >
-                {label}
-              </button>
-            ))}
+            <div className="grid grid-cols-1 gap-1 divide-y divide-[#cac1ae]/40">
+              {[
+                ["Kadro Dosyası", "ekip"],
+                ["Yol Atlası & Harita", "atlas"],
+                ["9 Günlük Saha Planı", "plan"],
+                ["Hazırlık & Valiz", "valiz"],
+                ["Konaklama & Gastronomi", "kal"],
+                ["Defterdarlık & Hazine", "butce"],
+                ["10 Altın Kural", "kurallar"],
+              ].map(([label, id]) => (
+                <button
+                  key={id}
+                  className="pt-2 pb-1 text-left font-mono text-xs uppercase font-semibold text-[#145c64] hover:text-[#b54b38] cursor-pointer"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    scrollToId(id);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </header>
