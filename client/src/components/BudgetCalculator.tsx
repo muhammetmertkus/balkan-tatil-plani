@@ -874,9 +874,9 @@ export function BudgetCalculator() {
       </div>
 
       {/* ======================================================= */}
-      {/* 🏛️ LIVE EXCHANGE RATES & SOURCE TICKER BAR (SARRAFİYE MASASI) */}
+      {/* 🏛️ LIVE EXCHANGE RATES & COMPACT SARRAFİYE CETVELİ (KUR ÇEVİRİCİ) */}
       {/* ======================================================= */}
-      <div className="rounded-lg border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[2px_2px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] w-full max-w-full min-w-0 overflow-hidden">
+      <div className="rounded-lg border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[2px_2px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] w-full max-w-full min-w-0 overflow-hidden space-y-4">
         <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between border-b border-[#145c64]/20 pb-2.5">
           <div className="flex items-center gap-2 min-w-0">
             <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded bg-[#145c64] text-white">
@@ -884,7 +884,7 @@ export function BudgetCalculator() {
             </div>
             <div className="min-w-0">
               <h4 className="font-display text-sm sm:text-lg text-[#1d211c] truncate">
-                Canlı Döviz Kurları & Resmî Pariteler
+                Canlı Döviz Kurları & Sarrafiye Cetveli
               </h4>
               <p className="font-mono text-[10px] sm:text-[11px] text-[#49534f] truncate">
                 Tüm tutarlar bu anlık kurlarla Türk Lirası'na (₺) çevrilir · <span className="font-bold text-[#145c64]">{fxLastUpdate}</span>
@@ -893,10 +893,9 @@ export function BudgetCalculator() {
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5 self-start md:self-auto">
-            <div className="flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-semibold text-[#145c64] bg-white px-2 py-1 rounded border border-[#145c64]/30">
-              <Landmark size={11} className="shrink-0" />
-              <span>TCMB / Piyasa Pariteleri</span>
-            </div>
+            <span className="font-mono text-[9px] sm:text-[10px] font-semibold text-[#b54b38] bg-[#fff0ed] px-2 py-0.5 rounded border border-[#b54b38]/20">
+              “Sikke-i osmanîde yarım akçe dahi zayi edilmez!”
+            </span>
 
             <button
               onClick={fetchLiveRates}
@@ -911,157 +910,191 @@ export function BudgetCalculator() {
         </div>
 
         {/* Live Dynamic FX Rate Cards */}
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 font-mono text-xs w-full max-w-full">
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 sm:p-3 shadow-2xs min-w-0">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 font-mono text-xs w-full max-w-full">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px] sm:text-xs">
               <span>💶 EURO</span>
               <span className="text-[9px] text-[#68716c]">1 €</span>
             </div>
-            <div className="mt-1 font-display text-base sm:text-xl text-[#1d211c] font-bold">
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">
               {fxRates.TRY.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
-            <div className="mt-0.5 text-[9px] sm:text-[10px] text-[#68716c]">
+            <div className="text-[9px] text-[#68716c]">
               1 EUR = {fxRates.TRY.toFixed(2)} TRY
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 sm:p-3 shadow-2xs min-w-0">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px] sm:text-xs">
               <span>💵 DOLAR</span>
               <span className="text-[9px] text-[#68716c]">1 $</span>
             </div>
-            <div className="mt-1 font-display text-base sm:text-xl text-[#1d211c] font-bold">
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">
               {(fxRates.TRY / fxRates.USD).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
-            <div className="mt-0.5 text-[9px] sm:text-[10px] text-[#68716c]">
+            <div className="text-[9px] text-[#68716c]">
               1 USD = {(fxRates.TRY / fxRates.USD).toFixed(2)} TRY
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 sm:p-3 shadow-2xs min-w-0">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px] sm:text-xs">
               <span>🇲🇰 DİNAR</span>
               <span className="text-[9px] text-[#68716c]">100 MKD</span>
             </div>
-            <div className="mt-1 font-display text-base sm:text-xl text-[#1d211c] font-bold">
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">
               {((100 * fxRates.TRY) / fxRates.MKD).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
-            <div className="mt-0.5 text-[9px] sm:text-[10px] text-[#68716c]">
+            <div className="text-[9px] text-[#68716c]">
               1 MKD ≈ {(fxRates.TRY / fxRates.MKD).toFixed(3)} ₺
             </div>
           </div>
 
-          <div className="rounded border border-[#145c64]/25 bg-white p-2.5 sm:p-3 shadow-2xs min-w-0">
+          <div className="rounded border border-[#145c64]/25 bg-white p-2 sm:p-2.5 shadow-2xs min-w-0">
             <div className="flex items-center justify-between text-[#145c64] font-bold text-[11px] sm:text-xs">
               <span>🇦🇱 LEK</span>
               <span className="text-[9px] text-[#68716c]">100 ALL</span>
             </div>
-            <div className="mt-1 font-display text-base sm:text-xl text-[#1d211c] font-bold">
+            <div className="mt-0.5 font-display text-base sm:text-lg text-[#1d211c] font-bold">
               {((100 * fxRates.TRY) / fxRates.ALL).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
             </div>
-            <div className="mt-0.5 text-[9px] sm:text-[10px] text-[#68716c]">
+            <div className="text-[9px] text-[#68716c]">
               1 ALL ≈ {(fxRates.TRY / fxRates.ALL).toFixed(3)} ₺
+            </div>
+          </div>
+        </div>
+
+        {/* 💱 INTEGRATED COMPACT KUR ÇEVİRİCİ / HESAPLAMA */}
+        <div className="border-t border-[#145c64]/20 pt-3">
+          <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#145c64] mb-2">
+            <Calculator size={14} />
+            <span>Hızlı Kur & Kişi Başı Hesaplayıcı:</span>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div>
+              <label className="block font-mono text-[10px] sm:text-[11px] font-semibold text-[#29312e]">Harcama Tutarı</label>
+              <input
+                type="number"
+                min="1"
+                value={calcAmount}
+                onChange={(e) => setCalcAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                className="mt-0.5 w-full rounded border border-[#cac1ae] bg-white px-2.5 py-1.5 font-mono text-sm sm:text-base font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block font-mono text-[10px] sm:text-[11px] font-semibold text-[#29312e]">Para Birimi</label>
+              <select
+                value={calcCurrency}
+                onChange={(e) => setCalcCurrency(e.target.value as any)}
+                className="mt-0.5 w-full rounded border border-[#cac1ae] bg-white px-2.5 py-1.5 font-mono text-xs sm:text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
+              >
+                <option value="TRY">Türk Lirası (₺)</option>
+                <option value="EUR">Euro (€)</option>
+                <option value="USD">Dolar ($)</option>
+                <option value="MKD">Makedon Dinarı (MKD)</option>
+                <option value="ALL">Arnavutluk Leki (ALL)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-mono text-[10px] sm:text-[11px] font-semibold text-[#29312e]">Kişi Sayısı</label>
+              <div className="mt-0.5 flex items-center gap-1">
+                {[2, 3, 4].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setSplitCount(num)}
+                    className={`flex-1 cursor-pointer rounded py-1.5 font-mono text-xs font-bold transition-all ${
+                      splitCount === num
+                        ? "bg-[#145c64] text-white shadow-xs"
+                        : "border border-[#cac1ae] bg-white text-[#29312e] hover:bg-[#ded5c2]"
+                    }`}
+                  >
+                    {num} Kişi
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Mini 5-Currency Result Strip */}
+          <div className="mt-2.5 grid grid-cols-2 gap-1.5 sm:grid-cols-5 sm:gap-2">
+            <div className="col-span-2 sm:col-span-1 rounded border-2 border-[#145c64] bg-white p-2 text-center shadow-2xs">
+              <span className="font-mono text-[9px] font-bold text-[#145c64] uppercase">TÜRK LİRASI (₺)</span>
+              <div className="font-display text-sm sm:text-base font-bold text-[#1d211c]">{quickConverted.TRY} ₺</div>
+              <div className="text-[10px] font-mono text-[#145c64] font-bold border-t border-[#145c64]/20 mt-0.5 pt-0.5">
+                Kişi Başı: {quickPerPerson.TRY} ₺
+              </div>
+            </div>
+
+            <div className="rounded border border-[#cac1ae] bg-white p-1.5 text-center">
+              <span className="font-mono text-[9px] text-[#68716c] font-semibold">EURO (€)</span>
+              <div className="font-display text-xs sm:text-sm text-[#145c64] font-bold">{quickConverted.EUR} €</div>
+              <div className="text-[9px] font-mono text-[#b54b38] font-bold border-t border-[#cac1ae]/40 mt-0.5 pt-0.5">
+                Kişi: {quickPerPerson.EUR} €
+              </div>
+            </div>
+
+            <div className="rounded border border-[#cac1ae] bg-white p-1.5 text-center">
+              <span className="font-mono text-[9px] text-[#68716c] font-semibold">DOLAR ($)</span>
+              <div className="font-display text-xs sm:text-sm text-[#1d211c] font-bold">{quickConverted.USD} $</div>
+              <div className="text-[9px] font-mono text-[#145c64] font-bold border-t border-[#cac1ae]/40 mt-0.5 pt-0.5">
+                Kişi: {quickPerPerson.USD} $
+              </div>
+            </div>
+
+            <div className="rounded border border-[#cac1ae] bg-white p-1.5 text-center">
+              <span className="font-mono text-[9px] text-[#68716c] font-semibold">DİNAR (MKD)</span>
+              <div className="font-display text-xs sm:text-sm text-[#1d211c] font-bold">{quickConverted.MKD.toLocaleString()}</div>
+              <div className="text-[9px] font-mono text-[#145c64] font-bold border-t border-[#cac1ae]/40 mt-0.5 pt-0.5">
+                Kişi: {quickPerPerson.MKD.toLocaleString()}
+              </div>
+            </div>
+
+            <div className="rounded border border-[#cac1ae] bg-white p-1.5 text-center">
+              <span className="font-mono text-[9px] text-[#68716c] font-semibold">LEK (ALL)</span>
+              <div className="font-display text-xs sm:text-sm text-[#1d211c] font-bold">{quickConverted.ALL.toLocaleString()}</div>
+              <div className="text-[9px] font-mono text-[#145c64] font-bold border-t border-[#cac1ae]/40 mt-0.5 pt-0.5">
+                Kişi: {quickPerPerson.ALL.toLocaleString()}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Top Banner: Big TL KPI Cards with Multi-Currency Equivalents Underneath */}
-      <div className="grid gap-3 sm:gap-4 md:grid-cols-3 w-full max-w-full min-w-0">
-        {/* Card 1: Settled Paid */}
-        <div className="rounded-lg border-2 border-[#145c64] bg-[#f0f6f4] p-3.5 sm:p-5 shadow-[2px_2px_0_#145c64] sm:shadow-[4px_4px_0_#145c64] w-full max-w-full min-w-0 overflow-hidden flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-1">
-              <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#145c64]">
-                ÖDENMİŞ & KAPATILMIŞ PAYLAR
-              </span>
-              <span className="rounded bg-emerald-700 px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white shrink-0">
-                KAPATILDI
-              </span>
-            </div>
-
-            <div className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl text-[#1d211c] font-bold leading-tight break-words">
-              {totalSettledAmountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
-            </div>
-
-            {/* Sub-currencies */}
-            <div className="mt-1.5 font-mono text-[10px] sm:text-[11px] font-bold text-[#145c64] bg-white/90 px-2.5 py-1 rounded border border-[#145c64]/20 break-words leading-relaxed">
-              {getEquivalents(totalSettledAmountTry).subline}
-            </div>
-
-            <p className="mt-2 font-serif text-xs text-[#49534f]">
-              Ekip üyelerinin cebinden ödeyip kendi aralarında kapattığı toplam tutar.
-            </p>
+      {/* Clean Grand Total Trip Budget Summary (Without duplicate paid/open shares) */}
+      <div className="rounded-lg border-2 border-[#1d211c] bg-[#fffcf3] p-3.5 sm:p-5 shadow-[2px_2px_0_#b54b38] sm:shadow-[4px_4px_0_#b54b38] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full max-w-full min-w-0">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#b54b38]">
+              TOPLAM TATİL BÜTÇESİ
+            </span>
+            <span className="rounded bg-[#1d211c] px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white">
+              {expenses.length} KALEM HARCAMA
+            </span>
           </div>
 
-          <div className="mt-3 border-t border-[#145c64]/20 pt-2 font-mono text-xs font-bold text-[#145c64] flex justify-between items-baseline">
-            <span>Kişi Başı Kapatılan:</span>
-            <span>{(totalSettledAmountTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
+          <div className="mt-1 font-display text-2xl sm:text-3xl lg:text-4xl text-[#b54b38] font-bold leading-tight break-words">
+            {grandTotalTripTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
+
+          <div className="mt-1 font-mono text-[10px] sm:text-xs font-bold text-[#145c64] break-words">
+            {getEquivalents(grandTotalTripTry).subline}
+          </div>
+          <p className="mt-1 font-serif text-xs text-[#49534f]">
+            Uçaklar, sigorta, çıkış harcı, 7 gece konaklama ve tüm ortak yol masrafları dahil genel bütçe.
+          </p>
         </div>
 
-        {/* Card 2: Grand Total */}
-        <div className="rounded-lg border-2 border-[#1d211c] bg-[#fffcf3] p-3.5 sm:p-5 shadow-[2px_2px_0_#b54b38] sm:shadow-[4px_4px_0_#b54b38] w-full max-w-full min-w-0 overflow-hidden flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-1">
-              <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#b54b38]">
-                TOPLAM TATİL BÜTÇESİ
-              </span>
-              <span className="rounded bg-[#1d211c] px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-white shrink-0">
-                {expenses.length} KALEM
-              </span>
-            </div>
-
-            <div className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl text-[#b54b38] font-bold leading-tight break-words">
-              {grandTotalTripTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
-            </div>
-
-            {/* Sub-currencies */}
-            <div className="mt-1.5 font-mono text-[10px] sm:text-[11px] font-bold text-[#b54b38] bg-[#fff5f2] px-2.5 py-1 rounded border border-[#b54b38]/20 break-words leading-relaxed">
-              {getEquivalents(grandTotalTripTry).subline}
-            </div>
-
-            <p className="mt-2 font-serif text-xs text-[#49534f]">
-              Uçaklar, sigorta, çıkış harcı, 7 gece konaklama + tüm saha harcamaları.
-            </p>
-          </div>
-
-          <div className="mt-3 border-t border-[#cac1ae] pt-2 font-mono text-xs font-bold text-[#b54b38] flex justify-between items-baseline">
-            <span>Kişi Başı Toplam:</span>
-            <span>{(grandTotalTripTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
-          </div>
-        </div>
-
-        {/* Card 3: Remaining Unsettled */}
-        <div className="rounded-lg border-2 border-[#cac1ae] bg-[#fff8f5] p-3.5 sm:p-5 shadow-[2px_2px_0_rgba(29,33,28,0.12)] sm:shadow-[4px_4px_0_rgba(29,33,28,0.12)] w-full max-w-full min-w-0 overflow-hidden flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-1">
-              <span className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#38413c]">
-                BEKLEYEN / AÇIK PAYLAR
-              </span>
-              <span className="rounded bg-[#ded5c2] px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold text-[#29312e] shrink-0">
-                ÖDENECEK
-              </span>
-            </div>
-
-            <div className="mt-2 font-display text-2xl sm:text-3xl lg:text-4xl text-[#1d211c] font-bold leading-tight break-words">
-              {totalRemainingUnsettledTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
-            </div>
-
-            {/* Sub-currencies */}
-            <div className="mt-1.5 font-mono text-[10px] sm:text-[11px] font-bold text-[#38413c] bg-white/90 px-2.5 py-1 rounded border border-[#cac1ae] break-words leading-relaxed">
-              {getEquivalents(totalRemainingUnsettledTry).subline}
-            </div>
-
-            <p className="mt-2 font-serif text-xs text-[#49534f]">
-              Henüz ilgili üyelerce ödenmemiş veya onaylanmamış bekleyen bakiye.
-            </p>
-          </div>
-
-          <div className="mt-3 border-t border-[#b54b38]/20 pt-2 font-mono text-xs font-bold text-[#145c64] flex justify-between items-baseline">
-            <span>Kişi Başı Kalan:</span>
-            <span>{(totalRemainingUnsettledTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
-          </div>
+        <div className="bg-[#ede6d6] border border-[#cac1ae] p-3 rounded-lg font-mono text-xs text-left sm:text-right shrink-0 w-full sm:w-auto shadow-2xs">
+          <span className="text-[10px] text-[#68716c] uppercase block font-bold">Kişi Başı Düşen Toplam Bütçe</span>
+          <span className="text-lg sm:text-xl font-bold text-[#145c64] block mt-0.5">
+            {(grandTotalTripTry / 4).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
+          </span>
+          <span className="text-[11px] font-semibold text-[#b54b38] block mt-0.5">
+            ≈ {Math.round(convertCurrency(grandTotalTripTry / 4, "TRY", "EUR"))} € / kişi
+          </span>
         </div>
       </div>
 
@@ -1473,120 +1506,6 @@ export function BudgetCalculator() {
               {getEquivalents(
                 filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0)
               ).subline}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ======================================================= */}
-      {/* 💱 INTERACTIVE SARRAFİYE & DÖVİZ HESAP MAKİNESİ */}
-      {/* ======================================================= */}
-      <div className="rounded-lg border border-[#29312e]/20 bg-[#fffcf3] p-3.5 sm:p-6 shadow-[2px_2px_0_rgba(29,33,28,0.12)] sm:shadow-[4px_6px_0_rgba(29,33,28,0.12)] w-full max-w-full min-w-0 overflow-hidden">
-        <div className="flex flex-col gap-2 border-b border-[#29312e]/15 pb-3 md:flex-row md:items-center md:justify-between w-full min-w-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-[#145c64] text-white">
-              <Calculator size={16} />
-            </div>
-            <div className="min-w-0">
-              <h4 className="font-display text-base sm:text-xl text-[#1d211c] truncate">Sarrafiye Cetveli</h4>
-              <p className="font-mono text-[10px] sm:text-xs text-[#68716c] truncate">
-                Herhangi bir masrafı girin; 5 para birimindeki karşılığını ve nefer başı hisseyi hesaplayın!
-              </p>
-            </div>
-          </div>
-          <span className="font-mono text-[10px] sm:text-xs font-semibold text-[#b54b38] bg-[#fff0ed] px-2.5 py-0.5 rounded border border-[#b54b38]/20 self-start md:self-auto">
-            “Sikke-i osmanîde yarım akçe dahi zayi edilmez!”
-          </span>
-        </div>
-
-        {/* Input Controls */}
-        <div className="mt-4 grid gap-3 sm:grid-cols-3 w-full min-w-0">
-          <div>
-            <label className="block font-mono text-xs font-semibold text-[#29312e]">Harcama Tutarı</label>
-            <input
-              type="number"
-              min="1"
-              value={calcAmount}
-              onChange={(e) => setCalcAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2 font-mono text-base sm:text-lg font-bold text-[#145c64] focus:border-[#145c64] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block font-mono text-xs font-semibold text-[#29312e]">Ödenen Para Birimi</label>
-            <select
-              value={calcCurrency}
-              onChange={(e) => setCalcCurrency(e.target.value as any)}
-              className="mt-1 w-full rounded border border-[#cac1ae] bg-white p-2 font-mono text-xs sm:text-sm font-semibold text-[#29312e] focus:border-[#145c64] focus:outline-none"
-            >
-              <option value="TRY">Türk Lirası (₺)</option>
-              <option value="EUR">Euro (€)</option>
-              <option value="USD">Dolar ($)</option>
-              <option value="MKD">Makedon Dinarı (MKD)</option>
-              <option value="ALL">Arnavutluk Leki (ALL)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block font-mono text-xs font-semibold text-[#29312e]">Bölünecek Kişi Sayısı</label>
-            <div className="mt-1 flex items-center gap-1.5">
-              {[2, 3, 4].map((num) => (
-                <button
-                  key={num}
-                  onClick={() => setSplitCount(num)}
-                  className={`flex-1 cursor-pointer rounded py-2 font-mono text-xs sm:text-sm font-bold transition-all ${
-                    splitCount === num
-                      ? "bg-[#145c64] text-white shadow-[2px_2px_0_#b54b38]"
-                      : "border border-[#cac1ae] bg-[#f5f0e5] text-[#29312e] hover:bg-[#ded5c2]"
-                  }`}
-                >
-                  {num} Kişi
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* 5-Currency Result Cards (Responsive Layout) */}
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3 w-full max-w-full min-w-0">
-          {/* Main Primary Card (TL) */}
-          <div className="col-span-2 rounded border-2 border-[#145c64] bg-[#f0f6f4] p-2.5 text-center shadow-xs sm:col-span-1 min-w-0">
-            <span className="font-mono text-[9px] font-bold text-[#145c64] uppercase tracking-wider">TÜRK LİRASI (₺)</span>
-            <div className="mt-0.5 font-display text-base sm:text-xl font-bold text-[#1d211c]">{quickConverted.TRY} ₺</div>
-            <div className="mt-1 border-t border-[#145c64]/30 pt-1 font-mono text-[10px] sm:text-[11px] font-bold text-[#145c64]">
-              Kişi Başı: {quickPerPerson.TRY} ₺
-            </div>
-          </div>
-
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
-            <span className="font-mono text-[9px] text-[#68716c] font-semibold">EURO (€)</span>
-            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#145c64] font-bold">{quickConverted.EUR} €</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#b54b38]">
-              Kişi: {quickPerPerson.EUR} €
-            </div>
-          </div>
-
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
-            <span className="font-mono text-[9px] text-[#68716c] font-semibold">DOLAR ($)</span>
-            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#1d211c] font-bold">{quickConverted.USD} $</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64]">
-              Kişi: {quickPerPerson.USD} $
-            </div>
-          </div>
-
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
-            <span className="font-mono text-[9px] text-[#68716c] font-semibold">MAKEDON DİNARI</span>
-            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#1d211c] font-bold">{quickConverted.MKD.toLocaleString()} MKD</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64]">
-              Kişi: {quickPerPerson.MKD.toLocaleString()} MKD
-            </div>
-          </div>
-
-          <div className="rounded border border-[#cac1ae] bg-[#fdfbf7] p-2 text-center min-w-0">
-            <span className="font-mono text-[9px] text-[#68716c] font-semibold">ARNAVUTLUK LEKİ</span>
-            <div className="mt-0.5 font-display text-sm sm:text-lg text-[#1d211c] font-bold">{quickConverted.ALL.toLocaleString()} ALL</div>
-            <div className="mt-1 border-t border-[#cac1ae]/60 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#145c64]">
-              Kişi: {quickPerPerson.ALL.toLocaleString()} ALL
             </div>
           </div>
         </div>
