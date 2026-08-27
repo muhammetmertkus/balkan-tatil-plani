@@ -347,6 +347,47 @@ export function BudgetCalculator() {
     };
   };
 
+  // Render multi-currency equivalent pills with distinct, vibrant colors
+  const renderCurrencyPills = (amountTry: number, size: "sm" | "xs" = "xs") => {
+    const validAmount = isNaN(amountTry) ? 0 : amountTry;
+    const eur = convertCurrency(validAmount, "TRY", "EUR");
+    const usd = convertCurrency(validAmount, "TRY", "USD");
+    const mkd = convertCurrency(validAmount, "TRY", "MKD");
+    const all = convertCurrency(validAmount, "TRY", "ALL");
+
+    const pillStyle = size === "sm"
+      ? "px-2.5 py-1 text-[10px] sm:text-xs rounded-full font-mono font-bold border shadow-2xs inline-flex items-center gap-1 shrink-0"
+      : "px-2 py-0.5 text-[9px] sm:text-[10px] rounded-full font-mono font-bold border shadow-2xs inline-flex items-center gap-1 shrink-0";
+
+    return (
+      <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 mt-1">
+        {/* EURO - Sky Blue Pill */}
+        <span className={`${pillStyle} bg-[#e0f2fe] text-[#0369a1] border-[#7dd3fc] hover:bg-[#bae6fd] transition-colors`}>
+          <span>💶</span>
+          <span>{Math.round(eur).toLocaleString("tr-TR")} €</span>
+        </span>
+
+        {/* DOLAR - Emerald Green Pill */}
+        <span className={`${pillStyle} bg-[#dcfce7] text-[#15803d] border-[#86efac] hover:bg-[#bbf7d0] transition-colors`}>
+          <span>💵</span>
+          <span>{Math.round(usd).toLocaleString("tr-TR")} $</span>
+        </span>
+
+        {/* MAKEDON DİNARI - Amber Orange Pill */}
+        <span className={`${pillStyle} bg-[#fef3c7] text-[#b45309] border-[#fde68a] hover:bg-[#fde047] transition-colors`}>
+          <span>🇲🇰</span>
+          <span>{Math.round(mkd).toLocaleString("tr-TR")} MKD</span>
+        </span>
+
+        {/* ARNAVUTLUK LEKİ - Rose Red Pill */}
+        <span className={`${pillStyle} bg-[#ffe4e6] text-[#be123c] border-[#fecdd3] hover:bg-[#fecdd3] transition-colors`}>
+          <span>🇦🇱</span>
+          <span>{Math.round(all).toLocaleString("tr-TR")} ALL</span>
+        </span>
+      </div>
+    );
+  };
+
   const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
     try {
       const saved = localStorage.getItem("balkan_unified_expenses_2026");
@@ -1079,10 +1120,10 @@ export function BudgetCalculator() {
             {grandTotalTripTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
           </div>
 
-          <div className="mt-1 font-mono text-[10px] sm:text-xs font-bold text-[#145c64] break-words">
-            {getEquivalents(grandTotalTripTry).subline}
+          <div className="mt-1.5">
+            {renderCurrencyPills(grandTotalTripTry, "sm")}
           </div>
-          <p className="mt-1 font-serif text-xs text-[#49534f]">
+          <p className="mt-1.5 font-serif text-xs text-[#49534f]">
             Uçaklar, sigorta, çıkış harcı, 7 gece konaklama ve tüm ortak yol masrafları dahil genel bütçe.
           </p>
         </div>
@@ -1400,9 +1441,9 @@ export function BudgetCalculator() {
                           {itemAmountTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺
                         </div>
 
-                        {/* Foreign Currencies Line */}
-                        <div className="text-[10px] sm:text-[11px] text-[#145c64] font-bold break-words">
-                          {eqTotal.subline}
+                        {/* Foreign Currencies Pills */}
+                        <div className="flex justify-start sm:justify-end">
+                          {renderCurrencyPills(itemAmountTry, "xs")}
                         </div>
 
                         {/* Per Person Share */}
@@ -1502,10 +1543,11 @@ export function BudgetCalculator() {
                 .toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
               ₺
             </div>
-            <div className="text-[10px] sm:text-xs font-bold text-[#145c64] break-words">
-              {getEquivalents(
-                filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0)
-              ).subline}
+            <div className="flex justify-center sm:justify-end mt-1">
+              {renderCurrencyPills(
+                filteredExpenses.reduce((sum, i) => sum + convertCurrency(i.amount, i.currency, "TRY"), 0),
+                "sm"
+              )}
             </div>
           </div>
         </div>
