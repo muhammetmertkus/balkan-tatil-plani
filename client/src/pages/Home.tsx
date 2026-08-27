@@ -628,19 +628,19 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="decision-panels">
+          <div className="decision-panels w-full max-w-full min-w-0 overflow-hidden">
             {/* Stay Matrix */}
-            <article className="decision-panel">
+            <article className="decision-panel w-full max-w-full min-w-0 overflow-hidden">
               <div className="decision-panel__top">
-                <BedDouble size={20} />
-                <h3>Konaklama Stratejisi</h3>
+                <BedDouble size={20} className="shrink-0" />
+                <h3 className="truncate">Konaklama Stratejisi</h3>
               </div>
-              <div className="decision-table">
+              <div className="decision-table w-full max-w-full min-w-0 overflow-hidden">
                 {stayMatrix.map((item) => (
-                  <details key={item.city} className="group">
-                    <summary className="cursor-pointer">
-                      <span className="font-serif font-bold text-sm sm:text-base text-[#1d211c]">{item.city}</span>
-                      <div className="flex items-center gap-1.5 shrink-0">
+                  <details key={item.city} className="group w-full max-w-full overflow-hidden">
+                    <summary className="cursor-pointer flex items-center justify-between gap-1.5 flex-wrap sm:flex-nowrap py-2.5 w-full max-w-full">
+                      <span className="font-serif font-bold text-sm sm:text-base text-[#1d211c] min-w-0">{item.city}</span>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0 flex-wrap">
                         <b className="text-[10px] sm:text-xs text-[#145c64] font-mono whitespace-nowrap bg-[#ece4d4] px-1.5 py-0.5 rounded">
                           {item.nights}
                         </b>
@@ -652,7 +652,7 @@ export default function Home() {
                         <ChevronDown size={15} className="text-[#145c64] shrink-0 transition-transform group-open:rotate-180" />
                       </div>
                     </summary>
-                    <div>
+                    <div className="space-y-1.5 text-xs sm:text-sm text-[#4c5851] py-2 px-1.5 break-words bg-[rgba(20,92,100,0.04)] rounded">
                       {item.price && (
                         <p>
                           <strong>Rezervasyon Tutarı:</strong> <span className="font-bold text-[#b54b38]">{item.price}</span> ({item.dates})
@@ -677,10 +677,10 @@ export default function Home() {
             </article>
 
             {/* Food Matrix */}
-            <article className="decision-panel decision-panel--cream">
+            <article className="decision-panel decision-panel--cream w-full max-w-full min-w-0 overflow-hidden">
               <div className="decision-panel__top">
-                <Coffee size={20} />
-                <h3>Her Durakta Ne Yenir?</h3>
+                <Coffee size={20} className="shrink-0" />
+                <h3 className="truncate">Her Durakta Ne Yenir?</h3>
               </div>
 
               {/* Desktop Table View */}
@@ -713,22 +713,22 @@ export default function Home() {
               </div>
 
               {/* Mobile Card List View */}
-              <div className="mt-3 divide-y divide-[#cac1ae]/60 md:hidden font-serif">
+              <div className="mt-3 divide-y divide-[#cac1ae]/60 md:hidden font-serif w-full min-w-0 overflow-hidden">
                 {foodMatrix.map((item) => (
-                  <div key={item.city} className="py-3 space-y-1.5">
-                    <div className="flex items-center justify-between">
+                  <div key={item.city} className="py-3 space-y-1.5 w-full min-w-0">
+                    <div className="flex items-center justify-between gap-1.5 flex-wrap">
                       <strong className="font-serif text-base text-[#1d211c]">{item.city}</strong>
-                      <span className="font-mono text-[10px] font-bold text-[#145c64] bg-[#e3eee9] px-2 py-0.5 rounded">
+                      <span className="font-mono text-[10px] sm:text-xs font-bold text-[#145c64] bg-[#e3eee9] px-2 py-0.5 rounded shrink-0">
                         {item.band}
                       </span>
                     </div>
-                    <div className="text-xs text-[#145c64] font-semibold">
+                    <div className="text-xs sm:text-sm text-[#145c64] font-semibold break-words">
                       🍽️ {item.order}
                     </div>
-                    <div className="text-xs text-[#38413c]">
+                    <div className="text-xs sm:text-sm text-[#38413c] break-words">
                       📍 <b>Mekanlar:</b> {item.candidates}
                     </div>
-                    <div className="text-[11px] text-[#68716c] font-sans bg-[#fdfbf7] p-1.5 rounded border border-[#cac1ae]/40">
+                    <div className="text-[11px] sm:text-xs text-[#68716c] font-sans bg-[#fdfbf7] p-2 rounded border border-[#cac1ae]/40 break-words leading-relaxed">
                       💡 {item.note}
                     </div>
                   </div>
