@@ -1424,13 +1424,30 @@ export function BudgetCalculator() {
                         )}
                       </div>
 
-                      <div className="text-[11px] sm:text-xs text-[#68716c] font-serif break-words">
-                        <span>Ödeyen: <b className="text-[#1d211c]">{payer?.name}</b></span>
-                        {item.date && ` • ${item.date}`}
-                        {item.note && ` • ${item.note}`}
+                      {/* Payer Pill Badge & Metadata */}
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-[#68716c] font-serif">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#145c64]/10 border border-[#145c64]/25 px-2 py-0.5 text-[10px] sm:text-[11px] font-mono font-bold text-[#145c64] shrink-0">
+                          <span className={`inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-white text-[8px] font-bold ${payer?.bgClass || "bg-[#145c64]"}`}>
+                            {payer?.initial}
+                          </span>
+                          <span>Ödeyen: {payer?.name}</span>
+                        </span>
+
+                        {item.date && (
+                          <span className="text-[10px] sm:text-[11px] font-mono text-[#8e9893]">
+                            📅 {item.date}
+                          </span>
+                        )}
+
                         {item.currency !== "TRY" && (
-                          <span className="text-[#145c64] font-semibold">
-                            {` • (${item.amount.toLocaleString("tr-TR")} ${CURRENCY_SYMBOLS[item.currency]})`}
+                          <span className="inline-flex items-center gap-0.5 font-mono text-[10px] sm:text-[11px] font-bold text-[#b54b38] bg-[#fff0ed] px-1.5 py-0.2 rounded border border-[#b54b38]/20">
+                            {item.amount.toLocaleString("tr-TR")} {CURRENCY_SYMBOLS[item.currency]}
+                          </span>
+                        )}
+
+                        {item.note && (
+                          <span className="text-[11px] sm:text-xs text-[#5b6560] italic">
+                            “{item.note}”
                           </span>
                         )}
                       </div>
@@ -1475,26 +1492,32 @@ export function BudgetCalculator() {
                     </div>
                   </div>
 
-                  {/* Bottom: Member Interactive Tick Bubbles */}
-                  <div className="flex flex-wrap items-center justify-between gap-1.5 border-t border-[#cac1ae]/40 pt-2 bg-[#fdfbf7] p-2 rounded-md w-full min-w-0">
-                    <div className="flex items-center gap-1 text-[11px] font-semibold text-[#49534f] shrink-0">
-                      <Users size={13} className="text-[#145c64]" />
-                      <span>{activeTab === "all" ? "Pay Onayları:" : "Kişisel Pay Onayı:"}</span>
+                  {/* Bottom: Member Interactive Tick Bubbles - 4 Columns Single Line Grid */}
+                  <div className="border-t border-[#cac1ae]/40 pt-2 bg-[#fdfbf7] p-1.5 sm:p-2 rounded-md w-full min-w-0">
+                    <div className="flex items-center justify-between gap-1 mb-1.5 font-mono text-[10px] sm:text-[11px] text-[#68716c] font-semibold">
+                      <div className="flex items-center gap-1">
+                        <Users size={12} className="text-[#145c64]" />
+                        <span>{activeTab === "all" ? "Pay Onayları (Dokun & Değiştir):" : "Kişisel Pay Onayı:"}</span>
+                      </div>
+                      <span className="text-[9px] sm:text-[10px] text-[#8e9893]">
+                        Kişi Başı: <b className="text-[#1d211c]">{perPersonShareTry.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</b>
+                      </span>
                     </div>
 
-                    {/* Member Avatar / Tick Buttons */}
-                    <div className="flex flex-wrap items-center gap-1.5">
+                    {/* 4 Member Approval Tiles - 4 Columns Single Line */}
+                    <div className="grid grid-cols-4 gap-1 sm:gap-1.5 w-full">
                       {(activeTab === "all" ? MEMBERS : MEMBERS.filter((m) => m.id === activeTab)).map((m) => {
                         const isIncluded = item.splitBetween.includes(m.id);
                         if (!isIncluded) {
-                          if (activeTab !== "all") {
-                            return (
-                              <span key={m.id} className="text-[11px] text-stone-400 italic font-serif">
-                                (Dahil değil)
-                              </span>
-                            );
-                          }
-                          return null;
+                          return (
+                            <div
+                              key={m.id}
+                              className="flex flex-col items-center justify-center rounded border border-dashed border-stone-300 bg-stone-50/50 py-1 text-center opacity-50 font-mono"
+                            >
+                              <span className="text-[9px] font-bold text-stone-500">{m.shortName}</span>
+                              <span className="text-[7.5px] text-stone-400">Muaf -</span>
+                            </div>
+                          );
                         }
 
                         const isSettled = !!item.settledShares?.[m.id];
@@ -1505,23 +1528,36 @@ export function BudgetCalculator() {
                             key={m.id}
                             type="button"
                             onClick={() => toggleMemberShare(item.id, m.id)}
-                            className={`flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-[10px] sm:text-xs transition-all ${
+                            className={`flex flex-col items-center justify-center rounded border py-1 px-0.5 text-center font-mono cursor-pointer transition-all active:scale-95 ${
                               isSettled
-                                ? "border-emerald-600 bg-emerald-50 text-emerald-900 font-bold shadow-xs"
+                                ? "border-emerald-600 bg-emerald-50 text-emerald-900 shadow-2xs"
                                 : "border-rose-300 bg-rose-50/80 text-rose-800 hover:bg-rose-100 shadow-2xs"
                             }`}
                             title={`${m.name}: ${isSettled ? "Ödendi / Kapatıldı" : "Bekliyor"}`}
                           >
-                            <div className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-white text-[8px] font-bold ${
-                              isSettled ? "bg-emerald-600" : "bg-rose-600"
-                            }`}>
-                              {isSettled ? "✓" : m.initial}
+                            <div className="flex items-center gap-0.5 leading-none">
+                              <div
+                                className={`flex h-3 w-3 shrink-0 items-center justify-center rounded-full text-white text-[7px] font-bold ${
+                                  isSettled ? "bg-emerald-600" : "bg-rose-600"
+                                }`}
+                              >
+                                {isSettled ? "✓" : m.initial}
+                              </div>
+                              <span className="font-bold text-[9px] sm:text-[11px] leading-tight truncate">{m.shortName}</span>
                             </div>
-                            <span className="font-bold">{m.shortName}</span>
-                            <span className="text-[9px] sm:text-[10px]">
-                              {isSettled 
-                                ? (isPayer ? "Kendi Payı ✓" : "Ödedi ✓") 
-                                : (isPayer ? "Kendi Payı ○" : "Bekliyor ○")}
+
+                            <span
+                              className={`text-[7.5px] sm:text-[8.5px] font-bold mt-0.5 leading-tight ${
+                                isSettled ? "text-emerald-700" : "text-rose-600"
+                              }`}
+                            >
+                              {isSettled
+                                ? isPayer
+                                  ? "Kendi Payı ✓"
+                                  : "Ödedi ✓"
+                                : isPayer
+                                ? "Kendi Payı ○"
+                                : "Bekliyor ○"}
                             </span>
                           </button>
                         );
