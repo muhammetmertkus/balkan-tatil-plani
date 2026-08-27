@@ -26,6 +26,8 @@ import {
   ShieldCheck,
   Building,
   Store,
+  Star,
+  ExternalLink,
 } from "lucide-react";
 import {
   assets,
@@ -56,6 +58,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    document.title = "Balkan Yol Ekibi — Saha Rehberi 2026";
     const handler = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
@@ -79,18 +82,39 @@ export default function Home() {
           </span>
         </button>
 
-        <nav className="desktop-nav hidden md:flex" aria-label="Ana menü">
+        <nav className="desktop-nav hidden lg:flex" aria-label="Ana menü">
           <button onClick={() => scrollToId("ekip")}>Kadro</button>
           <button onClick={() => scrollToId("atlas")}>Yol Atlası</button>
           <button onClick={() => scrollToId("plan")}>9 Günlük Plan</button>
           <button onClick={() => scrollToId("valiz")}>Valiz Teftişi</button>
           <button onClick={() => scrollToId("kal")}>Kal / Ye / Al</button>
           <button onClick={() => scrollToId("butce")}>Kasa & Bütçe</button>
-          <button onClick={() => scrollToId("kurallar")}>10 Altın Kural</button>
+          <button onClick={() => scrollToId("kurallar")}>10 Kural</button>
         </nav>
 
+        {/* Dedicated Quick-Tab Buttons for Kasa & Valiz in Header */}
+        <div className="hidden sm:flex items-center gap-1.5 ml-auto md:ml-0">
+          <a
+            href="#/kasa"
+            className="flex items-center gap-1 px-2.5 py-1 bg-[#145c64] text-white rounded font-mono text-[11px] font-bold shadow-2xs hover:bg-[#0e4349] transition-all no-underline"
+            title="Sadece Harcama Modeli & Kasa sekmesini aç (Yıldızlanabilir)"
+          >
+            <Banknote size={13} />
+            <span>💳 Kasa Sekmesi</span>
+          </a>
+
+          <a
+            href="#/valiz"
+            className="flex items-center gap-1 px-2.5 py-1 bg-[#38413c] text-white rounded font-mono text-[11px] font-bold shadow-2xs hover:bg-[#252b28] transition-all no-underline"
+            title="Sadece Valiz Teftişi sekmesini aç (Yıldızlanabilir)"
+          >
+            <Backpack size={13} />
+            <span>🧳 Valiz Sekmesi</span>
+          </a>
+        </div>
+
         <button
-          className="menu-button md:hidden cursor-pointer"
+          className="menu-button lg:hidden cursor-pointer"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Menüyü aç veya kapat"
           aria-expanded={menuOpen}
@@ -100,6 +124,29 @@ export default function Home() {
 
         {menuOpen && (
           <div className="mobile-nav flex flex-col gap-2 p-4 bg-[#fffcf3] border border-[#29312e] shadow-xl absolute top-[78px] left-0 right-0 z-50">
+            {/* Quick Standalone Tabs for mobile */}
+            <div className="p-2 bg-[#ede6d6] rounded border border-[#cac1ae] space-y-1.5 mb-1">
+              <span className="font-mono text-[10px] text-[#68716c] uppercase font-bold block">
+                ⭐ Hızlı / Sade Sekmeler:
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                <a
+                  href="#/kasa"
+                  className="flex items-center justify-center gap-1 p-2 bg-[#145c64] text-white font-mono text-xs font-bold rounded text-center no-underline"
+                >
+                  <Banknote size={14} />
+                  <span>💳 Kasa Sekmesi</span>
+                </a>
+                <a
+                  href="#/valiz"
+                  className="flex items-center justify-center gap-1 p-2 bg-[#38413c] text-white font-mono text-xs font-bold rounded text-center no-underline"
+                >
+                  <Backpack size={14} />
+                  <span>🧳 Valiz Sekmesi</span>
+                </a>
+              </div>
+            </div>
+
             {[
               ["Kadro Dosyası", "ekip"],
               ["Yol Atlası & Harita", "atlas"],
@@ -145,7 +192,34 @@ export default function Home() {
             <p className="hero-intro">
               4 kişi · 2 ülke · 9 gün · yaklaşık 1.180 km çalışma rotası. Yolun romantizmi kadar otoparkı, sınır kuyruğu, lezzet durakları ve Splitwise tahsilatı da bu dosyada.
             </p>
-            <div className="hero-actions flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3.5 mt-6">
+
+            {/* Focused Quick-Launcher Bookmark Boxes */}
+            <div className="mt-4 p-3 bg-[#ede6d6]/80 border border-[#cac1ae] rounded-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <Star size={16} className="text-amber-500 fill-amber-400 shrink-0" />
+                <span className="font-mono text-xs font-bold text-[#1d211c]">
+                  Yol Üstü Hızlı Sekmeler (Detaysız / Doğrudan Ekle):
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href="#/kasa"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#145c64] text-white rounded font-mono text-xs font-bold shadow-2xs hover:bg-[#0f454b] transition-all no-underline"
+                >
+                  <Banknote size={14} />
+                  <span>💳 Harcama & Kasa Aç</span>
+                </a>
+                <a
+                  href="#/valiz"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#38413c] text-white rounded font-mono text-xs font-bold shadow-2xs hover:bg-[#222825] transition-all no-underline"
+                >
+                  <Backpack size={14} />
+                  <span>🧳 Valiz Teftişi Aç</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="hero-actions flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3.5 mt-5">
               <button
                 className="ink-button flex items-center justify-center gap-2 px-5 py-3.5 bg-[#145c64] text-white font-mono text-xs font-bold uppercase tracking-wider shadow-[4px_4px_0_#b54b38] hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
                 onClick={() => scrollToId("atlas")}
@@ -159,7 +233,7 @@ export default function Home() {
                 onClick={() => scrollToId("valiz")}
               >
                 <Backpack size={16} />
-                <span>Valiz Teftişini Başlat</span>
+                <span>Valiz Teftişine İn</span>
               </button>
 
               <button
@@ -599,6 +673,28 @@ export default function Home() {
         {/* HAZIRLIK & VALİZ DOSYASI (INTERACTIVE COMPONENT) */}
         <section className="packing-section px-4 py-12 md:px-12 bg-[#f5f0e5]" id="valiz">
           <div className="mx-auto max-w-6xl">
+            {/* Standalone Jump Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 p-4 bg-[#fffcf3] border border-[#cac1ae] rounded-lg shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <Star size={18} className="text-amber-500 fill-amber-400 shrink-0" />
+                <div>
+                  <h3 className="font-serif text-sm sm:text-base font-bold text-[#1d211c]">
+                    Valiz Teftişini Ayrı Sekmede Aç & Yıldızla
+                  </h3>
+                  <p className="text-xs text-[#68716c] font-sans">
+                    Gereksiz detay görmeden sadece valiz teftişini açmak, eşya eklemek ve tarayıcıda yıldızlamak için:
+                  </p>
+                </div>
+              </div>
+              <a
+                href="#/valiz"
+                className="flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#38413c] text-white rounded font-mono text-xs font-bold shadow-2xs hover:bg-[#202522] transition-all no-underline shrink-0"
+              >
+                <Backpack size={14} />
+                <span>Ayrı Valiz Sekmesinde Aç →</span>
+              </a>
+            </div>
+
             <PackingChecklist />
           </div>
         </section>
@@ -800,6 +896,24 @@ export default function Home() {
             <p>
               Tüm ön rezervasyonlar, canlı döviz kurları ve yol üstü harcamalar tek bir merkezî defterde toplanır; anlık borç-alacak dengesiyle hesaplanır.
             </p>
+
+            {/* Standalone Jump Banner */}
+            <div className="mt-4 p-3 bg-[#ede6d6] border border-[#cac1ae] rounded text-left shadow-2xs">
+              <div className="flex items-center gap-1.5 font-mono text-[11px] font-bold text-[#145c64] mb-1">
+                <Star size={13} className="text-amber-500 fill-amber-400" />
+                <span>Yıldızlanabilir Kasa Sekmesi</span>
+              </div>
+              <p className="text-xs text-[#49534f] mb-2.5 font-serif leading-relaxed">
+                Rehberin diğer detaylarına bakmadan yalnızca anlık harcama girmek ve bakiyeleri görmek için ayrı sekmeyi açabilirsiniz:
+              </p>
+              <a
+                href="#/kasa"
+                className="flex items-center justify-center gap-1.5 w-full py-2 bg-[#145c64] text-white rounded font-mono text-xs font-bold shadow-2xs hover:bg-[#0d3f45] transition-all no-underline"
+              >
+                <Banknote size={14} />
+                <span>Ayrı Kasa Sekmesinde Aç →</span>
+              </a>
+            </div>
           </div>
 
           <div className="budget-main">
